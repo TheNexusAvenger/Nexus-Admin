@@ -1,0 +1,33 @@
+{
+	"name": "Nexus-Admin",
+	"tree": {
+        "$className": "DataModel",
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"MainModule": {
+                "$path": "./MainModule.lua",
+                "NexusAdmin": {
+                    "$path": "./src",
+                    "NexusInstance": {
+                        "$path": "./module/Nexus-Instance/src"
+                    },
+                    "NexusButton": {
+                        "$path": "./module/Nexus-Button/src",
+                        "NexusInstance": {
+                            "$path": "./module/Nexus-Button/module/NexusInstance/src"
+                        }
+                    },
+                    "Cmdr": {
+                        "$path": "./module/Cmdr/Cmdr"
+                    }
+                }
+            },
+            "NexusAdminTests": {
+                "$path": "./test"
+            },
+            "NexusAdminLoader": {
+                "$path": "Loader.server.lua"
+            }
+		}
+	}
+}
