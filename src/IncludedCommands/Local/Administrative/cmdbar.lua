@@ -51,6 +51,8 @@ Updates if the command bar is enabled.
 function Command:UpdateCommandBarEnabled()
     if self.API.FeatureFlags:GetFeatureFlag("UseCmdrCommandBar") then
         self.API.Cmdr:SetEnabled(self.API.Authorization:IsPlayerAuthorized(self.Players.LocalPlayer,self.AdminLevel))
+	else
+		self.API.Cmdr:SetEnabled(false)
     end
 end
 
