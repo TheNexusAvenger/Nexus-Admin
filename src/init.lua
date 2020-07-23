@@ -130,6 +130,7 @@ function API:Load(ConfigurationTable)
     --Add the initial feature flags.
     FeatureFlags:AddFeatureFlag("UseNativeMessageGui",true)
     FeatureFlags:AddFeatureFlag("UseNativeHintGui",true)
+    FeatureFlags:AddFeatureFlag("UseCmdrCommandBar",true)
     FeatureFlags:AddFeatureFlag("DisplayAdminLevelNotifications",true)
     FeatureFlags:AddFeatureFlag("AllowChatCommandExecuting",true)
 

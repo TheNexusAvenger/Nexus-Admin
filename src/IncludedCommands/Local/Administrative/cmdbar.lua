@@ -23,6 +23,12 @@ function Command:__new()
             self:UpdateCommandBarEnabled()
         end
     end)
+
+    -- If the Cmdr command bar feature flag is changed, update the player permission.
+    self.API.FeatureFlags:GetFeatureFlagChangedEvent("UseCmdrCommandBar"):Connect(function(enabled)
+        self:UpdateCommandBarEnabled()
+    end)
+
     self:UpdateCommandBarEnabled()
 end
 
@@ -31,15 +37,21 @@ Runs the command.
 --]]
 function Command:Run(CommandContext)
     self.super:Run(CommandContext)
-
-    self.API.Cmdr:Toggle()
+    
+    if self.API.FeatureFlags:GetFeatureFlag("UseCmdrCommandBar") then
+        self.API.Cmdr:Toggle()
+    else
+        return "The Cmdr command bar has been disabled."
+    end
 end
 
 --[[
 Updates if the command bar is enabled.
 --]]
 function Command:UpdateCommandBarEnabled()
-    self.API.Cmdr:SetEnabled(self.API.Authorization:IsPlayerAuthorized(self.Players.LocalPlayer,self.AdminLevel))
+    if self.API.FeatureFlags:GetFeatureFlag("UseCmdrCommandBar") then
+        self.API.Cmdr:SetEnabled(self.API.Authorization:IsPlayerAuthorized(self.Players.LocalPlayer,self.AdminLevel))
+    end
 end
 
 
