@@ -149,7 +149,15 @@ end
 Fetches the banned players.
 --]]
 function PersistentBans:FetchBannedPlayers()
-    self.BannedUsers = self.DataStore:GetAsync("PercistentBans")
+    local Worked,BannedUsers = pcall(function()
+		return self.DataStore:GetAsync("PercistentBans")
+    end)
+    
+	if Worked then
+		self.BannedUsers = BannedUsers or {}
+	else
+		self.BannedUsers = {}
+	end
 
     --Kick the banned players.
     for _,Player in pairs(self.Players:GetPlayers()) do
