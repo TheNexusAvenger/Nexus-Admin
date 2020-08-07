@@ -62,8 +62,6 @@ function PersistentBans:Initialize()
             self:FetchBannedPlayers()
         end)
         if not Worked then
-            -- Set the BannedUsers to an empty table if the fetch failed
-            self.BannedUsers = {}
             warn("Fetching bans failed because "..tostring(Return))
             return
         end
