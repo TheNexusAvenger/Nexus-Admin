@@ -149,7 +149,7 @@ end
 Fetches the banned players.
 --]]
 function PersistentBans:FetchBannedPlayers()
-    self.BannedUsers = self.DataStore:GetAsync("PercistentBans")
+    self.BannedUsers = self.DataStore:GetAsync("PercistentBans") or {}
 
     --Kick the banned players.
     for _,Player in pairs(self.Players:GetPlayers()) do
