@@ -62,6 +62,8 @@ function PersistentBans:Initialize()
             self:FetchBannedPlayers()
         end)
         if not Worked then
+            -- Set the BannedUsers to an empty table if the fetch failed
+            self.BannedUsers = {}
             warn("Fetching bans failed because "..tostring(Return))
             return
         end
@@ -149,15 +151,7 @@ end
 Fetches the banned players.
 --]]
 function PersistentBans:FetchBannedPlayers()
-    local Worked,BannedUsers = pcall(function()
-		return self.DataStore:GetAsync("PercistentBans")
-    end)
-    
-	if Worked then
-		self.BannedUsers = BannedUsers or {}
-	else
-		self.BannedUsers = {}
-	end
+    self.BannedUsers = self.DataStore:GetAsync("PercistentBans") or {}
 
     --Kick the banned players.
     for _,Player in pairs(self.Players:GetPlayers()) do
