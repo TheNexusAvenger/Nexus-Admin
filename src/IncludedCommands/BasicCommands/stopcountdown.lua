@@ -30,6 +30,12 @@ function Command:Run(CommandContext)
 	
     --Send the countdown stop.
     self.StopCountdownEvent:FireAllClients()
+
+    --Clear the countdown values.
+    local PreviousCountdownsValue = self.API.EventContainer:FindFirstChild("PreviousCountdowns")
+    if PreviousCountdownsValue then
+        PreviousCountdownsValue.Value = "[]"
+    end
 end
 
 

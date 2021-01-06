@@ -4,6 +4,8 @@ TheNexusAvenger
 Implementation of a command.
 --]]
 
+local HttpService = game:GetService("HttpService")
+
 local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
 local Command = BaseCommand:Extend()
 
@@ -28,6 +30,13 @@ function Command:__new()
     CountdownEvent.Name = "StartCountdown"
     CountdownEvent.Parent = self.API.EventContainer
     self.CountdownEvent = CountdownEvent
+
+    --Create the storage value to allow countdowns for players who join after they start.
+    local PreviousCountdownsValue = Instance.new("StringValue")
+    PreviousCountdownsValue.Name = "PreviousCountdowns"
+    PreviousCountdownsValue.Value = "[]"
+    PreviousCountdownsValue.Parent = self.API.EventContainer
+    self.PreviousCountdownsValue = PreviousCountdownsValue
 end
 
 --[[
@@ -38,6 +47,11 @@ function Command:Run(CommandContext,Duration)
 	
     --Send the countdown.
     self.CountdownEvent:FireAllClients(Duration)
+    
+    --Store the countdown.
+    local PreviousCountdowns = HttpService:JSONDecode(self.PreviousCountdownsValue.Value)
+    table.insert(PreviousCountdowns,os.time() + Duration)
+    self.PreviousCountdownsValue.Value = HttpService:JSONEncode(PreviousCountdowns)
 end
 
 
