@@ -54,12 +54,7 @@ function Command:Run(CommandContext,Players,TargetPlayers)
     if TargetLocation then
         for _,Player in pairs(Players) do
             if Player ~= TargetPlayer then
-                if Player.Character then
-                    local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-                    if HumanoidRootPart then
-                        HumanoidRootPart.CFrame = TargetLocation * CFrame.new(math.random(-Radius,Radius)/10,0,math.random(-Radius,Radius)/10)
-                    end
-                end
+                self:TeleportPlayer(Player,TargetLocation * CFrame.new(math.random(-Radius,Radius)/10,0,math.random(-Radius,Radius)/10))
             end
         end
     end

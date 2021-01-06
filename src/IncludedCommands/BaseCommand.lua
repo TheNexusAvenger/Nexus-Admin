@@ -118,6 +118,32 @@ function BaseCommand:Run(CommandContext)
 end
 
 --[[
+Moves a player to a given CFrame.
+Includes unsitting the player to prevent
+teleporting seats.
+--]]
+function BaseCommand:TeleportPlayer(Player,TargetCFrame)
+    if Player.Character then
+        local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
+        local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+        if HumanoidRootPart and Humanoid then
+            if Humanoid.SeatPart then
+                --Unsit the player if the player is sitting and wait for the player to leave the seat before teleporting.
+                Humanoid.Sit = false
+                delay(0,function()
+                    while Humanoid.SeatPart do wait() end
+                    Humanoid.Sit = true
+                    HumanoidRootPart.CFrame = TargetCFrame
+                end)
+            else
+                --Teleport the player.
+                HumanoidRootPart.CFrame = TargetCFrame
+            end
+        end
+    end
+end
+
+--[[
 Flattens the class to a table.
 --]]
 function BaseCommand:Flatten()
