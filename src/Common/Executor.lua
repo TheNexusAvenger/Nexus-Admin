@@ -57,7 +57,7 @@ Nexus Admin.
 --]]
 function Executor:ExecuteCommandWithOrWithoutPrefix(Command,ReferencePlayer,Data)
     local Message = self:ExecuteCommand(Command,ReferencePlayer,Data)
-    if Message == "Invalid command. Use the help command to see all available commands." then
+    if string.find(Message,"Use the help command to see all available commands.") then
         Message = self:ExecuteCommandWithPrefix(Command,ReferencePlayer,Data)
     end
 
