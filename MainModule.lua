@@ -18,9 +18,11 @@ return function(LoaderScript,Configuration)
     --Load the child scripts.
     if LoaderScript then
         for _,Ins in pairs(LoaderScript:GetChildren()) do
-            local Worked,Return = pcall(function() require(Ins) end)
-            if Worked ~= true then
-                warn(tostring(Ins:GetFullName()).." module failed to load because "..tostring(Return))
+            if Ins:IsA("ModuleScript") then
+                local Worked,Return = pcall(function() require(Ins) end)
+                if Worked ~= true then
+                    warn(tostring(Ins:GetFullName()).." module failed to load because "..tostring(Return))
+                end
             end
 		end
     end
