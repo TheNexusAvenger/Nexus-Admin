@@ -20,6 +20,7 @@ function CmdrCommand:__new()
     
     self.Prefix = nil
     self.Arguments = nil
+    self.AdminLevel = -1
 end
 
 --[[
