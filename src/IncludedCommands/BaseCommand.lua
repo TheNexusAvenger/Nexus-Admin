@@ -115,13 +115,6 @@ Runs the command.
 --]]
 function BaseCommand:Run(CommandContext)
     self.CurrentContext = CommandContext
-
-    --Add the command to the logs.
-    if self.API.Logs then
-        coroutine.wrap(function()
-            self.API.Logs:Add(CommandContext.Executor.Name.." ["..self.API.Time:GetTimeString().."]: "..self.API.Filter:FilterString(CommandContext.RawText,CommandContext.Executor))
-        end)()
-    end
 end
 
 --[[

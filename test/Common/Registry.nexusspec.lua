@@ -126,6 +126,48 @@ NexusUnitTesting:RegisterUnitTest(RegistryUnitTest.new("GetReplicatableCmdrData"
 end))
 
 --[[
+Tests the PerformBeforeRun method.
+--]]
+NexusUnitTesting:RegisterUnitTest(RegistryUnitTest.new("PerformBeforeRun"):SetRun(function(self)
+    --Create a mock command context.
+    local MockCommandContext = {
+        Name = "print",
+        Group = "Test",
+        RawText = "print arg1 arg2",
+        Executor = {UserId = 1},
+        Arguments = {
+            {
+                GetValue = function()
+                    return "arg1"
+                end
+            },
+            {
+                GetValue = function()
+                    return "arg2"
+                end
+            },
+        }
+    }
+
+    --Register a test command.
+    self.CuT:LoadCommand({
+        Prefix = {":",";"},
+        Keyword = "print",
+        Group = "Test",
+        AdminLevel = 2,
+    })
+
+    --Assert nothing is returned with a valid user.
+    self:AssertNil(self.CuT:PerformBeforeRun(MockCommandContext),"Result was returned from valid BeforeRun.")
+
+    --Assert a message is returned for unathorized cases.
+    MockCommandContext.Executor.UserId = 2
+    self:AssertEquals(self.CuT:PerformBeforeRun(MockCommandContext),"You are not authorized to run this command.","Message is incorrect.")
+    MockCommandContext.Executor = nil
+    self:AssertEquals(self.CuT:PerformBeforeRun(MockCommandContext),"An executor is required if the admin level is defined.","Message is incorrect.")
+end))
+
+--[[
 Tests the CreateRunMethod method.
 --]]
 NexusUnitTesting:RegisterUnitTest(RegistryUnitTest.new("CreateRunMethod"):SetRun(function(self)
@@ -202,40 +244,6 @@ NexusUnitTesting:RegisterUnitTest(RegistryUnitTest.new("CreateRunMethod"):SetRun
         end
     })(MockCommandContext)
     self:AssertTrue(OnInvokeCalled,"OnCommandInvoked function not called.")
-
-
-    --Tests with a Run attribute and the user not being authorized.
-    RunCalled = false
-    MockCommandContext.Executor.UserId = 2
-    self.CuT:CreateRunMethod({
-        Keyword = "Test",
-        Run = function(_,CommandContext)
-            RunCalled = true
-            self:Fail("Run called.")
-        end
-    })(MockCommandContext)
-    self:AssertFalse(RunCalled,"Run function was called.")
-
-    --Tests with a Run attribute and no executor.
-    MockCommandContext.Executor = nil
-    RunCalled = false
-    self.CuT:CreateRunMethod({
-        Keyword = "Test",
-        AdminLevel = 2,
-        Run = function(_,CommandContext)
-            RunCalled = true
-            self:Fail("Run called.")
-        end
-    })(MockCommandContext)
-    self:AssertFalse(RunCalled,"Run function was called.")
-    self.CuT:CreateRunMethod({
-        Keyword = "Test",
-        Run = function(_,CommandContext)
-            RunCalled = true
-            self:AssertSame(CommandContext,MockCommandContext,"Command context not the same.")
-        end
-    })(MockCommandContext)
-    self:AssertTrue(RunCalled,"Run function not called.")
 end))
 
 --[[

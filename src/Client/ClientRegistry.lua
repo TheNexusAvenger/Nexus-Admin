@@ -27,6 +27,15 @@ function ClientRegistry:__new(Cmdr,Authorization,Messages,NexusAdminRemotes)
     CommandRegistered.OnClientEvent:Connect(function(Data)
         self:LoadCommand(Data)
     end)
+
+    --Register the BeforeRun hook for verifying admin levels.
+    self.Cmdr.Registry:RegisterHook("BeforeRun",function(CommandContext)
+        --Return if a result exists from the common function.
+        local BeforeRunResult = self:PerformBeforeRun(CommandContext)
+        if BeforeRunResult then
+            return
+        end
+    end)
 end
 
 --[[

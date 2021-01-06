@@ -86,7 +86,7 @@ function API:Load(ConfigurationTable)
     local Filter = require(script:WaitForChild("Server"):WaitForChild("Filter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
-    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr,Authorization,Messages,EventContainer)
+    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr,Authorization,Messages,Logs,Time,Filter,EventContainer)
     local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
     
     --Create the configuration fetching.

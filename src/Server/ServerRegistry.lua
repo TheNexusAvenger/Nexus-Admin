@@ -14,7 +14,7 @@ ServerRegistry:SetClassName("ServerRegistry")
 --[[
 Creates the server registry.
 --]]
-function ServerRegistry:__new(Cmdr,Authorization,Messages,NexusAdminRemotes)
+function ServerRegistry:__new(Cmdr,Authorization,Messages,Logs,Time,Filter,NexusAdminRemotes)
     self:InitializeSuper(Authorization,Messages)
     
     self.ClientData = {}
@@ -39,6 +39,20 @@ function ServerRegistry:__new(Cmdr,Authorization,Messages,NexusAdminRemotes)
     function GetRegisteredCommands.OnServerInvoke()
         return self.ClientData
     end
+
+    --Register the BeforeRun hook for verifying admin levels and logging.
+    self.Cmdr.Registry:RegisterHook("BeforeRun",function(CommandContext)
+        --Return if a result exists from the common function.
+        local BeforeRunResult = self:PerformBeforeRun(CommandContext)
+        if BeforeRunResult then
+            return
+        end
+
+        --Log the command asynchronously.
+        coroutine.wrap(function()
+            Logs:Add(CommandContext.Executor.Name.." ["..Time:GetTimeString().."]: "..Filter:FilterString(CommandContext.RawText,CommandContext.Executor))
+        end)()
+    end)
 end
 
 --[[

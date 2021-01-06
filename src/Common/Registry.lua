@@ -61,21 +61,49 @@ function Registry:GetReplicatableCmdrData(CommandData)
 end
 
 --[[
+Performs the BeforeRun verifications
+of a CommandContext. Returns a result if
+the command can't be run.
+--]]
+function Registry:PerformBeforeRun(CommandContext)
+    --Get the command data.
+    if not self.CommandsByGroup[CommandContext.Group] then
+        return
+    end
+    local CommandData
+    for _,NewCommandData in pairs(self.CommandsByGroup[CommandContext.Group]) do
+        local Names = NewCommandData.Name or NewCommandData.Keyword or ""
+        if typeof(NewCommandData.Name or NewCommandData.Keyword) == "string" then
+            Names = {Names}
+        end
+        for _,Name in pairs(Names) do
+            if string.lower(Name) == string.lower(CommandContext.Name) then
+                CommandData = NewCommandData
+                break
+            end
+        end
+    end
+    if not CommandData then
+        return
+    end
+
+    --Return if there is no executor.
+    if not CommandContext.Executor and CommandData.AdminLevel then
+        return "An executor is required if the admin level is defined."
+    end
+
+    --Return if the user is unauthorized.
+    if CommandContext.Executor and not self.Authorization:IsPlayerAuthorized(CommandContext.Executor,CommandData.AdminLevel or 1) then
+        return "You are not authorized to run this command."
+    end
+end
+
+--[[
 Creates a run method for a given command.
 --]]
 function Registry:CreateRunMethod(CommandData)
     local CmdrData = self:GetReplicatableCmdrData(CommandData)
     return function(CommandContext,...)
-        --Return if there is no executor.
-        if not CommandContext.Executor and CommandData.AdminLevel then
-            return "An executor is required if the admin level is defined."
-        end
-
-        --Return if the user is unauthorized.
-        if CommandContext.Executor and not self.Authorization:IsPlayerAuthorized(CommandContext.Executor,CommandData.AdminLevel or 1) then
-            return "You are not authorized to run this command."
-        end
-
         --Run the command.
         if CommandData.Run then
             return CommandData:Run(CommandContext,...)
