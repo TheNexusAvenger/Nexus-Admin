@@ -5,9 +5,7 @@ Server API for Nexus Admin.
 --]]
 
 local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
 
 
 
