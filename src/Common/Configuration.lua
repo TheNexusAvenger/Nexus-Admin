@@ -21,7 +21,7 @@ function Configuration:__new(ConfigurationTable)
     --Store the values.
     self.Version = "Version 2.0.0"
     self.VersionNumberId = 2.0
-    self.CmdrVersion = "Version 1.5.0"
+    self.CmdrVersion = "Version 1.8.4"
     self.RawConfiguration = ConfigurationTable
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
     self.DefaultAdminLevel = ConfigurationTable.DefaultAdminLevel or -1
