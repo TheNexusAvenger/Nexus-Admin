@@ -17,9 +17,9 @@ function Command:__new()
 
     self.Arguments = {
 		{
-			Type = "player",
+			Type = "nexusAdminPlayers",
 			Name = "Player",
-			Description = "Players to view.",
+			Description = "Player to view.",
 		},
 	}
 end

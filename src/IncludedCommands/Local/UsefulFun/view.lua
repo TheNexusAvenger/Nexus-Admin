@@ -17,9 +17,9 @@ function Command:__new()
 
     self.Arguments = {
 		{
-			Type = "player",
+			Type = "nexusAdminPlayers",
 			Name = "Player",
-			Description = "Players to view.",
+			Description = "Player to view.",
 		},
 	}
 end
@@ -27,19 +27,22 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Player)
+function Command:Run(CommandContext,Players)
 	self.super:Run(CommandContext)
 
     --Change the view.
-    if Player.Character then
-        local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
-        local Camera = self.Workspace.CurrentCamera
-        if Humanoid then
-            Camera.CameraSubject = Humanoid
-            if Player == CommandContext.Executor then
-                Camera.CameraType = "Custom"
-            else
-                Camera.CameraType = "Track"
+    local Player = Players[1]
+    if Player then
+        if Player.Character then
+            local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+            local Camera = self.Workspace.CurrentCamera
+            if Humanoid then
+                Camera.CameraSubject = Humanoid
+                if Player == CommandContext.Executor then
+                    Camera.CameraType = "Custom"
+                else
+                    Camera.CameraType = "Track"
+                end
             end
         end
     end
