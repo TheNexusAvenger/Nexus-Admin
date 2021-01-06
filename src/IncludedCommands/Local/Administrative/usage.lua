@@ -32,7 +32,7 @@ function Command:Run(CommandContext)
         return {
             "Welcome to Nexus Admin (by TheNexusAvenger).",
             "Built on Cmdr (by evaera)",
-            "Version "..self.API.Configuration.Version,
+            self.API.Configuration.Version,
             "",
             "View commands using !cmds or :cmds.",
             "Use \\ to open the Cmdr command line.",
