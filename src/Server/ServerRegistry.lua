@@ -45,7 +45,7 @@ function ServerRegistry:__new(Cmdr,Authorization,Messages,Logs,Time,Filter,Nexus
         --Return if a result exists from the common function.
         local BeforeRunResult = self:PerformBeforeRun(CommandContext)
         if BeforeRunResult then
-            return
+            return BeforeRunResult
         end
 
         --Log the command asynchronously.

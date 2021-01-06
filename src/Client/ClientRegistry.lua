@@ -33,7 +33,7 @@ function ClientRegistry:__new(Cmdr,Authorization,Messages,NexusAdminRemotes)
         --Return if a result exists from the common function.
         local BeforeRunResult = self:PerformBeforeRun(CommandContext)
         if BeforeRunResult then
-            return
+            return BeforeRunResult
         end
     end)
 end
