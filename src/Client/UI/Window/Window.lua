@@ -145,6 +145,7 @@ function Window:__new()
             RefreshIcon.AnchorPoint = Vector2.new(0.5,0.5)
             RefreshIcon.Position = UDim2.new(0.5,0,0.5,0)
             RefreshIcon.Image = REFRESH_ICON
+            RefreshIcon.ZIndex = 4
             RefreshIcon.Parent = RefreshButton.AdornFrame
             
             --Connect the button.
