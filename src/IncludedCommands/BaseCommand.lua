@@ -32,18 +32,20 @@ function BaseCommand:__new(Keyword,Category,Description)
     --Initialize the commadn data.
     if _G.GetNexusAdminServerAPI then
         self.API = _G.GetNexusAdminServerAPI()
-    else
+    elseif _G.GetNexusAdminClientAPI then
         self.API = _G.GetNexusAdminClientAPI()
     end
-    self.Prefix = self.API.Configuration.CommandPrefix
+    self.Prefix = ((self.API or {}).Configuration or {}).CommandPrefix
     self.Keyword = Keyword
     self.Category = Category
     self.Description = Description
-    if Keyword and Category then
-        if type(Keyword) == "table" then
-            self.AdminLevel = self.API.Configuration:GetCommandAdminLevel(Category,Keyword[1])
-        else
-            self.AdminLevel = self.API.Configuration:GetCommandAdminLevel(Category,Keyword)
+    if self.API then
+        if Keyword and Category then
+            if type(Keyword) == "table" then
+                self.AdminLevel = self.API.Configuration:GetCommandAdminLevel(Category,Keyword[1])
+            else
+                self.AdminLevel = self.API.Configuration:GetCommandAdminLevel(Category,Keyword)
+            end
         end
     end
     self.Arguments = {}
@@ -115,6 +117,53 @@ Runs the command.
 --]]
 function BaseCommand:Run(CommandContext)
     self.CurrentContext = CommandContext
+end
+
+--[[
+Returns the remaining string after a specified
+amount of "sections".
+--]]
+function BaseCommand:GetRemainingString(CommandString,Sections)
+    --Remove parts of the string until the sections are passed.
+    local InitialSpacesCleared = false
+    local InQuotes = false
+    local Escaping = false
+    local InWhitespace = false
+    while CommandString ~= "" and Sections > 0 do
+        local Character = string.sub(CommandString,1,1)
+        CommandString = string.sub(CommandString,2)
+
+        --Update the state based on the character.
+        if InitialSpacesCleared or Character ~= " " then
+            InitialSpacesCleared = true
+            if Escaping then
+                Escaping = false
+            else
+                if Character == "\\" then
+                    Escaping = true
+                    InWhitespace = false
+                elseif Character == "\"" then
+                    InQuotes = not InQuotes
+                    InWhitespace = false
+                elseif Character == " " then
+                    if not InWhitespace and not InQuotes then
+                        InWhitespace = true
+                        Sections = Sections - 1
+                    end
+                else
+                    InWhitespace = false
+                end
+            end
+        end
+    end
+
+    --Remove the spaces in the front.
+    while string.sub(CommandString,1,1) == " " do
+        CommandString = string.sub(CommandString,2)
+    end
+
+    --Return the remaining string.
+    return CommandString
 end
 
 --[[
