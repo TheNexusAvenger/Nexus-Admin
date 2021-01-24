@@ -27,11 +27,11 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Commands)
+function Command:Run(CommandContext,_)
     self.super:Run(CommandContext)
 
     --Run the commands.
-    for _,Command in pairs(string.split(Commands,"/")) do
+    for _,Command in pairs(string.split(self:GetRemainingString(CommandContext.RawText,1),"/")) do
         local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(Command,self.Players.LocalPlayer,CommandContext:GetData())
         if Message ~= "" then
             self:SendMessage(Message)

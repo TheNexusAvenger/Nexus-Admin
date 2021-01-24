@@ -32,12 +32,12 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Delay,Command)
+function Command:Run(CommandContext,Delay,_)
     self.super:Run(CommandContext)
 
     --Schedule the command.
     delay(Delay,function()
-        local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(Command,self.Players.LocalPlayer,CommandContext:GetData())
+        local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(self:GetRemainingString(CommandContext.RawText,2),self.Players.LocalPlayer,CommandContext:GetData())
         if Message ~= "" then
             self:SendMessage(Message)
         end

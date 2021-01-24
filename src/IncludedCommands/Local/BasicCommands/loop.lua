@@ -54,7 +54,7 @@ function Command:Run(CommandContext,Times,Delay,Command)
 			end
 
 			--Run the command.
-			local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(Command,self.Players.LocalPlayer,CommandContext:GetData())
+			local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(self:GetRemainingString(CommandContext.RawText,3),self.Players.LocalPlayer,CommandContext:GetData())
 			if Message ~= "" then
 				self:SendMessage(Message)
 			end

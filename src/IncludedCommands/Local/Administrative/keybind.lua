@@ -46,14 +46,14 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Key,Command)
+function Command:Run(CommandContext,Key,_)
     self.super:Run(CommandContext)
 
     --Bind the key.
     if not CommonState.Keybinds[Key] then
         CommonState.Keybinds[Key] = {}
     end
-    table.insert(CommonState.Keybinds[Key],Command)
+    table.insert(CommonState.Keybinds[Key],self:GetRemainingString(CommandContext.RawText,2))
 
     --Return the message.
     return "Key bound."
