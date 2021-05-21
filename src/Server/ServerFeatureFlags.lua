@@ -52,18 +52,20 @@ Initializes the services.
 --]]
 function ServerFeatureFlags:InitializeServices()
     --Initialize the messaging service.
-    local Worked,Return = pcall(function()
-        self.MessagingService:SubscribeAsync("NexusAdminFeatureFlagsChanged",function(Data)
-            if Data == "" then
-                self:UpdateFeatureFlags()
-            else
-                self:UpdateFeatureFlags(Data)
-            end
+    coroutine.wrap(function()
+        local Worked,Return = pcall(function()
+            self.MessagingService:SubscribeAsync("NexusAdminFeatureFlagsChanged",function(Data)
+                if Data == "" then
+                    self:UpdateFeatureFlags()
+                else
+                    self:UpdateFeatureFlags(Data)
+                end
+            end)
         end)
-    end)
-    if not Worked then
-        warn("Connecting to messaging service for Nexus Admin Feature Flag changes failed because "..tostring(Return))
-    end
+        if not Worked then
+            warn("Connecting to messaging service for Nexus Admin Feature Flag changes failed because "..tostring(Return))
+        end
+    end)()
 
     --Initialize the existing DataStore fast flags.
     self:UpdateFeatureFlags()
