@@ -48,24 +48,28 @@ NexusUnitTesting:RegisterUnitTest(FeatureFlagsUnitTest.new("SetFeatureFlag"):Set
 
     --Set a new feature flag and assert it was set correctly.
     self.CuT:SetFeatureFlag("TestFeatureFlag1","Value1")
+    wait()
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag1"),"Value1","Feature flag not set correctly.")
     self:AssertEquals(GeneralChanges,{},"Event was invoked correctly.")
     self:AssertEquals(SpecificChanges,{},"Event was invoked correctly.")
 
     --Set a existing feature flag and assert it was set correctly.
     self.CuT:SetFeatureFlag("TestFeatureFlag1","Value2")
+    wait()
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag1"),"Value2","Feature flag not set correctly.")
     self:AssertEquals(GeneralChanges,{{"TestFeatureFlag1","Value2"}},"Event was invoked correctly.")
     self:AssertEquals(SpecificChanges,{"Value2"},"Event was invoked correctly.")
 
     --Set a existing feature flag to the existing value and assert it was set correctly.
     self.CuT:SetFeatureFlag("TestFeatureFlag1","Value2")
+    wait()
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag1"),"Value2","Feature flag not set correctly.")
     self:AssertEquals(GeneralChanges,{{"TestFeatureFlag1","Value2"}},"Event was invoked correctly.")
     self:AssertEquals(SpecificChanges,{"Value2"},"Event was invoked correctly.")
 
     --Set a new feature flag and assert it was set correctly.
     self.CuT:SetFeatureFlag("TestFeatureFlag2","Value1")
+    wait()
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag1"),"Value2","Feature flag not set correctly.")
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag2"),"Value1","Feature flag not set correctly.")
     self:AssertEquals(GeneralChanges,{{"TestFeatureFlag1","Value2"}},"Event was invoked correctly.")
@@ -73,6 +77,7 @@ NexusUnitTesting:RegisterUnitTest(FeatureFlagsUnitTest.new("SetFeatureFlag"):Set
 
     --Set a existing feature flag and assert it was set correctly.
     self.CuT:SetFeatureFlag("TestFeatureFlag2","Value2")
+    wait()
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag1"),"Value2","Feature flag not set correctly.")
     self:AssertEquals(self.CuT:GetFeatureFlag("TestFeatureFlag2"),"Value2","Feature flag not set correctly.")
     self:AssertEquals(GeneralChanges,{{"TestFeatureFlag1","Value2"},{"TestFeatureFlag2","Value2"}},"Event was invoked correctly.")

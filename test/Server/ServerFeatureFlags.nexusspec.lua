@@ -98,6 +98,7 @@ NexusUnitTesting:RegisterUnitTest(ServerFeatureFlagsUnitTest.new("SetFeatureFlag
 
     --Set a flag to the same value and assert no network calls were made.
     self.CuT1:SetFeatureFlag("TestFeatureFlag1",true)
+    wait()
     self:AssertEquals(self.MessagingServiceCalls,0,"Messaging service was used.")
     self:AssertEquals(self.DataStoreSetCalls,0,"DataStore service was used.")
     self:AssertEquals(self.CurrentData,nil,"DataStore data was set.")
@@ -108,6 +109,7 @@ NexusUnitTesting:RegisterUnitTest(ServerFeatureFlagsUnitTest.new("SetFeatureFlag
 
     --Change a flag and assert it was replicated.
     self.CuT1:SetFeatureFlag("TestFeatureFlag1",false)
+    wait()
     self:AssertEquals(self.CuT1:GetFeatureFlag("TestFeatureFlag1"),false,"Local feature flag value is incorrect.")
     self:AssertEquals(self.CuT2:GetFeatureFlag("TestFeatureFlag1"),false,"Replicated feature flag value is incorrect.")
     self:AssertEquals(self.MessagingServiceCalls,1,"Messaging service was used an incorrect amount of times.")
@@ -120,6 +122,7 @@ NexusUnitTesting:RegisterUnitTest(ServerFeatureFlagsUnitTest.new("SetFeatureFlag
 
     --Revert a flag and assert it was replicated.
     self.CuT1:SetFeatureFlag("TestFeatureFlag1",true)
+    wait()
     self:AssertEquals(self.CuT1:GetFeatureFlag("TestFeatureFlag1"),true,"Local feature flag value is incorrect.")
     self:AssertEquals(self.CuT2:GetFeatureFlag("TestFeatureFlag1"),true,"Replicated feature flag value is incorrect.")
     self:AssertEquals(self.MessagingServiceCalls,2,"Messaging service was used an incorrect amount of times.")
@@ -133,6 +136,7 @@ NexusUnitTesting:RegisterUnitTest(ServerFeatureFlagsUnitTest.new("SetFeatureFlag
     --Change 2 flags and assert it was replicated.
     self.CuT1:SetFeatureFlag("TestFeatureFlag1",false)
     self.CuT1:SetFeatureFlag("TestFeatureFlag2",true)
+    wait()
     self:AssertEquals(self.CuT1:GetFeatureFlag("TestFeatureFlag1"),false,"Local feature flag value is incorrect.")
     self:AssertEquals(self.CuT2:GetFeatureFlag("TestFeatureFlag1"),false,"Replicated feature flag value is incorrect.")
     self:AssertEquals(self.CuT1:GetFeatureFlag("TestFeatureFlag2"),true,"Local feature flag value is incorrect.")
