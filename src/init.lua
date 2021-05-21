@@ -4,6 +4,14 @@ TheNexusAvenger
 Server API for Nexus Admin.
 --]]
 
+local CMDR_OVERRIDE_ADMIN_LEVELS = {
+    --Provides DataStore access.
+    var = 0,
+    varSet = 0,
+}
+
+
+
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -139,6 +147,7 @@ end
 Loads the including commands.
 --]]
 function API:LoadIncludedCommands()
+    --Load the Nexus Admin commands.
     local Categories = {"Administrative","BasicCommands","BuildUtility","UsefulFun","Fun","Persistent"}
     for _,Category in pairs(Categories) do
         --Add the scripts.
@@ -155,6 +164,21 @@ function API:LoadIncludedCommands()
 				self.Registry:LoadCommand(require(Module).new():Flatten())
 			end
 		end)
+    end
+
+    --Load the Cmdr utility commands.
+    local CmdrUtilityCommands = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility")
+    for _,CommandScript in pairs(CmdrUtilityCommands:GetChildren()) do
+        if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
+            local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(CommandScript.Name.."Server")
+            local CommandData = require(CommandScript)
+            CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
+            if ServerCommandScript then
+                CommandData.Run = require(ServerCommandScript)
+            end
+            self.Registry:LoadCommand(CommandData)
+            CommandScript.Parent = self.Cmdr.ReplicatedRoot.Commands
+        end
     end
 end
 
