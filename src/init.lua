@@ -176,6 +176,18 @@ function API:LoadIncludedCommands()
             if ServerCommandScript then
                 CommandData.Run = require(ServerCommandScript)
             end
+            if CommandData.Run then
+                local BaseRun = CommandData.Run
+                CommandData.Run = function(_,...)
+                    return BaseRun(...)
+                end
+            end
+            if CommandData.ClientRun then
+                local BaseRun = CommandData.ClientRun
+                CommandData.ClientRun = function(_,...)
+                    return BaseRun(...)
+                end
+            end
             self.Registry:LoadCommand(CommandData)
             CommandScript.Parent = self.Cmdr.ReplicatedRoot.Commands
         end
