@@ -87,14 +87,14 @@ function API:LoadIncludedCommands()
 		Loads a module.
 		--]]
 		local function LoadModule(Module)
-			if Module:IsA("ModuleScript") then
-				local Data = require(Module).new():Flatten()
-				local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
-				if ExistingCommand then
-					Data.Run = ExistingCommand.ClientRun
-				end
-				self.Registry:LoadCommand(Data)
+			if not Module:IsA("ModuleScript") then return end
+
+			local Data = require(Module).new():Flatten()
+			local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
+			if ExistingCommand then
+				Data.Run = ExistingCommand.ClientRun
 			end
+			self.Registry:LoadCommand(Data)
 		end
 
 		--Add the scripts.
@@ -108,6 +108,37 @@ function API:LoadIncludedCommands()
 			LoadModule(Module)
 		end)
 	end
+
+	--[[
+	Loads a Cmdr module.
+	--]]
+	local function LoadCmdrModule(Module)
+		if not Module:IsA("ModuleScript") then return end
+
+		local Data = require(Module)
+		if Data.Run then
+			local BaseRun = Data.Run
+			Data.Run = function(_,...)
+				return BaseRun(...)
+			end
+		end
+		if Data.ClientRun then
+			local BaseRun = Data.ClientRun
+			Data.ClientRun = function(_,...)
+				return BaseRun(...)
+			end
+		end
+		self.Registry:LoadCommand(Data)
+	end
+
+	--Load the Cmdr commands.
+	local CmdrFolder = self.Cmdr.ReplicatedRoot:WaitForChild("Commands")
+	for _,Module in pairs(CmdrFolder:GetChildren()) do
+		LoadCmdrModule(Module)
+	end
+	CmdrFolder.ChildAdded:Connect(function(Module)
+		LoadCmdrModule(Module)
+	end)
 end
 
 --Initialize the optional UI.
