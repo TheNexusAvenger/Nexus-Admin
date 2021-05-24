@@ -172,6 +172,7 @@ function API:LoadIncludedCommands()
         if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
             local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(CommandScript.Name.."Server")
             local CommandData = require(CommandScript)
+            CommandData.AutoExec = nil --AutoExec is handled on the client.
             CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
             if ServerCommandScript then
                 CommandData.Run = require(ServerCommandScript)
