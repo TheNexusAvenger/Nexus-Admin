@@ -18,7 +18,6 @@ function Replicator:__new(NexusAdminRemotes)
     self:InitializeSuper()
 
     self.Players = game:GetService("Players")
-    --self.ReplicatedScriptService = game:GetService("ReplicatedScriptService") --Commented out until ReplicatedScriptService is enabled.
     self.StarterPlayerScripts = game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts")
 end
 
@@ -42,10 +41,6 @@ end
 Gives a script to all players.
 --]]
 function Replicator:GiveStarterScript(Script)
-    --Add the script to ReplicatedScriptService.
-    --Will eventually replace the code afterwards when ReplicatedScriptService is enabled.
-    --Script:Clone().Parent = self.ReplicatedScriptService
-
     --Add the script to the starter player script.
     Script:Clone().Parent = self.StarterPlayerScripts
 
