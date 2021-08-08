@@ -3,7 +3,7 @@
 	url = https://github.com/TheNexusAvenger/Nexus-Instance.git
 [submodule "module/Cmdr"]
 	path = module/Cmdr
-	url = https://github.com/evaera/Cmdr.git
+	url = https://github.com/TheNexusAvenger/Cmdr.git
 [submodule "module/Nexus-Button"]
 	path = module/Nexus-Button
 	url = https://github.com/thenexusavenger/nexus-button
