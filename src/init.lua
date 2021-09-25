@@ -106,6 +106,7 @@ function API:Load(ConfigurationTable)
 
     --Set the resouces.
     API.Types = {}
+    API.CommandData = {}
     API.Cmdr = Cmdr
     API.Configuration = Configuration
     API.Authorization = Authorization

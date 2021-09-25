@@ -52,6 +52,7 @@ local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
 --Create the API.
 local API = {
 	Types = {},
+    CommandData = {},
 	Version = Configuration.Version,
 	VersionNumberId = Configuration.VersionNumberId,
 	CmdrVersion = Configuration.CmdrVersion,
