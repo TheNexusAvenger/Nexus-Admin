@@ -161,6 +161,7 @@ local Config = {
             createteam = nil,
             removeteam = nil,
             renameteam = nil,
+            sortteams = nil,
         },
         BuildUtility = {
             clearterrain = nil,
