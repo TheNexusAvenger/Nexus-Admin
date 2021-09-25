@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("admin","Administrative","Sets the admin level of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to change the admin level of.",
-		},
-		{
-			Type = "number",
-			Name = "Value",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to change the admin level of.",
+        },
+        {
+            Type = "number",
+            Name = "Value",
             Description = "Admin level to use.",
             Optional = true,
             Default = 1,
-		},
-	}
+        },
+    }
 end
 
 --[[

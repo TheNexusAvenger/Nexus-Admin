@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("removetools","BasicCommands","Removes all tools from the players given.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove tools from.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove tools from.",
+        },
     }
 end
 

@@ -16,17 +16,17 @@ function Command:__new()
     self:InitializeSuper("kick","Administrative","Kicks players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to kick.",
-		},
-		{
-			Type = "string",
-			Name = "Message",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to kick.",
+        },
+        {
+            Type = "string",
+            Name = "Message",
             Description = "Kick message message.",
             Optional = true,
-		},
+        },
     }
 end
 

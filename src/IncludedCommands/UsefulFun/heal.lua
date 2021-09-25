@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("heal","UsefulFunCommands","Heals a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to heal.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to heal.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Heal the players.
     for _,Player in pairs(Players) do
         local Character = Player.Character

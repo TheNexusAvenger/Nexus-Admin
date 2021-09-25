@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("brightness","BuildUtility","Sets the brightness.")
 
     self.Arguments = {
-		{
-			Type = "number",
-			Name = "Brightness",
-			Description = "Brightness to set.",
-		},
+        {
+            Type = "number",
+            Name = "Brightness",
+            Description = "Brightness to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Brightness)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the brightness.
     if not CommonState.LightingProperties.Brightness then
         CommonState.LightingProperties.Brightness = self.Lighting.Brightness

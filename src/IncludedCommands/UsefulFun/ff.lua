@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("ff","UsefulFunCommands","Adds a force field to the given players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give force fields.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give force fields.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Give the forcefields.
     for _,Player in pairs(Players) do
         local Character = Player.Character

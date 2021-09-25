@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("unsparkles","FunCommands","Removes all sparkles from a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove sparkles from.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove sparkles from.",
+        },
     }
 end
 

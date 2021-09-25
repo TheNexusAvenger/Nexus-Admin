@@ -31,9 +31,9 @@ function Command:Run(CommandContext,Players,Ids)
         coroutine.wrap(function()
             self.OriginalAmbient = self.Lighting.Ambient
             while self.DiscoActive do
-				self.Lighting.Ambient = Color3.new(math.random(),math.random(),math.random())
-				wait(0.25)
-			end
+                self.Lighting.Ambient = Color3.new(math.random(),math.random(),math.random())
+                wait(0.25)
+            end
         end)()
     else
         self.Lighting.Ambient = self.OriginalAmbient

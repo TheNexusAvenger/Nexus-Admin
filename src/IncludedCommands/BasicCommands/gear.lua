@@ -16,16 +16,16 @@ function Command:__new()
     self:InitializeSuper("gear","BasicCommands","Gives gear items to the given players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give the gear.",
-		},
-		{
-			Type = "integers",
-			Name = "Ids",
-			Description = "Gear ids to insert.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give the gear.",
+        },
+        {
+            Type = "integers",
+            Name = "Ids",
+            Description = "Gear ids to insert.",
+        },
     }
 end
 

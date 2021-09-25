@@ -26,8 +26,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Send the countdown stop.
     self.StopCountdownEvent:FireAllClients()
 

@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("lock","UsefulFunCommands","Locks the character of the given players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to lock.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to lock.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Lock the players.
     for _,Player in pairs(Players) do

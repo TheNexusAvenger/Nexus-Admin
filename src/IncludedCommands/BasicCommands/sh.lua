@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("sh","BasicCommands","Creates a hint visible to everyone. No name is shown with the message.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Message",
-			Description = "Announcement text.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Message",
+            Description = "Announcement text.",
+        },
+    }
 end
 
 --[[
@@ -31,9 +31,9 @@ function Command:Run(CommandContext,Message)
     self.super:Run(CommandContext)
     
     --Filter and send the message.
-	for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,self.Players:GetPlayers())) do
+    for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,self.Players:GetPlayers())) do
         self.API.Messages:DisplayHint(Player,FilteredMessage)
-	end
+    end
 end
 
 

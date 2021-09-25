@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("smoke","FunCommands","Adds a smoke to a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give smoke to.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give smoke to.",
+        },
     }
 end
 

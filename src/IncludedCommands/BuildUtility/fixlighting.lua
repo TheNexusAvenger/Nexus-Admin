@@ -21,8 +21,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,TimeOfDay)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Revert the settings.
     for Key,Value in pairs(CommonState.LightingProperties) do
         self.Lighting[Key] = Value

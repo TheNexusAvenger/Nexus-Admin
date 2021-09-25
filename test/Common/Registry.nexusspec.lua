@@ -15,8 +15,8 @@ local Registry = require(game:GetService("ServerScriptService"):WaitForChild("Ma
 Sets up the unit test.
 --]]
 function RegistryUnitTest:Setup()
-	--Create the component under testing.
-	self.CuT = Registry.new({
+    --Create the component under testing.
+    self.CuT = Registry.new({
         IsPlayerAuthorized = function(_,Player,Level)
             return Player.UserId == 1
         end

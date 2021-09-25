@@ -17,17 +17,17 @@ function Command:__new()
     self:InitializeSuper("pban","PersistentCommands","Permanently bans a set of players by their user id or username (use user if if the name is a number) with an optional ban message.")
     
     self.Arguments = {
-		{
-			Type = "strings",
-			Name = "Names",
-			Description = "Players to ban.",
-		},
-		{
-			Type = "string",
-			Name = "Message",
+        {
+            Type = "strings",
+            Name = "Names",
+            Description = "Players to ban.",
+        },
+        {
+            Type = "string",
+            Name = "Message",
             Description = "Ban message to use.",
             Optional = true,
-		},
+        },
     }
 
     --Initialize the persistent bans.

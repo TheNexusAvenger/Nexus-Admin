@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("unpban","PersistentCommands","Unbans a set of players by their user id or username (use user if if the name is a number).")
     
     self.Arguments = {
-		{
-			Type = "strings",
-			Name = "Names",
-			Description = "Players to ban.",
-		},
+        {
+            Type = "strings",
+            Name = "Names",
+            Description = "Players to ban.",
+        },
     }
 
     --Initialize the persistent bans.

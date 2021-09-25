@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("flip","UsefulFunCommands","Flips a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to flip.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to flip.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Flip the players.
     for _,Player in pairs(Players) do

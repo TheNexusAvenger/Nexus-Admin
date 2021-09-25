@@ -16,25 +16,25 @@ function Command:__new()
     self:InitializeSuper("char","FunCommands","Changes the character appearance of a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to set the character.",
-		},
-		{
-			Type = "integer",
-			Name = "AppearanceId",
-			Description = "User id to use.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to set the character.",
+        },
+        {
+            Type = "integer",
+            Name = "AppearanceId",
+            Description = "User id to use.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players,AppearanceId)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     for _,Player in pairs(Players) do
         coroutine.wrap(function()
             --Get the original position.

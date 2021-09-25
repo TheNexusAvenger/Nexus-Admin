@@ -10,7 +10,7 @@ return function(SearchString,Containers)
     string.gsub(SearchString,"([^%,]+)",function(ToolName)
         for _,Container in pairs(Containers) do
             for _,Tool in pairs(Container:GetChildren()) do
-			    if Tool:IsA("Tool") or Tool:IsA("HopperBin") then
+                if Tool:IsA("Tool") or Tool:IsA("HopperBin") then
                     if ToolName == "all" then
                         table.insert(Tools,Tool)
                     elseif string.sub(string.lower(Tool.Name),1,string.len(ToolName)) == string.lower(ToolName) then

@@ -25,7 +25,7 @@ function Command:__new()
             Type = "string";
             Name = "Command";
             Description = "The command text you want to run. Separate multiple commands with \"&&\". Accept arguments with $1, $2, $3, etc."
-		},
+        },
     }
 end
 

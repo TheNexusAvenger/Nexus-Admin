@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("unban","Administrative","Unbans players.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Players",
-			Description = "Players to unban.",
-		},
+        {
+            Type = "string",
+            Name = "Players",
+            Description = "Players to unban.",
+        },
     }
     
     --Connect kciking players on entry.

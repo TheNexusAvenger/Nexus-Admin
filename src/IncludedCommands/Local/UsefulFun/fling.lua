@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("fling","UsefulFunCommands","Flings a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to fling.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to fling.",
+        },
     }
 
     --Connect the remote event.

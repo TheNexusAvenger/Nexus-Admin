@@ -15,8 +15,8 @@ local Configuration = require(game:GetService("ServerScriptService"):WaitForChil
 Sets up the unit test.
 --]]
 function ConfigurationUnitTest:Setup()
-	--Create the component under testing.
-	self.CuT = Configuration.new({
+    --Create the component under testing.
+    self.CuT = Configuration.new({
         BuildUtilityLevel = 3,
         CommandLevelOverrides = {
             BuildUtility = {

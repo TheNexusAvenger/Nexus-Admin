@@ -63,5 +63,5 @@ return function(API)
 
     --Register the types.
     API.Cmdr.Registry:RegisterType("nexusAdminFastFlag",FeatureFlagType)
-	API.Cmdr.Registry:RegisterType("nexusAdminFastFlags",FeatureFlagsType)
+    API.Cmdr.Registry:RegisterType("nexusAdminFastFlags",FeatureFlagsType)
 end

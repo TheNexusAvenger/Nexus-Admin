@@ -16,16 +16,16 @@ function Command:__new()
     self:InitializeSuper("face","FunCommands","Gives the face with the given id to each player.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to change the face.",
-		},
-		{
-			Type = "integer",
-			Name = "Id",
-			Description = "Face id to use.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to change the face.",
+        },
+        {
+            Type = "integer",
+            Name = "Id",
+            Description = "Face id to use.",
+        },
     }
 end
 
@@ -47,9 +47,9 @@ function Command:Run(CommandContext,Players,Id)
     --Set the face.
     if Face then
         for _,Player in pairs(Players) do
-			local Character = Player.Character
-			if Character then
-				local Head = Character:FindFirstChild("Head")
+            local Character = Player.Character
+            if Character then
+                local Head = Character:FindFirstChild("Head")
                 if Head then
                     --Get the transparency.
                     local ExistingFace = Head:FindFirstChildOfClass("Decal")
@@ -57,12 +57,12 @@ function Command:Run(CommandContext,Players,Id)
                     ExistingFace:Destroy()
 
                     --Add the new face.
-					local NewFace = Face:Clone()
-					NewFace.Transparency = Transparency
-					NewFace.Parent = Head
-				end
-			end
-		end
+                    local NewFace = Face:Clone()
+                    NewFace.Transparency = Transparency
+                    NewFace.Parent = Head
+                end
+            end
+        end
     end
 end
 

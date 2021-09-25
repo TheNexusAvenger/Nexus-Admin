@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("unmute","BasicCommands","Unmutes a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to unmute.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to unmute.",
+        },
     }
     
     --Create the remote event.
@@ -34,8 +34,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Mute the players.
     for _,Player in pairs(Players) do
         self.UnmutePlayerEvent:FireClient(Player)

@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("stun","UsefulFunCommands","Stuns a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to stun.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to stun.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Stun the players.
     for _,Player in pairs(Players) do

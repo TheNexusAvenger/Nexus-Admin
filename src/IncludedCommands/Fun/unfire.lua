@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("unfire","FunCommands","Removes all fire from a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove fire from.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove fire from.",
+        },
     }
 end
 

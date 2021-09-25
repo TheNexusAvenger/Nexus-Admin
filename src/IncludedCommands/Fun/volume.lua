@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("volume","FunCommands","Changes the volume of the audio.")
 
     self.Arguments = {
-		{
-			Type = "number",
-			Name = "Volume",
-			Description = "Volume to set.",
-		},
+        {
+            Type = "number",
+            Name = "Volume",
+            Description = "Volume to set.",
+        },
     }
 end
 
@@ -29,7 +29,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Volume)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     CommonState.GlobalAudio.Volume = Volume
 end

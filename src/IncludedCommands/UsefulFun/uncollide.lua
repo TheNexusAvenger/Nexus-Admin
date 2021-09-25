@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("uncollide","UsefulFunCommands","Makes a set of players unable to collide with each other.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to make uncollidable with each other.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to make uncollidable with each other.",
+        },
     }
     
     --Determine if the collision group exists.
@@ -44,7 +44,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Make the players collidable.
     for _,Player in pairs(Players) do

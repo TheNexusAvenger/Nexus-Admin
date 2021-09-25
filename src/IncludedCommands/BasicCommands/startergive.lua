@@ -23,16 +23,16 @@ function Command:__new()
     self:InitializeSuper("startergive","BasicCommands","Gives a set of players tools matching the tool name(s) from Lighting, ReplicatedStorage, ServerStorage, or StarterPack and makes it so they spawn with them.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give tools.",
-		},
-		{
-			Type = "string",
-			Name = "Tools",
-			Description = "Tools to give.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give tools.",
+        },
+        {
+            Type = "string",
+            Name = "Tools",
+            Description = "Tools to give.",
+        },
     }
 end
 

@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("atksword","BasicCommands","Gives an anti-teamkill sword to the given players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give swords.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give swords.",
+        },
     }
 end
 

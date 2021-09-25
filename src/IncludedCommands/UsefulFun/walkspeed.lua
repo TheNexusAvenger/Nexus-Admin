@@ -16,25 +16,25 @@ function Command:__new()
     self:InitializeSuper({"walkspeed","speed"},"UsefulFunCommands","Sets the walkspeeds of the given players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to set the walkspeed.",
-		},
-		{
-			Type = "number",
-			Name = "Walkspeed",
-			Description = "Walkspeed to set.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to set the walkspeed.",
+        },
+        {
+            Type = "number",
+            Name = "Walkspeed",
+            Description = "Walkspeed to set.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players,WalkSpeed)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the walkspeed.
     for _,Player in pairs(Players) do
         local Character = Player.Character

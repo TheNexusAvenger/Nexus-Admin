@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("unrocket","FunCommands","Removes all rockets from a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove rockets from.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove rockets from.",
+        },
     }
 end
 

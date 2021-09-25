@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper({"createteam","addteam"},"BasicCommands","Creates teams of given colors.")
 
     self.Arguments = {
-		{
-			Type = "brickColors",
-			Name = "Colors",
-			Description = "Colors to create.",
-		},
+        {
+            Type = "brickColors",
+            Name = "Colors",
+            Description = "Colors to create.",
+        },
     }
 end
 
@@ -28,8 +28,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Colors)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Create the teams.
     for _,Color in pairs(Colors) do
         --Get if the team exists.

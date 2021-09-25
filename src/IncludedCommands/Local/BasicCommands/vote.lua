@@ -18,21 +18,21 @@ function Command:__new()
     self:InitializeSuper({"vote","poll"},"BasicCommands","Creates a poll for a set of players and returns the results.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to run the vote for.",
-		},
-		{
-			Type = "integer",
-			Name = "Time",
-			Description = "Time to run the poll.",
-		},
-		{
-			Type = "string",
-			Name = "Question",
-			Description = "Question to ask.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to run the vote for.",
+        },
+        {
+            Type = "integer",
+            Name = "Time",
+            Description = "Time to run the poll.",
+        },
+        {
+            Type = "string",
+            Name = "Question",
+            Description = "Question to ask.",
+        },
     }
     
     --Connect the remote objects.

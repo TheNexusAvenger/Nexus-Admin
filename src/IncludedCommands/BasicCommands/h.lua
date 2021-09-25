@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("h","BasicCommands","Creates a hint visible to everyone.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Message",
-			Description = "Announcement text.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Message",
+            Description = "Announcement text.",
+        },
+    }
 end
 
 --[[

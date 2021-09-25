@@ -43,7 +43,7 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
     ResizeCorner.BackgroundTransparency = 0.5
     ResizeCorner:CutCorner("Bottom","Right",UDim2.new(0,CornerSizePixel,0,CornerSizePixel))
     self.ResizeCorner = ResizeCorner
-		
+        
     --Connect the events.
     self.Events = {}
     local MouseDown = false

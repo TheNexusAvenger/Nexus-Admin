@@ -17,20 +17,20 @@ function Command:__new()
     self:InitializeSuper("jail","UsefulFunCommands","Creates a jail around a set of players. Each player can only have one jail.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to jail.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to jail.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Create the jails.
     for _,Player in pairs(Players) do
         local Character = Player.Character

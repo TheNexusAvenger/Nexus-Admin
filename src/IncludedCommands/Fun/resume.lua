@@ -21,7 +21,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     CommonState.GlobalAudio:Resume()
 end

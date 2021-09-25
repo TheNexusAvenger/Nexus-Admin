@@ -16,18 +16,18 @@ function Command:__new()
     self:InitializeSuper("thru","UsefulFunCommands","Teleports a set of players forward a given amount of studs.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Player",
-			Description = "Players to move.",
-		},
-		{
-			Type = "number",
-			Name = "Distance",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Player",
+            Description = "Players to move.",
+        },
+        {
+            Type = "number",
+            Name = "Distance",
             Description = "Distance to move forward.",
             Optional = true,
-		},
-	}
+        },
+    }
 end
 
 --[[

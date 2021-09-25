@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper({"slock","serverlock"},"Administrative","Locks and unlocks the server for non-admins.")
 
     self.Arguments = {
-		{
-			Type = "boolean",
-			Name = "Active",
+        {
+            Type = "boolean",
+            Name = "Active",
             Description = "Whether the server lock is active or not.",
             Optional = true,
-		},
+        },
     }
     
     --Connect kicking players on entry.
@@ -30,10 +30,10 @@ function Command:__new()
         if self.ServerLocked and self.API.Authorization:YieldForAdminLevel(Player) < 0 then
             Player:Kick("Server was locked by an admin. Please try again later.")
             for _,Admin in pairs(self.Players:GetPlayers()) do
-				if self.API.Authorization:GetAdminLevel(Admin) >= 0 then
-					self.API.Messages:DisplayHint(Admin,Player.Name.." ("..Player.UserId..") tried to enter the server.")
-				end
-			end
+                if self.API.Authorization:GetAdminLevel(Admin) >= 0 then
+                    self.API.Messages:DisplayHint(Admin,Player.Name.." ("..Player.UserId..") tried to enter the server.")
+                end
+            end
         end
     end)
 end

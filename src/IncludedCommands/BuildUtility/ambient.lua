@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("ambient","BuildUtility","Sets the ambient.")
 
     self.Arguments = {
-		{
-			Type = "color3",
-			Name = "Ambient",
-			Description = "Ambient to set.",
-		},
+        {
+            Type = "color3",
+            Name = "Ambient",
+            Description = "Ambient to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Ambient)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the ambient.
     if not CommonState.LightingProperties.Ambient then
         CommonState.LightingProperties.Ambient = self.Lighting.Ambient

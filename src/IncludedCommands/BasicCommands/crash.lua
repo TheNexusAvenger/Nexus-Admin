@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("crash","BasicCommands","Crashes a set of players. Admins can not be crashed.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to crash.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to crash.",
+        },
     }
     
     --Create the remote event.
@@ -34,8 +34,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Crash the players.
     for _,Player in pairs(Players) do
         if self.API.Authorization:GetAdminLevel(Player) >= 0 then

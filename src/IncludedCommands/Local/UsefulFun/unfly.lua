@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("unfly","UsefulFunCommands","Removes flight from a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to unfly.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to unfly.",
+        },
     }
 
     --Connect the remote event.

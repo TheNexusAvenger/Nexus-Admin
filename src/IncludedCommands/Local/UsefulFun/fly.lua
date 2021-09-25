@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("fly","UsefulFunCommands","Gives a set of players the ability to fly. Use E to toggle on/off.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to fly.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to fly.",
+        },
     }
 
     --Connect the remote event.
@@ -83,20 +83,20 @@ function Command:__new()
                     self.SideMultiplier = (self.KeysDown[Enum.KeyCode.D] and 1 or 0) - (self.KeysDown[Enum.KeyCode.A] and 1 or 0)
                 end
 
-				--[[
-				Increments the side speed.
-				--]]
-				function Flight:IncrementSpeed(SpeedName,Increment)
-					local OldSpeed = self[SpeedName]
-					local NewSpeed = OldSpeed + Increment
-					
-					--Set the speed. If the speed changes signs, set it to 0 to prevent overcompensating when slowing down.
-					if OldSpeed ~= 0 and ((OldSpeed > 0 and NewSpeed < 0) or (OldSpeed < 0 and NewSpeed > 0)) then
-						self[SpeedName] = 0
-					else
-						self[SpeedName] = NewSpeed
-					end
-				end
+                --[[
+                Increments the side speed.
+                --]]
+                function Flight:IncrementSpeed(SpeedName,Increment)
+                    local OldSpeed = self[SpeedName]
+                    local NewSpeed = OldSpeed + Increment
+                    
+                    --Set the speed. If the speed changes signs, set it to 0 to prevent overcompensating when slowing down.
+                    if OldSpeed ~= 0 and ((OldSpeed > 0 and NewSpeed < 0) or (OldSpeed < 0 and NewSpeed > 0)) then
+                        self[SpeedName] = 0
+                    else
+                        self[SpeedName] = NewSpeed
+                    end
+                end
 
                 --[[
                 Starts the flight.

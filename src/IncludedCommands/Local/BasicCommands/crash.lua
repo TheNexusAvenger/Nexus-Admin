@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("crash","BasicCommands","Crashes a set of players. Admins can not be crashed.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to crash.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to crash.",
+        },
     }
     
     --Connect the remote event.

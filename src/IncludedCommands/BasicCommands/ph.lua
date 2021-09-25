@@ -16,29 +16,29 @@ function Command:__new()
     self:InitializeSuper("ph","BasicCommands","Creates a hint visible to only the players specified.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to show the message.",
-		},
-		{
-			Type = "string",
-			Name = "Message",
-			Description = "Announcement text.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to show the message.",
+        },
+        {
+            Type = "string",
+            Name = "Message",
+            Description = "Announcement text.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players,Message)
-	self.super:Run(CommandContext)
-	
-	--Filter and send the message.
+    self.super:Run(CommandContext)
+    
+    --Filter and send the message.
     for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,Players)) do
         self.API.Messages:DisplayHint(Player,CommandContext.Executor.Name..": "..FilteredMessage)
-	end
+    end
 end
 
 

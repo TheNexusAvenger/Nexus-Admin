@@ -16,21 +16,21 @@ function Command:__new()
     self:InitializeSuper("change","BasicCommands","Changes the stat of a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to reset the stats for.",
-		},
-		{
-			Type = "strings",
-			Name = "Stats",
-			Description = "Stats to change.",
-		},
-		{
-			Type = "string",
-			Name = "Value",
-			Description = "Value to change to.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to reset the stats for.",
+        },
+        {
+            Type = "strings",
+            Name = "Stats",
+            Description = "Stats to change.",
+        },
+        {
+            Type = "string",
+            Name = "Value",
+            Description = "Value to change to.",
+        },
     }
 end
 

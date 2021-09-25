@@ -17,12 +17,12 @@ function Command:__new()
     self:InitializeSuper("untrack","BasicCommands","Untracks a set of players")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to untrack.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to untrack.",
+        },
+    }
 end
 
 --[[

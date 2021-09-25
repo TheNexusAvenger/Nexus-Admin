@@ -26,20 +26,20 @@ function Configuration:__new(ConfigurationTable)
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
     self.DefaultAdminLevel = ConfigurationTable.DefaultAdminLevel or -1
     self.AdministrativeLevel = ConfigurationTable.AdministrativeLevel or 1
-	self.BuildUtilityLevel = ConfigurationTable.BuildUtilityLevel or 1
-	self.BasicCommandsLevel = ConfigurationTable.BasicCommandsLevel or 1
-	self.UsefulFunCommandsLevel = ConfigurationTable.UsefulFunCommandsLevel or 2
-	self.FunCommandsLevel = ConfigurationTable.FunCommandsLevel or 3
+    self.BuildUtilityLevel = ConfigurationTable.BuildUtilityLevel or 1
+    self.BasicCommandsLevel = ConfigurationTable.BasicCommandsLevel or 1
+    self.UsefulFunCommandsLevel = ConfigurationTable.UsefulFunCommandsLevel or 2
+    self.FunCommandsLevel = ConfigurationTable.FunCommandsLevel or 3
     self.PersistentCommandsLevel = ConfigurationTable.PersistentCommandsLevel or ConfigurationTable.PersistentCommands or 4
     self.Admins = ConfigurationTable.Admins or {}
     self.AdminNames = ConfigurationTable.AdminNames or {
         [-1] = "Non-Admin", --Basic commands, like !help and !quote
-		[0] = "Debug Admin", --Only debug commands
-		[1] = "Moderator", --Some commands, can't kick, no "fun" commands
-		[2] = "Admin", --Most commands, can't ban or shutdown
-		[3] = "Super Admin",--All commands, can be kicked by full admin
-		[4] = "Owner Admin", --All commands, except :admin
-		[5] = "Creator Admin", --All commands, including :admin
+        [0] = "Debug Admin", --Only debug commands
+        [1] = "Moderator", --Some commands, can't kick, no "fun" commands
+        [2] = "Admin", --Most commands, can't ban or shutdown
+        [3] = "Super Admin",--All commands, can be kicked by full admin
+        [4] = "Owner Admin", --All commands, except :admin
+        [5] = "Creator Admin", --All commands, including :admin
     }
     self.GroupAdminLevels = ConfigurationTable.GroupAdminLevels or {}
     self.BannedUsers = ConfigurationTable.BannedUsers or {}
@@ -50,23 +50,23 @@ function Configuration:__new(ConfigurationTable)
     if ConfigurationTable.CommandLevelOverrides and not ConfigurationTable.CommandLevelOverrides.Administrative then
         ConfigurationTable.CommandLevelOverrides.Administrative = {
             admin = 5,
-			unadmin = 5,
-			ban = 3,
-			unban = 3,
-			kick = 2,
-			slock = 2,
-			keybind = -1,
-			unkeybind = -1,
-			keybinds = -1,
-			alias = -1,
-			cmds = -1,
-			cmdbar = -1,
-			debug = 0,
-			logs = 0,
-			admins = 0,
-			bans = nil,
-			usage = -1,
-			featureflag = nil,
+            unadmin = 5,
+            ban = 3,
+            unban = 3,
+            kick = 2,
+            slock = 2,
+            keybind = -1,
+            unkeybind = -1,
+            keybinds = -1,
+            alias = -1,
+            cmds = -1,
+            cmdbar = -1,
+            debug = 0,
+            logs = 0,
+            admins = 0,
+            bans = nil,
+            usage = -1,
+            featureflag = nil,
         }
     end
 end

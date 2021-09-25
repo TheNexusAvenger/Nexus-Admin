@@ -19,11 +19,11 @@ function Command:__new()
     self:InitializeSuper("countdown","BasicCommands","Creates a countdown with the given seconds.")
 
     self.Arguments = {
-		{
-			Type = "integer",
-			Name = "Time",
-			Description = "Time to count down.",
-		},
+        {
+            Type = "integer",
+            Name = "Time",
+            Description = "Time to count down.",
+        },
     }
     
     --Connect the remote event.

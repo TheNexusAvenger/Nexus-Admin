@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("resetstats","BasicCommands","Resets all number leaderstats of a player.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to reset the stats for.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to reset the stats for.",
+        },
     }
 end
 

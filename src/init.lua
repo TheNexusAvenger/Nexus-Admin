@@ -119,9 +119,9 @@ function API:Load(ConfigurationTable)
     API.Registry = Registry
     API.FeatureFlags = FeatureFlags
     API.Version = Configuration.Version
-	API.VersionNumberId = Configuration.VersionNumberId
+    API.VersionNumberId = Configuration.VersionNumberId
     API.CmdrVersion = Configuration.CmdrVersion
-	API.EventContainer = EventContainer
+    API.EventContainer = EventContainer
     API.AdminItemContainer = AdminItemContainer
 
     --Add the custom Cmdr types.
@@ -152,19 +152,19 @@ function API:LoadIncludedCommands()
     local Categories = {"Administrative","BasicCommands","BuildUtility","UsefulFun","Fun","Persistent"}
     for _,Category in pairs(Categories) do
         --Add the scripts.
-		local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
-		for _,Module in pairs(Folder:GetChildren()) do
-			if Module:IsA("ModuleScript") then
-				self.Registry:LoadCommand(require(Module).new():Flatten())
-			end
-		end
+        local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
+        for _,Module in pairs(Folder:GetChildren()) do
+            if Module:IsA("ModuleScript") then
+                self.Registry:LoadCommand(require(Module).new():Flatten())
+            end
+        end
 
-		--Connect adding new scripts.
-		Folder.ChildAdded:Connect(function(Module)
-			if Module:IsA("ModuleScript") then
-				self.Registry:LoadCommand(require(Module).new():Flatten())
-			end
-		end)
+        --Connect adding new scripts.
+        Folder.ChildAdded:Connect(function(Module)
+            if Module:IsA("ModuleScript") then
+                self.Registry:LoadCommand(require(Module).new():Flatten())
+            end
+        end)
     end
 
     --Load the Cmdr utility commands.

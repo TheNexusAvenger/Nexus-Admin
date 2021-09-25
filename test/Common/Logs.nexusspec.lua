@@ -15,8 +15,8 @@ local Logs = require(game:GetService("ServerScriptService"):WaitForChild("MainMo
 Sets up the unit test.
 --]]
 function LogsUnitTest:Setup()
-	--Create the component under testing.
-	self.CuT = Logs.new(3)
+    --Create the component under testing.
+    self.CuT = Logs.new(3)
 end
 
 --[[

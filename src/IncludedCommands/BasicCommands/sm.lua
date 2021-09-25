@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("sm","BasicCommands","Creates a message visible to everyone. The displayed name is \"Nexus Admin\".")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Message",
-			Description = "Announcement text.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Message",
+            Description = "Announcement text.",
+        },
+    }
 end
 
 --[[
@@ -31,9 +31,9 @@ function Command:Run(CommandContext,Message)
     self.super:Run(CommandContext)
     
     --Filter and send the message.
-	for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,self.Players:GetPlayers())) do
+    for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,self.Players:GetPlayers())) do
         self.API.Messages:DisplayMessage(Player,"Nexus Admin",FilteredMessage)
-	end
+    end
 end
 
 

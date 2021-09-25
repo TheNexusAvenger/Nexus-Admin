@@ -21,10 +21,10 @@ function Command:__new()
     if TeleportData and TeleportData.IsNexusAdminTemporaryServer then
         local TeleportGui = self.TeleportService:GetArrivingTeleportGui() or CreateTeleportScreen()
         TeleportGui.Parent = self.Players.LocalPlayer:WaitForChild("PlayerGui")
-		self.StarterGui:SetCore("TopbarEnabled",false)
-		self.StarterGui:SetCoreGuiEnabled("All",false)
-		wait(5)
-		self.TeleportService:Teleport(TeleportData.PlaceId,self.Players.LocalPlayer,nil,TeleportGui)
+        self.StarterGui:SetCore("TopbarEnabled",false)
+        self.StarterGui:SetCoreGuiEnabled("All",false)
+        wait(5)
+        self.TeleportService:Teleport(TeleportData.PlaceId,self.Players.LocalPlayer,nil,TeleportGui)
     end
 
     --Connect the remote event.

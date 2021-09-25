@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("explode","UsefulFunCommands","Explodes a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to explode.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to explode.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Clone the players.
     for _,Player in pairs(Players) do

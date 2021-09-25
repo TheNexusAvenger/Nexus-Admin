@@ -17,17 +17,17 @@ function Command:__new()
     self:InitializeSuper("vibrate","FunCommands","Vibrates a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to vibrate.",
-		},
-		{
-			Type = "number",
-			Name = "Intensity",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to vibrate.",
+        },
+        {
+            Type = "number",
+            Name = "Intensity",
             Description = "Intensity of the vibration.",
             Optional = true,
-		},
+        },
     }
 end
 

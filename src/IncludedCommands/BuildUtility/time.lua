@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("time","BuildUtility","Sets the time of day.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Time",
-			Description = "Time of day to set.",
-		},
+        {
+            Type = "string",
+            Name = "Time",
+            Description = "Time of day to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,TimeOfDay)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the time.
     if not CommonState.LightingProperties.TimeOfDay then
         CommonState.LightingProperties.TimeOfDay = self.Lighting.TimeOfDay

@@ -18,20 +18,20 @@ function Command:__new()
     self.LoadStringEnabled = pcall(function() self.loadstring("local Works = true")() end)
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Source",
-			Description = "Source to run.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Source",
+            Description = "Source to run.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Source)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Run the source.
     if not self.LoadStringEnabled then
         return "LoadStringEnabled is not enabled. Scripts can't be run."

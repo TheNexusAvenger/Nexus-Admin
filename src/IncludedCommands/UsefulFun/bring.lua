@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("bring","UsefulFunCommands","Teleports a set of players to you.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to teleport.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to teleport.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     --Get the target location.
     local TargetLocation

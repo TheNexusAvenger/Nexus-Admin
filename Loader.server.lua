@@ -12,256 +12,256 @@ For bugs or feature requests (including new commands), use the GitHub Issues.
 --]]
 
 local Config = {
-	--Prefix for standard commands.
-	CommandPrefix = ":",
+    --Prefix for standard commands.
+    CommandPrefix = ":",
 
-	--Default rank a new player would have.
-	DefaultAdminLevel = -1,
+    --Default rank a new player would have.
+    DefaultAdminLevel = -1,
 
-	--This is for setting up other admins in your game. You don't need to add yourself as long as you are the owner
-	--[[
-	Set up:
-	Admins = {
-		[SomeId] = AdminLevel,
-		[261] = 4,
-		[1] = 3,
-		[99] = 1,
-		[6] = 2,
-	}
-	--]]
-	Admins = {
-		
-	},
+    --This is for setting up other admins in your game. You don't need to add yourself as long as you are the owner
+    --[[
+    Set up:
+    Admins = {
+        [SomeId] = AdminLevel,
+        [261] = 4,
+        [1] = 3,
+        [99] = 1,
+        [6] = 2,
+    }
+    --]]
+    Admins = {
+        
+    },
 
-	--This is for setting up certain ranks in a group being able to use certain levels of commands.
-	--You will need to have access to the roles in the group admin page for the rank ids.
-	--Each rank will default to the highest admin level
-	--[[
-	Set up:
-	GroupAdminLevels = {
-		[GroupId] = {
-			[RankId] = 2,
-			[RankId] = 3,
-			[RankId] = 4,
-		},
-		[1] = {
-			[10] = 1,
-			[15] = 5,
-		},
-		[12] = {
-			[100] = 1,
-			[150] = 5,
-		},
-		... (You can add/remove groups)
-	},	
-	
-	--]]
-	GroupAdminLevels = {
-		
-	},
+    --This is for setting up certain ranks in a group being able to use certain levels of commands.
+    --You will need to have access to the roles in the group admin page for the rank ids.
+    --Each rank will default to the highest admin level
+    --[[
+    Set up:
+    GroupAdminLevels = {
+        [GroupId] = {
+            [RankId] = 2,
+            [RankId] = 3,
+            [RankId] = 4,
+        },
+        [1] = {
+            [10] = 1,
+            [15] = 5,
+        },
+        [12] = {
+            [100] = 1,
+            [150] = 5,
+        },
+        ... (You can add/remove groups)
+    },    
+    
+    --]]
+    GroupAdminLevels = {
+        
+    },
 
-	--Banned users is for preventing certain users from entering the game.
-	--Setting an id equal to true doesn't give a message, and a string is the ban message.
-	--[[
-	Set up:
-	BannedUsers = {
-		[UserId] = true, --Banned without a ban message
-		[UserId] = "Some Ban Message", --Bans with a ban message
-		[1] = "Banned for being ROBLOX",
-		[261] = true, --Too awesome to have a ban message
-	}
-	--]]
-	BannedUsers = {
-		
-	},
+    --Banned users is for preventing certain users from entering the game.
+    --Setting an id equal to true doesn't give a message, and a string is the ban message.
+    --[[
+    Set up:
+    BannedUsers = {
+        [UserId] = true, --Banned without a ban message
+        [UserId] = "Some Ban Message", --Bans with a ban message
+        [1] = "Banned for being ROBLOX",
+        [261] = true, --Too awesome to have a ban message
+    }
+    --]]
+    BannedUsers = {
+        
+    },
 
-	--The names of the admin levels.
-	AdminNames = {
-		[-1] = "Non-Admin", --Basic commands, like !help and !quote
-		[0] = "Debug Admin", --Only debug commands
-		[1] = "Moderator", --Some commands, can't kick, no "fun" commands
-		[2] = "Admin", --Most commands, can't ban or shutdown
-		[3] = "Super Admin",--All commands, can be kicked by full admin
-		[4] = "Owner Admin", --All commands, except :admin
-		[5] = "Creator Admin", --All commands, including :admin
-	},
+    --The names of the admin levels.
+    AdminNames = {
+        [-1] = "Non-Admin", --Basic commands, like !help and !quote
+        [0] = "Debug Admin", --Only debug commands
+        [1] = "Moderator", --Some commands, can't kick, no "fun" commands
+        [2] = "Admin", --Most commands, can't ban or shutdown
+        [3] = "Super Admin",--All commands, can be kicked by full admin
+        [4] = "Owner Admin", --All commands, except :admin
+        [5] = "Creator Admin", --All commands, including :admin
+    },
 
-	--Default admin levels needed to use a set of default commands.
-	AdministrativeLevel = 1,
-	BuildUtilityLevel = 1,
-	BasicCommandsLevel = 1,
-	UsefulFunCommandsLevel = 2,
-	FunCommandsLevel = 3,
-	PersistentCommandsLevel = 4,
+    --Default admin levels needed to use a set of default commands.
+    AdministrativeLevel = 1,
+    BuildUtilityLevel = 1,
+    BasicCommandsLevel = 1,
+    UsefulFunCommandsLevel = 2,
+    FunCommandsLevel = 3,
+    PersistentCommandsLevel = 4,
 
-	--Below is for overriding the defaults levels
-	--If a value is nil, it will default to the default command level of the group
-	--If a value is a number, it will override the default command level of the group
-	--This can be useful to make an abusive command un-usable or make a useful command usable.
-	CommandLevelOverrides = {
-		Administrative = {
-			admin = 5,
-			unadmin = 5,
-			ban = 3,
-			unban = 3,
-			kick = 2,
-			slock = 2,
-			keybind = -1,
-			unkeybind = -1,
-			keybinds = -1,
-			alias = -1,
-			cmds = -1,
-			cmdbar = -1,
-			debug = 0,
-			logs = 0,
-			admins = 0,
-			bans = nil,
-			usage = -1,
-			featureflag = nil,
-		},
-		BasicCommands = {
-			vote = nil,
-			pchat = nil,
-			track = nil,
-			untrack = nil,
-			chatlogs = nil,
-			batch = nil,
-			delay = nil,
-			loop = nil,
-			stoploops = nil,
-			m = nil,
-			h = nil,
-			pm = nil,
-			ph = nil,
-			sm = nil,
-			sh = nil,
-			mute = nil,
-			unmute = nil,
-			crash = nil,
-			shutdown = nil,
-			countdown = nil,
-			stopcountdown = nil,
-			age = nil,
-			refresh = nil,
-			clean = nil,
-			punish = nil,
-			respawn = nil,
-			team = nil,
-			tools = nil,
-			give = nil,
-			startergive = nil,
-			startertool = nil,
-			sword = nil,
-			atksword = nil,
-			removetools = nil,
-			resetstats = nil,
-			change = nil,
-			gear = nil,
-			inventory = nil,
-			createteam = nil,
-			removeteam = nil,
-			renameteam = nil,
-		},
-		BuildUtility = {
-			clearterrain = nil,
-			fixlighting = nil,
-			time = nil,
-			brightness = nil,
-			ambient = nil,
-			outdoorambient = nil,
-			fogcolor = nil,
-			fogend = nil,
-			fogstart = nil,
-			shadows = nil,
-			btools = nil,
-			s = nil,
-			insert = nil,
-		},
-		UsefulFunCommands = {
-			name = nil,
-			unname = nil,
-			ff = nil,
-			unff = nil,
-			kill = nil,
-			damage = nil,
-			heal = nil,
-			health = nil,
-			god = nil,
-			ungod = nil,
-			walkspeed = nil,
-			place = nil,
-			tp = nil,
-			to = nil,
-			bring = nil,
-			where = nil,
-			tpto = nil,
-			thru = nil,
-			flip = nil,
-			stun = nil,
-			unstun = nil,
-			jump = nil,
-			sit = nil,
-			unsit = nil,
-			lock = nil,
-			unlock = nil,
-			clone = nil,
-			explode = nil,
-			view = nil,
-			jail = nil,
-			unjail = nil,
-			fling = nil,
-			grav = nil,
-			setgrav = nil,
-			fly = nil,
-			unfly = nil,
-			collide = nil,
-			uncollide = nil,
-		},
-		FunCommands = {
-			removehats = nil,
-			play = nil,
-			volume = nil,
-			pause = nil,
-			resume = nil,
-			stop = nil,
-			blind = nil,
-			unblind = nil,
-			char = nil,
-			unchar = nil,
-			hat = nil,
-			disco = nil,
-			spin = nil,
-			unspin = nil,
-			freeze = nil,
-			thaw = nil,
-			invisible = nil,
-			visible = nil,
-			light = nil,
-			unlight = nil,
-			fire = nil,
-			unfire = nil,
-			smoke = nil,
-			unsmoke = nil,
-			sparkles = nil,
-			unsparkles = nil,
-			face = nil,
-			rocket = nil,
-			unrocket = nil,
-			vibrate = nil,
-			unvibrate = nil,
-		},
-		PersistentCommands = {
-			pban = nil,
-			unpban = nil,
-			pbans = nil,
-		},
-	},
+    --Below is for overriding the defaults levels
+    --If a value is nil, it will default to the default command level of the group
+    --If a value is a number, it will override the default command level of the group
+    --This can be useful to make an abusive command un-usable or make a useful command usable.
+    CommandLevelOverrides = {
+        Administrative = {
+            admin = 5,
+            unadmin = 5,
+            ban = 3,
+            unban = 3,
+            kick = 2,
+            slock = 2,
+            keybind = -1,
+            unkeybind = -1,
+            keybinds = -1,
+            alias = -1,
+            cmds = -1,
+            cmdbar = -1,
+            debug = 0,
+            logs = 0,
+            admins = 0,
+            bans = nil,
+            usage = -1,
+            featureflag = nil,
+        },
+        BasicCommands = {
+            vote = nil,
+            pchat = nil,
+            track = nil,
+            untrack = nil,
+            chatlogs = nil,
+            batch = nil,
+            delay = nil,
+            loop = nil,
+            stoploops = nil,
+            m = nil,
+            h = nil,
+            pm = nil,
+            ph = nil,
+            sm = nil,
+            sh = nil,
+            mute = nil,
+            unmute = nil,
+            crash = nil,
+            shutdown = nil,
+            countdown = nil,
+            stopcountdown = nil,
+            age = nil,
+            refresh = nil,
+            clean = nil,
+            punish = nil,
+            respawn = nil,
+            team = nil,
+            tools = nil,
+            give = nil,
+            startergive = nil,
+            startertool = nil,
+            sword = nil,
+            atksword = nil,
+            removetools = nil,
+            resetstats = nil,
+            change = nil,
+            gear = nil,
+            inventory = nil,
+            createteam = nil,
+            removeteam = nil,
+            renameteam = nil,
+        },
+        BuildUtility = {
+            clearterrain = nil,
+            fixlighting = nil,
+            time = nil,
+            brightness = nil,
+            ambient = nil,
+            outdoorambient = nil,
+            fogcolor = nil,
+            fogend = nil,
+            fogstart = nil,
+            shadows = nil,
+            btools = nil,
+            s = nil,
+            insert = nil,
+        },
+        UsefulFunCommands = {
+            name = nil,
+            unname = nil,
+            ff = nil,
+            unff = nil,
+            kill = nil,
+            damage = nil,
+            heal = nil,
+            health = nil,
+            god = nil,
+            ungod = nil,
+            walkspeed = nil,
+            place = nil,
+            tp = nil,
+            to = nil,
+            bring = nil,
+            where = nil,
+            tpto = nil,
+            thru = nil,
+            flip = nil,
+            stun = nil,
+            unstun = nil,
+            jump = nil,
+            sit = nil,
+            unsit = nil,
+            lock = nil,
+            unlock = nil,
+            clone = nil,
+            explode = nil,
+            view = nil,
+            jail = nil,
+            unjail = nil,
+            fling = nil,
+            grav = nil,
+            setgrav = nil,
+            fly = nil,
+            unfly = nil,
+            collide = nil,
+            uncollide = nil,
+        },
+        FunCommands = {
+            removehats = nil,
+            play = nil,
+            volume = nil,
+            pause = nil,
+            resume = nil,
+            stop = nil,
+            blind = nil,
+            unblind = nil,
+            char = nil,
+            unchar = nil,
+            hat = nil,
+            disco = nil,
+            spin = nil,
+            unspin = nil,
+            freeze = nil,
+            thaw = nil,
+            invisible = nil,
+            visible = nil,
+            light = nil,
+            unlight = nil,
+            fire = nil,
+            unfire = nil,
+            smoke = nil,
+            unsmoke = nil,
+            sparkles = nil,
+            unsparkles = nil,
+            face = nil,
+            rocket = nil,
+            unrocket = nil,
+            vibrate = nil,
+            unvibrate = nil,
+        },
+        PersistentCommands = {
+            pban = nil,
+            unpban = nil,
+            pbans = nil,
+        },
+    },
 
-	--Overrides for features as part of Nexus Admin. Most likely, you will
-	--not have to change anything; it is meant for developer use.
-	FeatureFlagOverrides = {
+    --Overrides for features as part of Nexus Admin. Most likely, you will
+    --not have to change anything; it is meant for developer use.
+    FeatureFlagOverrides = {
 
-	},
+    },
 }
 
 
@@ -276,23 +276,23 @@ local Config = {
 --This is where the actual loading happens. Feel free to use this in another script
 --Doubt you will need to, but here it is.
 local Worked,Return = pcall(function()
-	--Require the development module from ServerScriptService.
-	local NexusAdminModule
-	for _,Module in pairs(game:GetService("ServerScriptService"):GetChildren()) do
-		if Module:IsA("ModuleScript") and Module:FindFirstChild("NexusAdmin") then
-			NexusAdminModule = require(Module)
-			break
-		end
-	end
+    --Require the development module from ServerScriptService.
+    local NexusAdminModule
+    for _,Module in pairs(game:GetService("ServerScriptService"):GetChildren()) do
+        if Module:IsA("ModuleScript") and Module:FindFirstChild("NexusAdmin") then
+            NexusAdminModule = require(Module)
+            break
+        end
+    end
 
-	--Require the Roblox module if there isn't a development one in ServerScriptService.
-	if NexusAdminModule == nil then
-		NexusAdminModule = require(386507112)
-	end
+    --Require the Roblox module if there isn't a development one in ServerScriptService.
+    if NexusAdminModule == nil then
+        NexusAdminModule = require(386507112)
+    end
 
-	--Load Nexus admin.
-	NexusAdminModule(script,Config)
+    --Load Nexus admin.
+    NexusAdminModule(script,Config)
 end)
 if not Worked then
-	warn("NEXUS ADMIN FAILED TO LOAD: "..tostring(Return))
+    warn("NEXUS ADMIN FAILED TO LOAD: "..tostring(Return))
 end

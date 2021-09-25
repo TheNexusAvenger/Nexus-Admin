@@ -20,8 +20,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players,Team)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Clear the terrain.
     self.Workspace.Terrain:Clear()
 end

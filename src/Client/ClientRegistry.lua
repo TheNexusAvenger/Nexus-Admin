@@ -46,11 +46,11 @@ function ClientRegistry:LoadCommand(CommandData)
     
     --Register the command.
     local CmdrCommandData = self:GetReplicatableCmdrData(CommandData)
-	local ExistingCommand = self.Cmdr.Registry.Commands[CmdrCommandData.Name]
+    local ExistingCommand = self.Cmdr.Registry.Commands[CmdrCommandData.Name]
     if CommandData.OnInvoke or CommandData.Run then
         CmdrCommandData.ClientRun = self:CreateRunMethod(CommandData)
-	elseif ExistingCommand then
-		CmdrCommandData.ClientRun = ExistingCommand.ClientRun
+    elseif ExistingCommand then
+        CmdrCommandData.ClientRun = ExistingCommand.ClientRun
     end
     self.Cmdr.Registry:RegisterCommandObject(CmdrCommandData)
 end
@@ -60,8 +60,8 @@ Loads the current commands from the server.
 --]]
 function ClientRegistry:LoadServerCommands()
     for _,Command in pairs(self.GetRegisteredCommands:InvokeServer()) do
-		self:LoadCommand(Command)
-	end
+        self:LoadCommand(Command)
+    end
 end
 
 

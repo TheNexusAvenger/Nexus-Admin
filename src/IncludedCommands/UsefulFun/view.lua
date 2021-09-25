@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("view","UsefulFunCommands","Views a given player.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Player",
-			Description = "Player to view.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Player",
+            Description = "Player to view.",
+        },
+    }
 end
 
 

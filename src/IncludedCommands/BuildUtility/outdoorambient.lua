@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("outdoorambient","BuildUtility","Sets the outdoor ambient.")
 
     self.Arguments = {
-		{
-			Type = "color3",
-			Name = "OutdoorAmbient",
-			Description = "OutdoorAmbient to set.",
-		},
+        {
+            Type = "color3",
+            Name = "OutdoorAmbient",
+            Description = "OutdoorAmbient to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,OutdoorAmbient)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the outdoor ambient.
     if not CommonState.LightingProperties.OutdoorAmbient then
         CommonState.LightingProperties.OutdoorAmbient = self.Lighting.OutdoorAmbient

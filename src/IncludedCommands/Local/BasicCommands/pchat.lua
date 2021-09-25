@@ -17,16 +17,16 @@ function Command:__new()
     self:InitializeSuper({"pchat","pc"},"BasicCommands","Starts a private chat between a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to run the vote for.",
-		},
-		{
-			Type = "string",
-			Name = "Question",
-			Description = "Message to send.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to run the vote for.",
+        },
+        {
+            Type = "string",
+            Name = "Question",
+            Description = "Message to send.",
+        },
     }
 
     --Connect the remote objects.

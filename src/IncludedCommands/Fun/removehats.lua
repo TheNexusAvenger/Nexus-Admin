@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("removehats","FunCommands","Removes the hats of a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove the hats of.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove the hats of.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Remove the hats.
     for _,Player in pairs(Players) do
         if Player.Character then

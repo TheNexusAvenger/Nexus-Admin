@@ -16,16 +16,16 @@ function Command:__new()
     self:InitializeSuper("renameteam","BasicCommands","Renames a given team.")
 
     self.Arguments = {
-		{
-			Type = "team",
-			Name = "Team",
-			Description = "Team to rename.",
-		},
-		{
-			Type = "string",
-			Name = "Name",
-			Description = "Name to use.",
-		},
+        {
+            Type = "team",
+            Name = "Team",
+            Description = "Team to rename.",
+        },
+        {
+            Type = "string",
+            Name = "Name",
+            Description = "Name to use.",
+        },
     }
 end
 
@@ -33,8 +33,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Team,Name)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Rename the team.
     local FilteredName = self.API.Filter:FilterString(Name,CommandContext.Executor)
     Team.Name = FilteredName

@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("ungod","UsefulFunCommands","Sets the max health of the given players 100.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to ungod.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to ungod.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the helath to 100.
     for _,Player in pairs(Players) do
         local Character = Player.Character

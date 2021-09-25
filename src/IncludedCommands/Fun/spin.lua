@@ -16,17 +16,17 @@ function Command:__new()
     self:InitializeSuper("spin","FunCommands","Spins a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to spin.",
-		},
-		{
-			Type = "number",
-			Name = "Speed",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to spin.",
+        },
+        {
+            Type = "number",
+            Name = "Speed",
             Description = "Speed to spin at.",
             Optional = true,
-		},
+        },
     }
 end
 

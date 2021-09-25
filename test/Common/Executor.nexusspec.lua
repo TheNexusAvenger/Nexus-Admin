@@ -34,8 +34,8 @@ function ExecutorUnitTest:Setup()
         }
     }
 
-	--Create the component under testing.
-	self.CuT = Executor.new(self.MockCmdr,self.MockRegistry)
+    --Create the component under testing.
+    self.CuT = Executor.new(self.MockCmdr,self.MockRegistry)
 end
 
 --[[

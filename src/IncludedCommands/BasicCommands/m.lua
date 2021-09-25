@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper({"m","announce"},"BasicCommands","Creates a message visible to everyone.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Message",
-			Description = "Announcement text.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Message",
+            Description = "Announcement text.",
+        },
+    }
 end
 
 --[[

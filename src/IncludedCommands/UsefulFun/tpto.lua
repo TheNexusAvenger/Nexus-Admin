@@ -16,17 +16,17 @@ function Command:__new()
     self:InitializeSuper("tpto","UsefulFunCommands","Teleports a set of players to a specific location.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to teleport.",
-		},
-		{
-			Type = "vector3",
-			Name = "TargetPosition",
-			Description = "Position to teleport to.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to teleport.",
+        },
+        {
+            Type = "vector3",
+            Name = "TargetPosition",
+            Description = "Position to teleport to.",
+        },
+    }
 end
 
 --[[

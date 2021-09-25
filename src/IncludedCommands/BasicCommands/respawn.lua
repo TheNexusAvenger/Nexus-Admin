@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("respawn","BasicCommands","Respawns a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to respawn.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to respawn.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Punish the players.
     for _,Player in pairs(Players) do
         Player:LoadCharacter()

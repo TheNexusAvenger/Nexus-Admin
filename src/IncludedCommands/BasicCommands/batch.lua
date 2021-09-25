@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("batch","BasicCommands","Performs several commands at once.")
 
     self.Arguments = {
-		{
-			Type = "string",
-			Name = "Command/Command/Command...",
-			Description = "Commands to run.",
-		},
-	}
+        {
+            Type = "string",
+            Name = "Command/Command/Command...",
+            Description = "Commands to run.",
+        },
+    }
 end
 
 

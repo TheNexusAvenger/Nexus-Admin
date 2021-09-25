@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("play","FunCommands","Plays music with the given id.")
 
     self.Arguments = {
-		{
-			Type = "integer",
-			Name = "AudioId",
-			Description = "Audio id to play.",
-		},
+        {
+            Type = "integer",
+            Name = "AudioId",
+            Description = "Audio id to play.",
+        },
     }
     
     --Create the audio.
@@ -35,7 +35,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,AudioId)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     --Get the audio information.
     local Worked,ProductData = pcall(function()

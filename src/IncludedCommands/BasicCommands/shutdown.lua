@@ -20,7 +20,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     --Display the server is shutting down.
     for _,Player in pairs(self.Players:GetPlayers()) do

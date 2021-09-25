@@ -17,20 +17,20 @@ function Command:__new()
     self:InitializeSuper("unjail","UsefulFunCommands","Unjails a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to unjail.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to unjail.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Destroy the jails.
     for _,Player in pairs(Players) do
         if CommonState.PlayerJails[Player] then

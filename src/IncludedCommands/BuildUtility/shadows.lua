@@ -21,8 +21,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the shadows.
     if not CommonState.LightingProperties.GlobalShadows then
         CommonState.LightingProperties.GlobalShadows = self.Lighting.GlobalShadows

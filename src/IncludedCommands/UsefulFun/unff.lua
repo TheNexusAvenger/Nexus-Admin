@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("unff","UsefulFunCommands","Removes all force fields from the given players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove force fields from.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove force fields from.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Give the forcefields.
     for _,Player in pairs(Players) do
         local Character = Player.Character

@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("fogcolor","BuildUtility","Sets the fog color.")
 
     self.Arguments = {
-		{
-			Type = "color3",
-			Name = "FogColor",
-			Description = "Fog color to set.",
-		},
+        {
+            Type = "color3",
+            Name = "FogColor",
+            Description = "Fog color to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,FogColor)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the fog color.
     if not CommonState.LightingProperties.FogColor then
         CommonState.LightingProperties.FogColor = self.Lighting.FogColor

@@ -16,17 +16,17 @@ function Command:__new()
     self:InitializeSuper({"grav","setgrav"},"UsefulFunCommands","Sets the gravity of a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to change the gravity for.",
-		},
-		{
-			Type = "number",
-			Name = "Multiplier",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to change the gravity for.",
+        },
+        {
+            Type = "number",
+            Name = "Multiplier",
             Description = "Multiplifer of the gravity.",
             Optional = true,
-		},
+        },
     }
 end
 
@@ -35,7 +35,7 @@ Runs the command.
 --]]
 function Command:Run(CommandContext,Players,Multiplier)
     self.super:Run(CommandContext)
-	
+    
     --Set the gravity of the players.
     for _,Player in pairs(Players) do
         local Character = Player.Character
@@ -59,9 +59,9 @@ function Command:Run(CommandContext,Players,Multiplier)
 
                     --Create the gravity effect.
                     NexusAdminGravityEffect = Instance.new("BodyForce")
-					NexusAdminGravityEffect.Name = "NexusAdminGravityEffect"
-					NexusAdminGravityEffect.Force = Vector3.new(0,Mass * -(Multiplier - 1),0)
-					NexusAdminGravityEffect.Parent = HumanoidRootPart
+                    NexusAdminGravityEffect.Name = "NexusAdminGravityEffect"
+                    NexusAdminGravityEffect.Force = Vector3.new(0,Mass * -(Multiplier - 1),0)
+                    NexusAdminGravityEffect.Parent = HumanoidRootPart
                 end
             end
         end

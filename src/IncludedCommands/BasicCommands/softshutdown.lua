@@ -47,7 +47,7 @@ function Command:PerformSoftShutdown()
 
     --Send the shutdown message.
     local PlaceId = game.PlaceId
-	local ReservedServerCode = self.TeleportService:ReserveServer(PlaceId)
+    local ReservedServerCode = self.TeleportService:ReserveServer(PlaceId)
     self.StartSoftShutdownRemoteEvent:FireAllClients()
     
     --Create the teleport GUI.
@@ -69,7 +69,7 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
     
     --Start the soft shutdown.
     self:PerformSoftShutdown()

@@ -17,12 +17,12 @@ function Command:__new()
 
     self.Prefix = {"!",self.API.Configuration.CommandPrefix}
     self.Arguments = {
-		{
-			Type = "command";
-			Name = "Command";
-			Description = "The command to view information on (command line only)";
-			Optional = true;
-		},
+        {
+            Type = "command";
+            Name = "Command";
+            Description = "The command to view information on (command line only)";
+            Optional = true;
+        },
     }
 end
 

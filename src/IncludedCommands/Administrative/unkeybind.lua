@@ -17,11 +17,11 @@ function Command:__new()
 
     self.Prefix = {"!",self.API.Configuration.CommandPrefix}
     self.Arguments = {
-		{
-			Type = "userInput",
-			Name = "Key",
-			Description = "Key to bind.",
-		},
+        {
+            Type = "userInput",
+            Name = "Key",
+            Description = "Key to bind.",
+        },
     }
 end
 

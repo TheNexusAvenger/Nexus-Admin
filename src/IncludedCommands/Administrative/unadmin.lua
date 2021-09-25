@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper("unadmin","Administrative","Unadmin players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to unadmin.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to unadmin.",
+        },
+    }
 end
 
 --[[

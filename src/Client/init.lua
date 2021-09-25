@@ -51,64 +51,64 @@ local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
 
 --Create the API.
 local API = {
-	Types = {},
+    Types = {},
     CommandData = {},
-	Version = Configuration.Version,
-	VersionNumberId = Configuration.VersionNumberId,
-	CmdrVersion = Configuration.CmdrVersion,
-	EventContainer = EventContainer,
-	AdminItemContainer = AdminItemContainer,
+    Version = Configuration.Version,
+    VersionNumberId = Configuration.VersionNumberId,
+    CmdrVersion = Configuration.CmdrVersion,
+    EventContainer = EventContainer,
+    AdminItemContainer = AdminItemContainer,
 
-	Cmdr = Cmdr,
-	Configuration = Configuration,
-	Authorization = Authorization,
-	Messages = Messages,
-	Registry = Registry,
-	Executor = Executor,
-	FeatureFlags = FeatureFlags,
-	Time = Time,
-	Gui = {
-		Window = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("Window")),
-		ResizableWindow = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")),
-	},
+    Cmdr = Cmdr,
+    Configuration = Configuration,
+    Authorization = Authorization,
+    Messages = Messages,
+    Registry = Registry,
+    Executor = Executor,
+    FeatureFlags = FeatureFlags,
+    Time = Time,
+    Gui = {
+        Window = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("Window")),
+        ResizableWindow = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")),
+    },
 }
 
 --Add the custom Cmdr types.
 for _,TypeModule in pairs(script:WaitForChild("Common"):WaitForChild("Types"):GetChildren()) do
-	require(TypeModule)(API)
+    require(TypeModule)(API)
 end
 
 --[[
 Loads the included commands.
 --]]
 function API:LoadIncludedCommands()
-	local Categories = {"Administrative","BasicCommands","UsefulFun","Persistent","Cmdr"}
-	for _,Category in pairs(Categories) do
-		--[[
-		Loads a module.
-		--]]
-		local function LoadModule(Module)
-			if not Module:IsA("ModuleScript") then return end
+    local Categories = {"Administrative","BasicCommands","UsefulFun","Persistent","Cmdr"}
+    for _,Category in pairs(Categories) do
+        --[[
+        Loads a module.
+        --]]
+        local function LoadModule(Module)
+            if not Module:IsA("ModuleScript") then return end
 
-			local Data = require(Module).new():Flatten()
-			local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
-			if ExistingCommand then
-				Data.Run = ExistingCommand.ClientRun
-			end
-			self.Registry:LoadCommand(Data)
-		end
+            local Data = require(Module).new():Flatten()
+            local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
+            if ExistingCommand then
+                Data.Run = ExistingCommand.ClientRun
+            end
+            self.Registry:LoadCommand(Data)
+        end
 
-		--Add the scripts.
-		local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
-		for _,Module in pairs(Folder:GetChildren()) do
-			LoadModule(Module)
-		end
+        --Add the scripts.
+        local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
+        for _,Module in pairs(Folder:GetChildren()) do
+            LoadModule(Module)
+        end
 
-		--Connect adding new scripts.
-		Folder.ChildAdded:Connect(function(Module)
-			LoadModule(Module)
-		end)
-	end
+        --Connect adding new scripts.
+        Folder.ChildAdded:Connect(function(Module)
+            LoadModule(Module)
+        end)
+    end
 end
 
 --Initialize the optional UI.
@@ -128,15 +128,15 @@ end
 --Add the deprecated methods.
 local StaticContainer
 function API.GetAdminGuiContainer()
-	warn("NexusAdminClientAPI.GetAdminGuiContainer() is deprecated as of V.2.0.0. ScreenGuis should be created.")
-	--Create the GUI.
-	if not StaticContainer or not StaticContainer.Parent then
-		StaticContainer = Instance.new("ScreenGui")
-		StaticContainer.Name = "NexusAdminStaticGui"
-		StaticContainer.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
-	end
+    warn("NexusAdminClientAPI.GetAdminGuiContainer() is deprecated as of V.2.0.0. ScreenGuis should be created.")
+    --Create the GUI.
+    if not StaticContainer or not StaticContainer.Parent then
+        StaticContainer = Instance.new("ScreenGui")
+        StaticContainer.Name = "NexusAdminStaticGui"
+        StaticContainer.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
+    end
 
-	--Return the GUI.
+    --Return the GUI.
     return StaticContainer
 end
 
@@ -151,46 +151,46 @@ end
 
 function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
     warn("NexusAdminClientAPI.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction) is deprecated as of V.2.0.0. Please use NexusAdminClientAPI.Gui.Window or NexusAdminClientAPI.Gui.ResizableWindow instead.")
-	
-	--Create the window.
-	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
+    
+    --Create the window.
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
 
-	local ScrollingFrame = Instance.new("ScrollingFrame")
-	ScrollingFrame.BackgroundTransparency = 1
-	ScrollingFrame.BorderSizePixel = 0
-	ScrollingFrame.Size = UDim2.new(1,0,1,0)
-	ScrollingFrame.ScrollBarThickness = 10
-	ScrollingFrame.CanvasSize = UDim2.new(0,0,0,0)
+    local ScrollingFrame = Instance.new("ScrollingFrame")
+    ScrollingFrame.BackgroundTransparency = 1
+    ScrollingFrame.BorderSizePixel = 0
+    ScrollingFrame.Size = UDim2.new(1,0,1,0)
+    ScrollingFrame.ScrollBarThickness = 10
+    ScrollingFrame.CanvasSize = UDim2.new(0,0,0,0)
 
-	local Window = API.Gui.ResizableWindow.new()
-	Window.Title = Name
-	Window.WindowFrame.Position = UDim2.new(-0.3,0,0,0.3 * Window.WindowFrame.AbsoluteSize.Y)
-	ScrollingFrame.Parent = Window.ContentsAdorn
-	Window.WindowFrame.Parent = ScreenGui
+    local Window = API.Gui.ResizableWindow.new()
+    Window.Title = Name
+    Window.WindowFrame.Position = UDim2.new(-0.3,0,0,0.3 * Window.WindowFrame.AbsoluteSize.Y)
+    ScrollingFrame.Parent = Window.ContentsAdorn
+    Window.WindowFrame.Parent = ScreenGui
 
-	--Connect the events.
-	Window.OnRefresh = function()
-		RefreshFunction(ScrollingFrame)
-	end
-	Window.OnClose = function()
-		--Run the OnClose function.
-		if OnCloseFunction then
-			spawn(function()
-				OnCloseFunction(ScrollingFrame)
-			end)
-		end
+    --Connect the events.
+    Window.OnRefresh = function()
+        RefreshFunction(ScrollingFrame)
+    end
+    Window.OnClose = function()
+        --Run the OnClose function.
+        if OnCloseFunction then
+            spawn(function()
+                OnCloseFunction(ScrollingFrame)
+            end)
+        end
 
-		--Hide and destroy the window.
-		Window.WindowFrame:TweenPosition(UDim2.new(-0.3,0,0,Window.WindowFrame.Position.Y.Offset),"In","Back",0.25,false,function()
-			Window:Destroy()
-			ScreenGui:Destroy()
-		end)
-	end
+        --Hide and destroy the window.
+        Window.WindowFrame:TweenPosition(UDim2.new(-0.3,0,0,Window.WindowFrame.Position.Y.Offset),"In","Back",0.25,false,function()
+            Window:Destroy()
+            ScreenGui:Destroy()
+        end)
+    end
 
-	--Run the refresh function and show the window.
-	RefreshFunction(ScrollingFrame)
-	Window.WindowFrame:TweenPosition(UDim2.new(0,50,0,Window.WindowFrame.Position.Y.Offset),"Out","Back",0.25,false)
+    --Run the refresh function and show the window.
+    RefreshFunction(ScrollingFrame)
+    Window.WindowFrame:TweenPosition(UDim2.new(0,50,0,Window.WindowFrame.Position.Y.Offset),"Out","Back",0.25,false)
 end
 
 function API.AddTooltipToFrame(Text,Frame)

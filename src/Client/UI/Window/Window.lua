@@ -93,7 +93,7 @@ function Window:__new()
     TitleText.TextSize = TopBarHeightPixel * (36/44)
     TitleText.ZIndex = 3
     TitleText.Parent = TopBarAdorn
-		
+        
     --Connect the events.
     self.Events = {}
     local MouseDown = false

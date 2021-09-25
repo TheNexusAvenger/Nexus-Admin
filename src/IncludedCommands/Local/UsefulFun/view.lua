@@ -16,19 +16,19 @@ function Command:__new()
     self:InitializeSuper("view","UsefulFunCommands","Views a given player.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Player",
-			Description = "Player to view.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Player",
+            Description = "Player to view.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
+    self.super:Run(CommandContext)
 
     --Change the view.
     local Player = Players[1]

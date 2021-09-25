@@ -16,20 +16,20 @@ function Command:__new()
     self:InitializeSuper("blind","FunCommands","Blinds a set of players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to blind.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to blind.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Blind the players.
     for _,Player in pairs(Players) do
         local PlayerGui = Player:FindFirstChild("PlayerGui")

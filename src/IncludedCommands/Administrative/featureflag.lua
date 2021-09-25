@@ -16,17 +16,17 @@ function Command:__new()
     self:InitializeSuper({"featureflag","feature"},"Administrative","Sets the value of a feature flag.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminFastFlags",
-			Name = "Feature",
-			Description = "Feature flags to change.",
-		},
-		{
-			Type = "boolean",
-			Name = "Value",
-			Description = "New value of the feature flag.",
-		},
-	}
+        {
+            Type = "nexusAdminFastFlags",
+            Name = "Feature",
+            Description = "Feature flags to change.",
+        },
+        {
+            Type = "boolean",
+            Name = "Value",
+            Description = "New value of the feature flag.",
+        },
+    }
 end
 
 --[[

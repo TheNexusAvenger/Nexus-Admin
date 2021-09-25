@@ -17,17 +17,17 @@ function Command:__new()
     self:InitializeSuper("ban","Administrative","Bans players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to ban.",
-		},
-		{
-			Type = "string",
-			Name = "Message",
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to ban.",
+        },
+        {
+            Type = "string",
+            Name = "Message",
             Description = "Ban message.",
             Optional = true,
-		},
+        },
     }
     
     --Connect kicking players on entry.

@@ -16,16 +16,16 @@ function Command:__new()
     self:InitializeSuper("hat","FunCommands","Gives hats to the given players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give hats.",
-		},
-		{
-			Type = "integers",
-			Name = "Ids",
-			Description = "Hats ids to insert.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give hats.",
+        },
+        {
+            Type = "integers",
+            Name = "Ids",
+            Description = "Hats ids to insert.",
+        },
     }
 end
 

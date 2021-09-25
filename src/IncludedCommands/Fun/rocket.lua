@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("rocket","FunCommands","Adds a rocket to a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give a rocket to.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give a rocket to.",
+        },
     }
 end
 

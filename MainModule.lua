@@ -24,7 +24,7 @@ return function(LoaderScript,Configuration)
                     warn(tostring(Ins:GetFullName()).." module failed to load because "..tostring(Return))
                 end
             end
-		end
+        end
     end
     
     --Print that Nexus Admin has loaded (kept from V.1.X.X).

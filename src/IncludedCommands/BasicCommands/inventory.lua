@@ -16,12 +16,12 @@ function Command:__new()
     self:InitializeSuper({"inventory","viewinventory"},"BasicCommands","Displays the inventory of the given players.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to show the inventory of.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to show the inventory of.",
+        },
+    }
 end
 
 

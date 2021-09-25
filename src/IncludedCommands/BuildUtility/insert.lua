@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("insert","BuildUtility","Inserts a model with a given id at your location.")
 
     self.Arguments = {
-		{
-			Type = "numbers",
-			Name = "Ids",
-			Description = "Models to insert.",
-		},
+        {
+            Type = "numbers",
+            Name = "Ids",
+            Description = "Models to insert.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,Ids)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Insert the models.
     for _,Id in pairs(Ids) do
         --Insert the model.

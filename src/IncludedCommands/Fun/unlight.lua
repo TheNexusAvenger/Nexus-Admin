@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("unlight","FunCommands","Removes all light from a set of players.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to remove light from.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to remove light from.",
+        },
     }
 end
 

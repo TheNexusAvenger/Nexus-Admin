@@ -17,11 +17,11 @@ function Command:__new()
     self:InitializeSuper("fogstart","BuildUtility","Sets the fog start.")
 
     self.Arguments = {
-		{
-			Type = "number",
-			Name = "FogStart",
-			Description = "Fog start to set.",
-		},
+        {
+            Type = "number",
+            Name = "FogStart",
+            Description = "Fog start to set.",
+        },
     }
 end
 
@@ -29,8 +29,8 @@ end
 Runs the command.
 --]]
 function Command:Run(CommandContext,FogStart)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Set the fog start.
     if not CommonState.LightingProperties.FogStart then
         CommonState.LightingProperties.FogStart = self.Lighting.FogStart

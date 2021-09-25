@@ -15,8 +15,8 @@ local FeatureFlags = require(game:GetService("ServerScriptService"):WaitForChild
 Sets up the unit test.
 --]]
 function FeatureFlagsUnitTest:Setup()
-	--Create the component under testing.
-	self.CuT = FeatureFlags.new()
+    --Create the component under testing.
+    self.CuT = FeatureFlags.new()
 end
 
 --[[

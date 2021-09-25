@@ -16,11 +16,11 @@ function Command:__new()
     self:InitializeSuper("invisible","FunCommands","Makes a set of players invisible.")
     
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to make invisible.",
-		},
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to make invisible.",
+        },
     }
 end
 

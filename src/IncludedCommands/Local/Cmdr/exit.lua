@@ -16,10 +16,10 @@ function Command:__new()
     self:InitializeSuper()
 
     self.Name = "exit"
-	self.Aliases = {}
-	self.Description = "Closes the command line. (Added by Nexus Admin.)"
-	self.Group = "DefaultUtil"
-	self.Args = {}
+    self.Aliases = {}
+    self.Description = "Closes the command line. (Added by Nexus Admin.)"
+    self.Group = "DefaultUtil"
+    self.Args = {}
 end
 
 --[[

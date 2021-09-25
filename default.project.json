@@ -1,10 +1,10 @@
 {
-	"name": "Nexus-Admin",
-	"tree": {
+    "name": "Nexus-Admin",
+    "tree": {
         "$className": "DataModel",
-		"ServerScriptService": {
-			"$className": "ServerScriptService",
-			"MainModule": {
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "MainModule": {
                 "$path": "./MainModule.lua",
                 "NexusAdmin": {
                     "$path": "./src",
@@ -28,6 +28,6 @@
             "NexusAdminLoader": {
                 "$path": "Loader.server.lua"
             }
-		}
-	}
+        }
+    }
 }

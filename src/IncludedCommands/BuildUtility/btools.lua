@@ -17,20 +17,20 @@ function Command:__new()
     self:InitializeSuper("btools","BuildUtility","Gives the given players a set of the HopperBin tools and F3X Build tools.")
 
     self.Arguments = {
-		{
-			Type = "nexusAdminPlayers",
-			Name = "Players",
-			Description = "Players to give build tools.",
-		},
-	}
+        {
+            Type = "nexusAdminPlayers",
+            Name = "Players",
+            Description = "Players to give build tools.",
+        },
+    }
 end
 
 --[[
 Runs the command.
 --]]
 function Command:Run(CommandContext,Players)
-	self.super:Run(CommandContext)
-	
+    self.super:Run(CommandContext)
+    
     --Give the build tools.
     for _,Player in pairs(Players) do
         local Backpack = Player:FindFirstChild("Backpack")
