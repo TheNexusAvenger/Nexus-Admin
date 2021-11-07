@@ -56,6 +56,8 @@ function Command:__new()
                     [Enum.KeyCode.A] = false,
                     [Enum.KeyCode.S] = false,
                     [Enum.KeyCode.D] = false,
+                    [Enum.KeyCode.LeftShift] = false,
+                    [Enum.KeyCode.RightShift] = false,
                 }
                 Flight.Humanoid = Humanoid
                 Flight.HumanoidRootPart = HumanoidRootPart
@@ -70,6 +72,7 @@ function Command:__new()
                 Flight.Decceleration = 1 * 60
                 Flight.FrontMultiplier = 0
                 Flight.SideMultiplier = 0
+                Flight.ShiftDownMultiplier = 2.5
                 Flight.Command = self
 
                 --[[
@@ -117,44 +120,51 @@ function Command:__new()
                             local _,_,_,A,B,C,D,E,F,G,H,I = self.Command.Workspace.CurrentCamera.CFrame:components()
                             local Rotation = CFrame.new(0,0,0,A,B,C,D,E,F,G,H,I)
                             
+                            --Determine the speeds and accelerations.
+                            local ShiftMultiplier = ((self.KeysDown[Enum.KeyCode.LeftShift] or self.KeysDown[Enum.KeyCode.RightShift]) and self.ShiftDownMultiplier or 1)
+                            local MaxSpeed = self.MaxSpeed * ShiftMultiplier
+                            local MaxSideSpeed = self.MaxSideSpeed * ShiftMultiplier
+                            local Acceleration = self.Acceleration * ShiftMultiplier
+                            local Decceleration = self.Decceleration * ShiftMultiplier
+
                             --Update the speeds.
                             if self.FrontMultiplier == 1 then
                                 if self.FrontSpeed < 0 then
-                                    self:IncrementSpeed("FrontSpeed",self.Acceleration * Delta)
-                                elseif self.FrontSpeed < self.MaxSpeed then
-                                    self:IncrementSpeed("FrontSpeed",self.Decceleration * Delta)
+                                    self:IncrementSpeed("FrontSpeed",Acceleration * Delta)
+                                elseif self.FrontSpeed < MaxSpeed then
+                                    self:IncrementSpeed("FrontSpeed",Decceleration * Delta)
                                 end 
                             elseif self.FrontMultiplier == -1 then
                                 if self.FrontSpeed > -0 then
-                                    self:IncrementSpeed("FrontSpeed",-self.Acceleration * Delta)
-                                elseif self.FrontSpeed > -self.MaxSpeed then
-                                    self:IncrementSpeed("FrontSpeed",-self.Decceleration * Delta)
+                                    self:IncrementSpeed("FrontSpeed",-Acceleration * Delta)
+                                elseif self.FrontSpeed > -MaxSpeed then
+                                    self:IncrementSpeed("FrontSpeed",-Decceleration * Delta)
                                 end
                             elseif self.FrontMultiplier == 0 then
                                 if self.FrontSpeed > 0 then
-                                    self:IncrementSpeed("FrontSpeed",-self.Decceleration * Delta)
+                                    self:IncrementSpeed("FrontSpeed",-Decceleration * Delta)
                                 elseif self.FrontSpeed < 0 then
-                                    self:IncrementSpeed("FrontSpeed",self.Decceleration * Delta)
+                                    self:IncrementSpeed("FrontSpeed",Decceleration * Delta)
                                 end
                             end
                             
                             if self.SideMultiplier == 1 then
                                 if self.SideSpeed < 0 then
-                                    self:IncrementSpeed("SideSpeed",self.Acceleration * Delta)
-                                elseif self.SideSpeed < self.MaxSideSpeed then
-                                    self:IncrementSpeed("SideSpeed",self.Decceleration * Delta)
+                                    self:IncrementSpeed("SideSpeed",Acceleration * Delta)
+                                elseif self.SideSpeed < MaxSideSpeed then
+                                    self:IncrementSpeed("SideSpeed",Decceleration * Delta)
                                 end 
                             elseif self.SideMultiplier == -1 then
                                 if self.SideSpeed > 0 then
-                                    self:IncrementSpeed("SideSpeed",-self.Acceleration * Delta)
-                                elseif self.SideSpeed > -self.MaxSideSpeed then
-                                    self:IncrementSpeed("SideSpeed",-self.Decceleration * Delta)
+                                    self:IncrementSpeed("SideSpeed",-Acceleration * Delta)
+                                elseif self.SideSpeed > -MaxSideSpeed then
+                                    self:IncrementSpeed("SideSpeed",-Decceleration * Delta)
                                 end
                             elseif self.SideMultiplier == 0 then
                                 if self.SideSpeed > 0 then
-                                    self:IncrementSpeed("SideSpeed",-self.Decceleration * Delta)
+                                    self:IncrementSpeed("SideSpeed",-Decceleration * Delta)
                                 elseif self.SideSpeed < 0 then
-                                    self:IncrementSpeed("SideSpeed",self.Decceleration * Delta)
+                                    self:IncrementSpeed("SideSpeed",Decceleration * Delta)
                                 end
                             end
                             
