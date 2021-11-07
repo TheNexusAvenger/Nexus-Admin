@@ -28,6 +28,37 @@ function Command:__new()
     FlyPlayerEvent.Name = "FlyPlayer"
     FlyPlayerEvent.Parent = self.API.EventContainer
     self.FlyPlayerEvent = FlyPlayerEvent
+
+    --Update the collision groups.
+    self.API.FeatureFlags:AddFeatureFlag("AllowFlyingThroughMap",true)
+    coroutine.wrap(function()
+        while true do
+            --Determine if the flying collision group exists.
+            local HasFlyCollisionGroup = false
+            for _,CollisionGroup in pairs(self.PhysicsService:GetCollisionGroups()) do
+                if CollisionGroup.name == "NexusAdmin_FlyingPlayerCollisionGroup" then
+                    HasFlyCollisionGroup = true
+                    break
+                end
+            end
+
+            --Set up the collision group for flying.
+            local AllowFlyingThroughMap = self.API.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap")
+            if AllowFlyingThroughMap and not HasFlyCollisionGroup then
+                self.PhysicsService:CreateCollisionGroup("NexusAdmin_FlyingPlayerCollisionGroup")
+            end
+
+            --Update the collision groups.
+            if HasFlyCollisionGroup then
+                for _,CollisionGroup in pairs(self.PhysicsService:GetCollisionGroups()) do
+                    self.PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name,"NexusAdmin_FlyingPlayerCollisionGroup",not AllowFlyingThroughMap)
+                end
+            end
+
+            --Wait to run again.
+            wait(5)
+        end
+    end)()
 end
 
 --[[

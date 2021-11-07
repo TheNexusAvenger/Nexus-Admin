@@ -114,6 +114,28 @@ function Command:__new()
                         self.Humanoid.PlatformStand = true
                         self:UpdateMultipliers()
 
+                        --Set the collision groups if the feature is enabled.
+                        if self.Command.API.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
+                            --Determine the new collision group.
+                            self.FlightCollisionGroup = nil
+                            for _,CollisionGroup in pairs(self.Command.PhysicsService:GetCollisionGroups()) do
+                                if CollisionGroup.name == "NexusAdmin_FlyingPlayerCollisionGroup" then
+                                    self.FlightCollisionGroup = CollisionGroup.id
+                                    self.InitialCollisionGroup = HumanoidRootPart.CollisionGroupId
+                                    break
+                                end
+                            end
+
+                            --Set the collision groups if the flying collision group exists.
+                            if self.FlightCollisionGroup then
+                                for _,Part in pairs(Character:GetDescendants()) do
+                                    if Part:IsA("BasePart") and Part.CollisionGroupId == self.InitialCollisionGroup then
+                                        Part.CollisionGroupId = self.FlightCollisionGroup
+                                    end
+                                end
+                            end
+                        end
+
                         --Connect the updates.
                         self.Command.RunService:BindToRenderStep("NexusAdminFlyStep",500,function(Delta)
                             --Get the rotation.
@@ -191,6 +213,15 @@ function Command:__new()
                         self.FrontSpeed = 0
                         self.SideSpeed = 0
                         self.Command.RunService:UnbindFromRenderStep("NexusAdminFlyStep")
+
+                        --Reset the collision groups.
+                        if self.FlightCollisionGroup then
+                            for _,Part in pairs(Character:GetDescendants()) do
+                                if Part:IsA("BasePart") and Part.CollisionGroupId == self.FlightCollisionGroup then
+                                    Part.CollisionGroupId = self.InitialCollisionGroup
+                                end
+                            end
+                        end
                     end
                 end
 
