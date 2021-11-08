@@ -31,7 +31,7 @@ function Command:Run(CommandContext,_)
     self.super:Run(CommandContext)
 
     --Run the commands.
-    for _,Command in pairs(string.split(self:GetRemainingString(CommandContext.RawText,1),"/")) do
+    for _,Command in pairs(self.API.Executor:SplitCommands(self:GetRemainingString(CommandContext.RawText,1),"/")) do
         local Message = self.API.Executor:ExecuteCommandWithOrWithoutPrefix(Command,self.Players.LocalPlayer,CommandContext:GetData())
         if Message ~= "" then
             self:SendMessage(Message)

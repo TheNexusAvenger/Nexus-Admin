@@ -39,6 +39,22 @@ function ExecutorUnitTest:Setup()
 end
 
 --[[
+Tests the Unescape method.
+--]]
+NexusUnitTesting:RegisterUnitTest(ExecutorUnitTest.new("Unescape"):SetRun(function(self)
+    --Assert no escaping.
+    self:AssertEquals(self.CuT:Unescape("test"),"test")
+
+    --Assert escaping.
+    self:AssertEquals(self.CuT:Unescape("test\\test"),"testtest")
+    self:AssertEquals(self.CuT:Unescape("test\\\\test"),"test\\test")
+    self:AssertEquals(self.CuT:Unescape("\"test\""),"test")
+    self:AssertEquals(self.CuT:Unescape("\"test\"test\"test\""),"testtesttest")
+    self:AssertEquals(self.CuT:Unescape("test\\\\\"test"),"test\\test")
+    self:AssertEquals(self.CuT:Unescape("test\\\\\\\"test"),"test\\\"test")
+end))
+
+--[[
 Tests the ExecuteCommandWithPrefix method.
 --]]
 NexusUnitTesting:RegisterUnitTest(ExecutorUnitTest.new("ExecuteCommandWithPrefix"):SetRun(function(self)
@@ -57,6 +73,30 @@ NexusUnitTesting:RegisterUnitTest(ExecutorUnitTest.new("ExecuteCommandWithPrefix
     self:AssertEquals(self.MockCmdr.Dispatcher.LastCommand,"cmds")
     self:AssertEquals(self.CuT:ExecuteCommandWithPrefix(";cmds"),"Unknown command.")
     self:AssertEquals(self.CuT:ExecuteCommandWithPrefix(":test"),"Unknown command.")
+end))
+
+--[[
+Tests the SplitCommands method.
+--]]
+NexusUnitTesting:RegisterUnitTest(ExecutorUnitTest.new("SplitCommands"):SetRun(function(self)
+    --Assert no splitting.
+    self:AssertEquals(self.CuT:SplitCommands("","/"),{""})
+    self:AssertEquals(self.CuT:SplitCommands("test","/"),{"test"})
+    self:AssertEquals(self.CuT:SplitCommands("test\\test","/"),{"testtest"})
+
+    --Assert basic splitting.
+    self:AssertEquals(self.CuT:SplitCommands("//","/"),{"","",""})
+    self:AssertEquals(self.CuT:SplitCommands("test/test/test","/"),{"test","test","test"})
+
+    --Assert whitespace trimming.
+    self:AssertEquals(self.CuT:SplitCommands("  test  /  test/  test  ","/"),{"test","test","test"})
+
+    --Assert quotes with splitting.
+    self:AssertEquals(self.CuT:SplitCommands("test\"/\"test","/"),{"test/test"})
+    self:AssertEquals(self.CuT:SplitCommands("test\"/test\"","/"),{"test/test"})
+    self:AssertEquals(self.CuT:SplitCommands("\"test/\"test","/"),{"test/test"})
+    self:AssertEquals(self.CuT:SplitCommands("\"test/test\"","/"),{"test/test"})
+    self:AssertEquals(self.CuT:SplitCommands("\"","/"),{""})
 end))
 
 

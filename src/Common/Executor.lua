@@ -16,9 +16,43 @@ Creates a executor instance.
 --]]
 function Executor:__new(Cmdr,Registry)
     self:InitializeSuper()
-    
+
     self.Cmdr = Cmdr
     self.Registry = Registry
+end
+
+--[[
+Unescapes a command.
+--]]
+function Executor:Unescape(Command)
+    --Trim the whitespace.
+    Command = string.match(Command,"^%s*(.*)")
+    Command = string.match(Command,"(.-)%s*$")
+
+    --Build the new command based on the escaping.
+    local NewCommand = ""
+    local Escaping = false
+    for i = 1,string.len(Command) do
+        --Process the character.
+        local Character = string.sub(Command,i,i)
+        if Character == "\\" then
+            if Escaping then
+                NewCommand = NewCommand.."\\"
+            end
+            Escaping = not Escaping
+        elseif Character == "\"" then
+            if Escaping then
+                NewCommand = NewCommand.."\""
+            end
+            Escaping = false
+        else
+            NewCommand = NewCommand..Character
+            Escaping = false
+        end
+    end
+
+    --Return the new command.
+    return NewCommand
 end
 
 --[[
@@ -62,6 +96,45 @@ function Executor:ExecuteCommandWithOrWithoutPrefix(Command,ReferencePlayer,Data
     end
 
     return Message
+end
+
+--[[
+Splits a set of commands by a separator for use with other commands,
+like with the batch command.
+--]]
+function Executor:SplitCommands(Command,Separator)
+    --Get the indvidual commands.
+    local Commands = {}
+    local InQuotes = false
+    local CurrentCommand = ""
+    for i = 1,string.len(Command) do
+        --Process the character.
+        local Character = string.sub(Command,i,i)
+        if Character == "\\" then
+            CurrentCommand = CurrentCommand..Character
+        elseif Character == "\"" then
+            InQuotes = not InQuotes
+            CurrentCommand = CurrentCommand..Character
+        elseif Character == Separator then
+            if not InQuotes then
+                table.insert(Commands,CurrentCommand)
+                CurrentCommand = ""
+            else
+                CurrentCommand = CurrentCommand..Character
+            end
+        else
+            CurrentCommand = CurrentCommand..Character
+        end
+    end
+    table.insert(Commands,CurrentCommand)
+
+    --Un-escape the commands.
+    for i = 1,#Commands do
+        Commands[i] = self:Unescape(Commands[i])
+    end
+
+    --Return the sections.
+    return Commands
 end
 
 
