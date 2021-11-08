@@ -60,7 +60,7 @@ Executes a command. Authorization checks are performs
 in the command if it was registered through Nexus Admin.
 --]]
 function Executor:ExecuteCommand(Command,ReferencePlayer,Data)
-    return self.Cmdr.Dispatcher:EvaluateAndRun(Command,ReferencePlayer,{Data=Data})
+    return self.Cmdr.Dispatcher:EvaluateAndRun(self:Unescape(Command),ReferencePlayer,{Data=Data})
 end
 
 --[[
@@ -106,15 +106,20 @@ function Executor:SplitCommands(Command,Separator)
     --Get the indvidual commands.
     local Commands = {}
     local InQuotes = false
+    local Escaping = false
     local CurrentCommand = ""
     for i = 1,string.len(Command) do
         --Process the character.
         local Character = string.sub(Command,i,i)
         if Character == "\\" then
             CurrentCommand = CurrentCommand..Character
+            Escaping = not Escaping
         elseif Character == "\"" then
-            InQuotes = not InQuotes
+            if not Escaping then
+                InQuotes = not InQuotes
+            end
             CurrentCommand = CurrentCommand..Character
+            Escaping = false
         elseif Character == Separator then
             if not InQuotes then
                 table.insert(Commands,CurrentCommand)
@@ -122,8 +127,10 @@ function Executor:SplitCommands(Command,Separator)
             else
                 CurrentCommand = CurrentCommand..Character
             end
+            Escaping = false
         else
             CurrentCommand = CurrentCommand..Character
+            Escaping = false
         end
     end
     table.insert(Commands,CurrentCommand)
