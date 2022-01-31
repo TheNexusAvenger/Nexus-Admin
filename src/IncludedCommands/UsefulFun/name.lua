@@ -46,6 +46,7 @@ function Command:Run(CommandContext,Players,Name)
             end
         end
     end
+    return "Renamed using the name \""..Name.."\""
 end
 
 
