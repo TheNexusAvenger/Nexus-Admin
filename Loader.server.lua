@@ -3,7 +3,7 @@ TheNexusAvenger
 
 Loads Nexus Admin.
 
-Loader version: V.2.1.7
+Loader version: V.2.2.0
 GitHub: https://github.com/thenexusavenger/nexus-admin
 
 For the change log, view the GitHub Releases (except V.1.0.0, V.1.0.1, V.1.1.0, and V.1.2.0).
@@ -125,6 +125,7 @@ local Config = {
             track = nil,
             untrack = nil,
             chatlogs = nil,
+            killlogs = nil,
             batch = nil,
             delay = nil,
             loop = nil,
