@@ -129,9 +129,11 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
 
         --Create the text label.
         if not self.CurrentTextLabels[i] then
-            local TextLabel = Instance.new("TextLabel")
+            local TextLabel = Instance.new("TextBox")
             TextLabel.Position = UDim2.new(0,0,0,(i - 1) * self.TextHeight)
             TextLabel.BackgroundTransparency = 1
+            TextLabel.ClearTextOnFocus = false
+            TextLabel.TextEditable = false
             TextLabel.TextSize = self.TextHeight
             TextLabel.Font = "SourceSans"
             TextLabel.TextColor3 = Color3.new(1,1,1)
