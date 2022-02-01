@@ -35,9 +35,9 @@ function Command:Run(CommandContext)
                 local KilledPlayerName = LogEntry.KilledPlayer.DisplayName.." ("..LogEntry.KilledPlayer.Name..")"
                 if LogEntry.KillingPlayer then
                     local KillingPlayerName = LogEntry.KillingPlayer.DisplayName.." ("..LogEntry.KillingPlayer.Name..")"
-                    local Message = KillingPlayerName.." killed "..KilledPlayerName.." holding "
+                    local Message = KillingPlayerName.." killed "..KilledPlayerName.." "
                     if LogEntry.KillingPlayerEquipedToolName then
-                        Message = Message..LogEntry.KillingPlayerEquipedToolName.." "
+                        Message = Message.."holding "..LogEntry.KillingPlayerEquipedToolName.." "
                     end
                     Message = Message.."("..tostring(LogEntry.Distance).." studs)"
                     table.insert(TextLogs, Message)
