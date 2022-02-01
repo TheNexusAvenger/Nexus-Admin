@@ -26,7 +26,7 @@ function Command:__new()
         if self.API.Authorization:IsPlayerAuthorized(Player, self.AdminLevel) then
             return self.KillLogs:GetLogs()
         else
-            return {}
+            return {"Unauthorized"}
         end
     end
 
@@ -38,18 +38,26 @@ function Command:__new()
         local Humanoid = Character:WaitForChild("Humanoid")
         local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
         Humanoid.Died:Connect(function()
-            --Store the log.
+            --Get the information.
             local CreatorTag = Humanoid:FindFirstChild("creator")
             local KillingPlayer = CreatorTag and CreatorTag.Value
             local KillingCharacter = KillingPlayer and KillingPlayer.Character
             local KillingCharacterTool = KillingCharacter and KillingCharacter:FindFirstChildOfClass("Tool")
             local KillingCharacterHumanoidRootPart = KillingCharacter and KillingCharacter:FindFirstChild("HumanoidRootPart")
-            self.KillLogs:Add({
-                KilledPlayer = Player,
-                KillingPlayer = KillingPlayer,
-                KillingPlayerEquipedToolName = KillingCharacterTool and KillingCharacterTool.Name,
-                Distance = KillingCharacterHumanoidRootPart and (KillingCharacterHumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude,
-            })
+
+            --Build and store the message.
+            local KilledPlayerName = Player.DisplayName.." ("..Player.Name..")"
+            if KillingPlayer then
+                local KillingPlayerName = KillingPlayer.DisplayName.." ("..KillingPlayer.Name..")"
+                local Message = KillingPlayerName.." killed "..KilledPlayerName.." "
+                if KillingCharacterTool then
+                    Message = Message.."holding "..KillingCharacterTool.Name.." "
+                end
+                Message = Message.."("..tostring((KillingCharacterHumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude).." studs)"
+                self.KillLogs:Add(Message)
+            else
+                self.KillLogs:Add(KilledPlayerName.." died.")
+            end
         end)
     end
 

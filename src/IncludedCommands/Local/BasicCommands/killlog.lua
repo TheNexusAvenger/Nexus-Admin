@@ -29,23 +29,7 @@ function Command:Run(CommandContext)
     Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
         --Get the logs.
         if not self.Logs or ForceRefresh then
-            local KillLogs = self.API.EventContainer:WaitForChild("GetKillLogs"):InvokeServer()
-            local TextLogs = {}
-            for _, LogEntry in pairs(KillLogs) do
-                local KilledPlayerName = LogEntry.KilledPlayer.DisplayName.." ("..LogEntry.KilledPlayer.Name..")"
-                if LogEntry.KillingPlayer then
-                    local KillingPlayerName = LogEntry.KillingPlayer.DisplayName.." ("..LogEntry.KillingPlayer.Name..")"
-                    local Message = KillingPlayerName.." killed "..KilledPlayerName.." "
-                    if LogEntry.KillingPlayerEquipedToolName then
-                        Message = Message.."holding "..LogEntry.KillingPlayerEquipedToolName.." "
-                    end
-                    Message = Message.."("..tostring(LogEntry.Distance).." studs)"
-                    table.insert(TextLogs, Message)
-                else
-                    table.insert(TextLogs, KilledPlayerName.." died.")
-                end
-            end
-            self.Logs = TextLogs
+            self.Logs = self.API.EventContainer:WaitForChild("GetKillLogs"):InvokeServer()
         end
 
         --Filter and return the logs.
