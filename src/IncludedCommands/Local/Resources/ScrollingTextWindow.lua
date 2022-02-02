@@ -237,6 +237,7 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
 
     --Set the scrolling size.
     self.ScrollingFrame.CanvasSize = UDim2.new(0,MaxWidth,0,#Lines * self.TextHeight)
+    self:UpdateAdornText()
 end
 
 --[[
