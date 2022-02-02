@@ -30,6 +30,19 @@ function ScrollingTextWindow:__new(DontCreateSearch)
     ScrollingFrame.Parent = self.ContentsAdorn
     self.ScrollingFrame = ScrollingFrame
 
+    local ScrollingClipFrame = Instance.new("Frame")
+    ScrollingClipFrame.BackgroundTransparency = 1
+    ScrollingClipFrame.ClipsDescendants = true
+    ScrollingClipFrame.Parent = self.ContentsAdorn
+    self.ScrollingClipFrame = ScrollingClipFrame
+
+    local ScrollingAdornFrame = Instance.new("Frame")
+    ScrollingAdornFrame.BackgroundTransparency = 1
+    ScrollingAdornFrame.Size = UDim2.new(1, 0, 0, self.TextHeight)
+    ScrollingAdornFrame.Parent = ScrollingClipFrame
+    self.ScrollingAdornFrame = ScrollingAdornFrame
+    self.ScrollingAdornTextLabels = {}
+
     if DontCreateSearch then
         ScrollingFrame.Size = UDim2.new(1,-10,1,-10)
         ScrollingFrame.Position = UDim2.new(0,5,0,5)
@@ -64,6 +77,35 @@ function ScrollingTextWindow:__new(DontCreateSearch)
             self:UpdateText(false)
         end)
     end
+
+    --Set the defaults.
+    self.TextDefaults = {
+        TextColor3 = Color3.new(1, 1, 1),
+        TextStrokeColor3 = Color3.new(0, 0, 0),
+        TextStrokeTransparency = 0,
+        Font = Enum.Font.SourceSans,
+    }
+
+    --Connect the events.
+	ScrollingFrame:GetPropertyChangedSignal("Parent"):Connect(function()
+        self:UpdateAdornSize()
+    end)
+	ScrollingFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        self:UpdateAdornSize()
+    end)
+	ScrollingFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+        self:UpdateAdornSize()
+    end)
+	ScrollingFrame:GetPropertyChangedSignal("ZIndex"):Connect(function()
+        self:UpdateAdornSize()
+    end)
+	ScrollingFrame:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
+        self:UpdateAdornText()
+    end)
+	ScrollingFrame:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        self:UpdateAdornText()
+    end)
+	self:UpdateAdornSize()
 end
 
 --[[
@@ -95,6 +137,64 @@ function ScrollingTextWindow:GetTextLines(SearchTerm,ForceRefresh)
 end
 
 --[[
+Updates the text adorn size and position.
+--]]
+function ScrollingTextWindow:UpdateAdornSize()
+    self.ScrollingClipFrame.Position = self.ScrollingFrame.Position
+    self.ScrollingClipFrame.Size = UDim2.new(0, self.ScrollingFrame.AbsoluteWindowSize.X, 0, self.ScrollingFrame.AbsoluteWindowSize.Y)
+    self.ScrollingAdornFrame.Size = UDim2.new(0, self.MaxLineWidth or 0, 0, self.TextHeight)
+end
+
+--[[
+Updates the text adorn contents.
+--]]
+function ScrollingTextWindow:UpdateAdornText()
+    self:UpdateAdornSize()
+
+    --Create the text labels.
+    local StartIndex = self.ScrollingFrame.CanvasPosition.Y / self.TextHeight
+    local RequiredLabels = math.ceil(self.ScrollingFrame.AbsoluteWindowSize.Y / self.TextHeight) + 1
+    local TextLabels = self.ScrollingAdornTextLabels
+    for i = #TextLabels + 1, RequiredLabels do
+        local TextLabel = Instance.new("TextBox")
+        TextLabel.BackgroundTransparency = 1
+        TextLabel.Size = UDim2.new(1, 0, 1, 0)
+        TextLabel.Position = UDim2.new(0, 0, i - 1, 0)
+        TextLabel.ClearTextOnFocus = false
+        TextLabel.TextEditable = false
+        TextLabel.TextSize = self.TextHeight
+        TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+        TextLabel.Parent = self.ScrollingAdornFrame
+        table.insert(TextLabels, TextLabel)
+    end
+    for i = #TextLabels, RequiredLabels + 1, -1 do
+        TextLabels[i]:Destroy()
+        TextLabels[i] = nil
+    end
+
+    --Uppdate the text labels.
+    local Lines = self.Lines or {}
+    local Defaults = self.TextDefaults
+    for i = 1, RequiredLabels do
+        local Index = i + math.floor(StartIndex)
+        local LineEntry = Lines[Index]
+        local TextLabel = TextLabels[i]
+        if LineEntry then
+            for Key, _ in pairs(LineEntry) do
+                if not Defaults[Key] then
+                    Defaults[Key] = TextLabel[Key]
+                end
+            end
+            for Key, Value in pairs(Defaults) do
+                TextLabel[Key] = LineEntry[Key] or Value
+            end
+        else
+            TextLabel.Text = ""
+        end
+    end
+end
+
+--[[
 Updates the text.
 --]]
 function ScrollingTextWindow:UpdateText(ForceRefresh)
@@ -117,40 +217,16 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
         end
     end
 
-    --Create the list frames.
+    --Determine the max width of the lines.
     local MaxWidth = 0
-    for i = 1,#Lines do
-        --Determine the font and width.
-        local Line = Lines[i]
-        local Text = Line.Text or ""
-        local Font = Line.Font or "SourceSans"
-        local LineLength = self.TextService:GetTextSize(Text,self.TextHeight,Font,Vector2.new(math.huge,self.TextHeight)).X
-        MaxWidth = math.max(MaxWidth,LineLength)
-
-        --Create the text label.
-        if not self.CurrentTextLabels[i] then
-            local TextLabel = Instance.new("TextBox")
-            TextLabel.Position = UDim2.new(0,0,0,(i - 1) * self.TextHeight)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.ClearTextOnFocus = false
-            TextLabel.TextEditable = false
-            TextLabel.TextSize = self.TextHeight
-            TextLabel.Font = "SourceSans"
-            TextLabel.TextColor3 = Color3.new(1,1,1)
-            TextLabel.TextStrokeColor3 = Color3.new(0,0,0)
-            TextLabel.TextStrokeTransparency = 0
-            TextLabel.TextXAlignment = "Left"
-            TextLabel.Parent = self.ScrollingFrame
-            self.CurrentTextLabels[i] = TextLabel
-        end
-
-        --Update the text label.
-        local TextLabel = self.CurrentTextLabels[i]
-        TextLabel.Font = Font
-        TextLabel.Text = Text
-        TextLabel.TextColor3 = Line.TextColor3 or Color3.new(1,1,1)
-        TextLabel.Size = UDim2.new(0,LineLength,0,self.TextHeight)
+    for _, Line in pairs(Lines)  do
+        local Text = Line.Text
+        local Font = Line.Font or Enum.Font.SourceSans
+        local LineLength = self.TextService:GetTextSize(Text, self.TextHeight, Font, Vector2.new(math.huge, self.TextHeight)).X
+        MaxWidth = math.max(MaxWidth, LineLength)
     end
+    self.Lines = Lines
+    self.MaxLineWidth = MaxWidth
 
     --Remove the unneeded lines.
     for i = #self.CurrentTextLabels,#Lines + 1,-1 do
@@ -161,7 +237,6 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
     --Set the scrolling size.
     self.ScrollingFrame.CanvasSize = UDim2.new(0,MaxWidth,0,#Lines * self.TextHeight)
 end
-
 
 --[[
 Callback for the window closing.
