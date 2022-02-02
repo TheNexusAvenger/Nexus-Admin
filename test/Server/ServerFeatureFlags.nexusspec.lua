@@ -4,6 +4,8 @@ TheNexusAvenger
 Tests the ServerFeatureFlags class.
 --]]
 
+local HttpService = game:GetService("HttpService")
+
 local NexusUnitTesting = require("NexusUnitTesting")
 local ServerFeatureFlagsUnitTest = NexusUnitTesting.UnitTest:Extend()
 
@@ -145,7 +147,7 @@ NexusUnitTesting:RegisterUnitTest(ServerFeatureFlagsUnitTest.new("SetFeatureFlag
     self:AssertEquals(self.DataStoreSetCalls,4,"DataStore service was used an incorrect amount of times.")
     self:AssertEquals(self.MessagingServiceCalls,4,"Messaging service was used an incorrect amount of times.")
     self:AssertEquals(self.DataStoreSetCalls,4,"DataStore service was used an incorrect amount of times.")
-    self:AssertEquals(self.CurrentData,"{\"TestFeatureFlag1\":false,\"TestFeatureFlag2\":true}","DataStore data was set.")
+    self:AssertEquals(HttpService:JSONDecode(self.CurrentData),HttpService:JSONDecode("{\"TestFeatureFlag1\":false,\"TestFeatureFlag2\":true}"),"DataStore data was set.")
     self:AssertEquals(GeneralChanges1,{{"TestFeatureFlag1",false},{"TestFeatureFlag1",true},{"TestFeatureFlag1",false},{"TestFeatureFlag2",true}},"Event was invoked correctly.")
     self:AssertEquals(SpecificChanges1,{false,true,false},"Event was invoked correctly.")
     self:AssertEquals(GeneralChanges2,{{"TestFeatureFlag1",false},{"TestFeatureFlag1",true},{"TestFeatureFlag1",false},{"TestFeatureFlag2",true}},"Event was invoked correctly.")
