@@ -16,8 +16,8 @@ Creates a logs instance.
 --]]
 function Logs:__new(MaxLogs)
     self:InitializeSuper()
-    
-    self.MaxLogs = MaxLogs or 500
+
+    self.MaxLogs = MaxLogs or 10000
     self.Logs = {}
 end
 
