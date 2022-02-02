@@ -192,6 +192,7 @@ function ScrollingTextWindow:UpdateAdornText()
             TextLabel.Text = ""
         end
     end
+    self.ScrollingAdornFrame.Position = UDim2.new(0, -self.ScrollingFrame.CanvasPosition.X, 0, -self.TextHeight * (StartIndex % 1))
 end
 
 --[[
@@ -226,7 +227,7 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
         MaxWidth = math.max(MaxWidth, LineLength)
     end
     self.Lines = Lines
-    self.MaxLineWidth = MaxWidth
+    self.MaxLineWidth = MaxWidth + 5
 
     --Remove the unneeded lines.
     for i = #self.CurrentTextLabels,#Lines + 1,-1 do
