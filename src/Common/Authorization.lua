@@ -5,7 +5,7 @@ Handles users being authorized.
 --]]
 
 local NexusObject = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusObject"))
-local NexusEventCreator = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("NexusEventCreator"))
+local NexusEvent = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("NexusEvent"))
 
 local Authorization = NexusObject:Extend()
 Authorization:SetClassName("Authorization")
@@ -20,7 +20,7 @@ function Authorization:__new(Configuration)
 
     self.Configuration = Configuration
     self.AdminLevels = {}
-    self.AdminLevelChanged = NexusEventCreator:CreateEvent()
+    self.AdminLevelChanged = NexusEvent.new()
 end
 
 --[[

@@ -5,7 +5,7 @@ Base class for handling feature flags.
 --]]
 
 local NexusObject = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusObject"))
-local NexusEventCreator = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("NexusEventCreator"))
+local NexusEvent = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("NexusEvent"))
 
 local FeatureFlags = NexusObject:Extend()
 FeatureFlags:SetClassName("FeatureFlags")
@@ -20,7 +20,7 @@ function FeatureFlags:__new()
     
     self.FeatureFlags = {}
     self.DefaultFeatureFlags = {}
-    self.FeatureFlagChanged = NexusEventCreator:CreateEvent()
+    self.FeatureFlagChanged = NexusEvent.new()
     self.FeatureFlagChangedNameEvents = {}
 end
 
@@ -64,7 +64,7 @@ Returns an event for a specific feature flag changing.
 function FeatureFlags:GetFeatureFlagChangedEvent(Name)
     --Create the event if it doesn't exist.
     if not self.FeatureFlagChangedNameEvents[Name] then
-        self.FeatureFlagChangedNameEvents[Name] = NexusEventCreator:CreateEvent()
+        self.FeatureFlagChangedNameEvents[Name] = NexusEvent.new()
     end
 
     --Return the event.
