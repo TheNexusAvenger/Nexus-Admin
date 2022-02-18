@@ -49,7 +49,7 @@ function Command:Run(CommandContext,PlayerNames,Message)
     local NamesAndIds = {}
     for _,Name in pairs(PlayerNames) do
         for _,Id in pairs(self.PersistentBans:ResolveUserIds(Name)) do
-            self.PersistentBans:BanId(Id,Message)
+            self.PersistentBans:BanId(Id,Message and self.API.Filter:FilterString(Message, CommandContext.Executor))
         end
     end
 

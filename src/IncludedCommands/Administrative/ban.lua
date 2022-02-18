@@ -66,8 +66,9 @@ function Command:Run(CommandContext,Players,Message)
     for _,Player in pairs(Players) do
         if Player ~= CommandContext.Executor then
             if self.API.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
-                CommonState.BannedUserIds[Player.UserId] = {Message or true,string.lower(Player.Name),Player.Name}
-                Player:Kick(Message)
+                local FilteredMessage = Message and self.API.Filter:FilterString(Message, CommandContext.Executor, Player)
+                CommonState.BannedUserIds[Player.UserId] = {FilteredMessage or true,string.lower(Player.Name),Player.Name}
+                Player:Kick(FilteredMessage)
             else
                 self:SendError("You can't ban admins with higher levels than you.")
             end

@@ -41,7 +41,7 @@ function Command:Run(CommandContext,Players,Message)
     for _,Player in pairs(Players) do
         if Player ~= CommandContext.Executor then
             if self.API.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
-                Player:Kick(Message)
+                Player:Kick(Message and self.API.Filter:FilterString(Message, CommandContext.Executor, Player))
             else
                 self:SendError("You can't kick admins with higher levels than you.")
             end
