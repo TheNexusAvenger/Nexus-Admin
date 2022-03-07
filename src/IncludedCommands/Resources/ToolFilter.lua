@@ -9,7 +9,7 @@ return function(SearchString,Containers)
     local Tools = {}
     string.gsub(SearchString,"([^%,]+)",function(ToolName)
         for _,Container in pairs(Containers) do
-            for _,Tool in pairs(Container:GetChildren()) do
+            for _,Tool in pairs(Container:GetDescendants()) do
                 if Tool:IsA("Tool") or Tool:IsA("HopperBin") then
                     if ToolName == "all" then
                         table.insert(Tools,Tool)
