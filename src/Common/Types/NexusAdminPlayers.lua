@@ -37,7 +37,8 @@ return function(API,TestPlayersService,TestTeamsService)
         end
 
         --Return the teams.
-        return API.Cmdr.Util.MakeFuzzyFinder(Teams:GetTeams())(string.sub(Text,2))
+        local PreFilterText = string.match(Text, "([^%[]+)%[.+%]$") or Text
+        return API.Cmdr.Util.MakeFuzzyFinder(Teams:GetTeams())(string.sub(PreFilterText,2))
     end
 
     --[[
@@ -107,7 +108,7 @@ return function(API,TestPlayersService,TestTeamsService)
             local FoundPlayers = GetPlayers(ArgumentData.Text,ArgumentData.Executor)
             return API.Cmdr.Util.GetNames(FoundPlayers)
         end,
-    
+
         --[[
         Returns the value to use.
         --]]
@@ -116,9 +117,18 @@ return function(API,TestPlayersService,TestTeamsService)
             local Teams = GetTeams(ArgumentData.Text)
             local SelectedPlayers = {}
             if Teams then
+                --Get the filter players.
+                local AllowedPlayers = {}
+                for _, Player in pairs(GetFilteredPlayers(ArgumentData.Text, ArgumentData.Executor)) do
+                    AllowedPlayers[Player] = true
+                end
+
+                --Add the team players.
                 for _,Team in pairs(Teams) do
                     for _,Player in pairs(Team:GetPlayers()) do
-                        table.insert(SelectedPlayers,Player)
+                        if AllowedPlayers[Player] then
+                            table.insert(SelectedPlayers,Player)
+                        end
                     end
                 end
             else
