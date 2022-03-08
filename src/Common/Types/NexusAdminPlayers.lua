@@ -144,28 +144,31 @@ return function(API,TestPlayersService,TestTeamsService)
     API.Cmdr.Registry:RegisterType("nexusAdminPlayers",NexusAdminPlayersType)
     API.Types.NexusAdminPlayers = {
         RegisterShortHand = function(_,Name,Callback)
+            if typeof(Name) == "table" then
+                for _, SubName in pairs(Name) do
+                    API.Types.NexusAdminPlayers:RegisterShortHand(SubName, Callback)
+                end
+                return
+            end
             ExactShorthands[string.lower(Name)] = Callback
         end,
         RegisterPatternShortHand = function(_,Name,Callback)
+            if typeof(Name) == "table" then
+                for _, SubName in pairs(Name) do
+                    API.Types.NexusAdminPlayers:RegisterPatternShortHand(SubName, Callback)
+                end
+                return
+            end
             PatternShorthands[Name] = Callback
         end,
     }
 
     --Register the shorthands.
-    API.Types.NexusAdminPlayers:RegisterShortHand("me",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand({"me", "."}, function(Text,Executor)
         --Return the executing player.
         return {Executor}
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand(".",function(Text,Executor)
-        --Return the executing player.
-        return {Executor}
-    end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("random",function(Text,Executor)
-        --Return a random player.
-        local RandomPlayers = GetFilteredPlayers(Text, Executor)
-        return {RandomPlayers[math.random(1,#RandomPlayers)]}
-    end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("?",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand({"random", "?"}, function(Text, Executor)
         --Return a random player.
         local RandomPlayers = GetFilteredPlayers(Text, Executor)
         if #RandomPlayers == 0 then
@@ -173,15 +176,11 @@ return function(API,TestPlayersService,TestTeamsService)
         end
         return {RandomPlayers[math.random(1,#RandomPlayers)]}
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("all",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand({"all", "*"}, function(Text,Executor)
         --Return all of the players.
         return GetFilteredPlayers(Text, Executor)
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("*",function(Text,Executor)
-        --Return all of the players.
-        return GetFilteredPlayers(Text, Executor)
-    end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("others",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("others", function(Text, Executor)
         --Return all of the players except for the executor.
         local Others = GetFilteredPlayers(Text, Executor)
         for i = 1, #Others do
@@ -192,7 +191,7 @@ return function(API,TestPlayersService,TestTeamsService)
         end
         return Others
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("admins",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("admins", function(Text, Executor)
         --Return the admins (Nexus Admin only).
         local Admins = {}
         for _,Player in pairs(GetFilteredPlayers(Text, Executor)) do
@@ -202,7 +201,7 @@ return function(API,TestPlayersService,TestTeamsService)
         end
         return Admins
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("nonadmins",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("nonadmins", function(Text, Executor)
         --Return the non-admins (Nexus Admin only).
         local NonAdmins = {}
         for _,Player in pairs(GetFilteredPlayers(Text, Executor)) do
@@ -212,7 +211,7 @@ return function(API,TestPlayersService,TestTeamsService)
         end
         return NonAdmins
     end)
-    API.Types.NexusAdminPlayers:RegisterPatternShortHand("%?%d+",function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterPatternShortHand("%?%d+",function(Text, Executor)
         --Return a random set of players. Use of "random" is not supported for this.
         local RandomMatch = Text:match("%?(%d+)")
         if RandomMatch then
@@ -223,7 +222,7 @@ return function(API,TestPlayersService,TestTeamsService)
                 for i = 1,math.min(MaxSize,#RemainingPlayers) do
                     table.insert(RandomPlayers,table.remove(RemainingPlayers,math.random(1,#RemainingPlayers)))
                 end
-                
+
                 return RandomPlayers
             end
         end
