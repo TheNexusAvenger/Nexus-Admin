@@ -175,6 +175,8 @@ NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("ParseFilter"):S
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("others[%test]", self.MockPlayers[1])), {self.MockPlayers[3]})
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("not[%test]", self.MockPlayers[1])), {self.MockPlayers[2], self.MockPlayers[4]})
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("%test[others]", self.MockPlayers[1])), {self.MockPlayers[3]})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("all[me,others]", self.MockPlayers[1])), {self.MockPlayers[1],self.MockPlayers[2],self.MockPlayers[3],self.MockPlayers[4]})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("not[not[%test],me]", self.MockPlayers[1])), {self.MockPlayers[3]})
 end))
 
 

@@ -21,7 +21,17 @@ return function(API,TestPlayersService,TestTeamsService)
     local function GetFilteredPlayers(Text, Executor)
         local FilterText = string.match(Text, "%[(.+)%]$")
         if FilterText then
-            return NexusAdminPlayersType.Parse(NexusAdminPlayersType.Transform(FilterText, Executor))
+            local Players = {}
+            local PlayersMap = {}
+            for _, TextEntry in pairs(string.split(FilterText, ",")) do
+                for _, Player in pairs(NexusAdminPlayersType.Parse(NexusAdminPlayersType.Transform(TextEntry, Executor))) do
+                    if not PlayersMap[Player] then
+                        PlayersMap[Player] = true
+                        table.insert(Players, Player)
+                    end
+                end
+            end 
+            return Players
         end
         return PlayersService:GetPlayers()
     end
