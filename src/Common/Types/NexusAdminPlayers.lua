@@ -9,7 +9,7 @@ format. Also adds keywords like admins and nonadmins.
 Registers the types.
 --]]
 return function(API,TestPlayersService,TestTeamsService)
-    local Players = TestPlayersService or game:GetService("Players")
+    local PlayersService = TestPlayersService or game:GetService("Players")
     local Teams = TestTeamsService or game:GetService("Teams")
     local ExactShorthands = {}
     local PatternShorthands = {}
@@ -23,7 +23,7 @@ return function(API,TestPlayersService,TestTeamsService)
         if FilterText then
             return NexusAdminPlayersType.Parse(NexusAdminPlayersType.Transform(FilterText, Executor))
         end
-        return Players:GetPlayers()
+        return PlayersService:GetPlayers()
     end
 
     --[[
@@ -48,19 +48,20 @@ return function(API,TestPlayersService,TestTeamsService)
         --Return if a shorthand exists.
         local PreFilterText = string.match(Text, "([^%[]+)%[.+%]$") or Text
         local LowerText = string.lower(PreFilterText)
+        local Players = GetFilteredPlayers(Text, Executor)
         for Shorthand,Callback in pairs(ExactShorthands) do
             if LowerText == Shorthand then
-                return Callback(Text,Executor)
+                return Callback(Text, Executor, Players)
             end
         end
         for Shorthand,Callback in pairs(PatternShorthands) do
             if string.find(LowerText,Shorthand) then
-                return Callback(Text,Executor)
+                return Callback(Text, Executor, Players)
             end
         end
-        
+
         --Get the results from searching.
-        return API.Cmdr.Util.MakeFuzzyFinder(GetFilteredPlayers(Text, Executor))(Text)
+        return API.Cmdr.Util.MakeFuzzyFinder(Players)(Text)
     end
 
     --Create the players type.
@@ -164,67 +165,87 @@ return function(API,TestPlayersService,TestTeamsService)
     }
 
     --Register the shorthands.
-    API.Types.NexusAdminPlayers:RegisterShortHand({"me", "."}, function(Text,Executor)
-        --Return the executing player.
-        return {Executor}
+    API.Types.NexusAdminPlayers:RegisterShortHand({"me", "."}, function(Text, Executor, Players)
+        --Return the executing player if it is contained in the list of players.
+        for _, Player in pairs(Players) do
+            if Player == Executor then
+                return {Executor}
+            end
+        end
+        return {}
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand({"random", "?"}, function(Text, Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand({"random", "?"}, function(Text, Executor, Players)
         --Return a random player.
-        local RandomPlayers = GetFilteredPlayers(Text, Executor)
-        if #RandomPlayers == 0 then
+        if #Players == 0 then
             return {}
         end
-        return {RandomPlayers[math.random(1,#RandomPlayers)]}
+        return {Players[math.random(1, #Players)]}
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand({"all", "*"}, function(Text,Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand({"all", "*"}, function(Text, Executor, Players)
         --Return all of the players.
-        return GetFilteredPlayers(Text, Executor)
+        return Players
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("others", function(Text, Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("others", function(Text, Executor, Players)
         --Return all of the players except for the executor.
-        local Others = GetFilteredPlayers(Text, Executor)
-        for i = 1, #Others do
-            if Others[i] == Executor then
-                table.remove(Others,i)
-                break
+        local Others = {}
+        for _, Player in pairs(Players) do
+            if Player ~= Executor then
+                table.insert(Others, Player)
             end
         end
         return Others
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("admins", function(Text, Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("admins", function(Text, Executor, Players)
         --Return the admins (Nexus Admin only).
         local Admins = {}
-        for _,Player in pairs(GetFilteredPlayers(Text, Executor)) do
+        for _,Player in pairs(Players) do
             if API.Authorization:IsPlayerAuthorized(Player,0) then
                 table.insert(Admins,Player)
             end
         end
         return Admins
     end)
-    API.Types.NexusAdminPlayers:RegisterShortHand("nonadmins", function(Text, Executor)
+    API.Types.NexusAdminPlayers:RegisterShortHand("nonadmins", function(Text, Executor, Players)
         --Return the non-admins (Nexus Admin only).
         local NonAdmins = {}
-        for _,Player in pairs(GetFilteredPlayers(Text, Executor)) do
+        for _,Player in pairs(Players) do
             if not API.Authorization:IsPlayerAuthorized(Player,0) then
                 table.insert(NonAdmins,Player)
             end
         end
         return NonAdmins
     end)
-    API.Types.NexusAdminPlayers:RegisterPatternShortHand("%?%d+",function(Text, Executor)
+    API.Types.NexusAdminPlayers:RegisterPatternShortHand("%?%d+",function(Text, Executor, Players)
         --Return a random set of players. Use of "random" is not supported for this.
         local RandomMatch = Text:match("%?(%d+)")
         if RandomMatch then
             local MaxSize = tonumber(RandomMatch)
             if MaxSize and MaxSize > 0 then
                 local RandomPlayers = {}
-                local RemainingPlayers = GetFilteredPlayers(Text, Executor)
-                for i = 1,math.min(MaxSize,#RemainingPlayers) do
-                    table.insert(RandomPlayers,table.remove(RemainingPlayers,math.random(1,#RemainingPlayers)))
+                local RemainingPlayers = {}
+                for _, Player in pairs(Players) do
+                    table.insert(RemainingPlayers, Player)
+                end
+                for i = 1,math.min(MaxSize, #RemainingPlayers) do
+                    table.insert(RandomPlayers, table.remove(RemainingPlayers, math.random(1,#RemainingPlayers)))
                 end
 
                 return RandomPlayers
             end
         end
+    end)
+    API.Types.NexusAdminPlayers:RegisterShortHand("not", function(Text, Executor, Players)
+        --Return all of players not in the given list of players.
+        local NegatedPlayers = {}
+        local PlayersMap = {}
+        for _, Player in pairs(Players) do
+            PlayersMap[Player] = true
+        end
+        for _, Player in pairs(PlayersService:GetPlayers()) do
+            if not PlayersMap[Player] then
+                table.insert(NegatedPlayers, Player)
+            end
+        end
+        return NegatedPlayers
     end)
 end

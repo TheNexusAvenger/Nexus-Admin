@@ -168,8 +168,12 @@ Tests the Parse method with players.
 --]]
 NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("ParseFilter"):SetRun(function(self)
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("all[me]", self.MockPlayers[1])), {self.MockPlayers[1]})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("not[me]", self.MockPlayers[1])), {self.MockPlayers[2], self.MockPlayers[3], self.MockPlayers[4]})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("others[me]", self.MockPlayers[1])), {})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("me[others]", self.MockPlayers[1])), {})
     self:AssertEquals(#self.CuT.Parse(self.CuT.Transform("others[?6]", self.MockPlayers[1])), 3)
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("others[%test]", self.MockPlayers[1])), {self.MockPlayers[3]})
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("not[%test]", self.MockPlayers[1])), {self.MockPlayers[2], self.MockPlayers[4]})
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("%test[others]", self.MockPlayers[1])), {self.MockPlayers[3]})
 end))
 
