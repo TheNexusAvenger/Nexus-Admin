@@ -140,7 +140,7 @@ NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("Autocomplete"):
 end))
 
 --[[
-Tests the Autocomplete method.
+Tests the Parse method.
 --]]
 NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("Parse"):SetRun(function(self)
     --Test the shorthands.
@@ -161,6 +161,15 @@ NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("Parse"):SetRun(
 
     --Test the teams.
     self:AssertEquals(self.CuT.Parse(self.CuT.Transform("%test",self.MockPlayers[1])),{self.MockPlayers[1],self.MockPlayers[3]})
+end))
+
+--[[
+Tests the Parse method with players.
+--]]
+NexusUnitTesting:RegisterUnitTest(NexusAdminPlayersUnitTest.new("ParseFilter"):SetRun(function(self)
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("all[me]", self.MockPlayers[1])), {self.MockPlayers[1]})
+    self:AssertEquals(#self.CuT.Parse(self.CuT.Transform("others[?6]", self.MockPlayers[1])), 3)
+    self:AssertEquals(self.CuT.Parse(self.CuT.Transform("others[%test]", self.MockPlayers[1])), {self.MockPlayers[3]})
 end))
 
 
