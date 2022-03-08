@@ -15,7 +15,7 @@ ServerRegistry:SetClassName("ServerRegistry")
 Creates the server registry.
 --]]
 function ServerRegistry:__new(Cmdr,Authorization,Messages,Logs,Time,Filter,NexusAdminRemotes)
-    self:InitializeSuper(Authorization,Messages)
+    self:InitializeSuper(Authorization,Messages,Cmdr,NexusAdminRemotes)
     
     self.ClientData = {}
     self.Cmdr = Cmdr

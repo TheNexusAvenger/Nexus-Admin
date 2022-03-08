@@ -15,7 +15,7 @@ ClientRegistry:SetClassName("ClientRegistry")
 Creates the client registry.
 --]]
 function ClientRegistry:__new(Cmdr,Authorization,Messages,NexusAdminRemotes)
-    self:InitializeSuper(Authorization,Messages)
+    self:InitializeSuper(Authorization,Messages,Cmdr,NexusAdminRemotes)
 
     self.Cmdr = Cmdr
 

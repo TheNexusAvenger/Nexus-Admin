@@ -1,3 +1,4 @@
+local RunService = game:GetService("RunService")
 --[[
 TheNexusAvenger
 
@@ -15,15 +16,34 @@ Registry:SetClassName("Registry")
 --[[
 Creates the server registry.
 --]]
-function Registry:__new(Authorization,Messages)
+function Registry:__new(Authorization,Messages,Cmdr,NexusAdminRemotes)
     self:InitializeSuper()
-    
+
     self.Prefixes = {}
     self.PrefixCommands = {}
     self.CommandsByGroup = {}
     self.Authorization = Authorization
     self.Messages = Messages
+    self.Cmdr = Cmdr
     self.RunService = game:GetService("RunService")
+    self.HttpService = game:GetService("HttpService")
+
+    --Set up storing enum types.
+    if self.RunService:IsClient() then
+        self.EnumTypesFolder = NexusAdminRemotes:WaitForChild("EnumTypes")
+    else
+        self.EnumTypesFolder = Instance.new("Folder")
+        self.EnumTypesFolder.Name = "EnumTypes"
+        self.EnumTypesFolder.Parent = NexusAdminRemotes
+    end
+
+    --Set up registering enum types.
+    self.EnumTypesFolder.ChildAdded:Connect(function(ChildValue)
+        self:SetUpEnumValue(ChildValue)
+    end)
+    for _, ChildValue in pairs(self.EnumTypesFolder:GetChildren()) do
+        self:SetUpEnumValue(ChildValue)
+    end
 end
 
 --[[
@@ -156,6 +176,65 @@ function Registry:LoadCommand(CommandData)
         self.CommandsByGroup[Data.Group] = {}
     end
     table.insert(self.CommandsByGroup[Data.Group],CommandData)
+end
+
+--[[
+Internally sets up a StringValue as an enum type.
+--]]
+function Registry:SetUpEnumValue(ChildValue)
+    --Create the fuzzy finder.
+    local FuzzyFinder = self.Cmdr.Util.MakeFuzzyFinder(self.HttpService:JSONDecode(ChildValue.Value))
+    ChildValue.Changed:Connect(function()
+        FuzzyFinder = self.Cmdr.Util.MakeFuzzyFinder(self.HttpService:JSONDecode(ChildValue.Value))
+    end)
+
+    --Register the types.
+    self.Cmdr.Registry:RegisterType(ChildValue.Name, {
+        Transform = function(Text, Executor)
+            return FuzzyFinder(Text)
+        end,
+        Validate = function(Values)
+            return #Values > 0, "No values were found matching that query."
+        end,
+        Autocomplete = function(Values)
+            return Values
+        end,
+        Parse = function(Values)
+            return Values[1]
+        end,
+    })
+    self.Cmdr.Registry:RegisterType(ChildValue.Name.."s", {
+        Listable = true,
+        Transform = function(Text, Executor)
+            return FuzzyFinder(Text)
+        end,
+        Validate = function(Values)
+            return #Values > 0, "No values were found matching that query."
+        end,
+        Autocomplete = function(Values)
+            return Values
+        end,
+        Parse = function(Values)
+            return Values
+        end,
+    })
+end
+
+--[[
+Adds an enum type (list of string options).
+Can be re-called to change the options.
+--]]
+function Registry:AddEnumType(Name, Options)
+    local Value = self.EnumTypesFolder:FindFirstChild(Name)
+    local OptionsJson = self.HttpService:JSONEncode(Options)
+    if Value then
+        Value.Value = OptionsJson
+    else
+        Value = Instance.new("StringValue")
+        Value.Name = Name
+        Value.Value = OptionsJson
+        Value.Parent = self.EnumTypesFolder
+    end
 end
 
 
