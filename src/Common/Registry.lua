@@ -29,12 +29,12 @@ function Registry:__new(Authorization,Messages,Cmdr,NexusAdminRemotes)
     self.HttpService = game:GetService("HttpService")
 
     --Set up storing enum types.
-    if self.RunService:IsClient() then
-        self.EnumTypesFolder = NexusAdminRemotes:WaitForChild("EnumTypes")
-    else
+    if self.RunService:IsServer() then
         self.EnumTypesFolder = Instance.new("Folder")
         self.EnumTypesFolder.Name = "EnumTypes"
         self.EnumTypesFolder.Parent = NexusAdminRemotes
+    else
+        self.EnumTypesFolder = NexusAdminRemotes:WaitForChild("EnumTypes")
     end
 
     --Set up registering enum types.

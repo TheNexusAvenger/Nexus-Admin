@@ -21,7 +21,7 @@ function RegistryUnitTest:Setup()
         IsPlayerAuthorized = function(_,Player,Level)
             return Player.UserId == 1
         end
-    }, nil, self.NexusAdminRemotes)
+    }, nil, nil, self.NexusAdminRemotes)
 end
 
 --[[
