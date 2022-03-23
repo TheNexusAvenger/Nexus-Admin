@@ -110,7 +110,9 @@ function Command:__new()
 
                         --Enable the flight.
                         self.Gyro.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
+                        self.Gyro.Parent = HumanoidRootPart
                         self.Velocity.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+                        self.Velocity.Parent = HumanoidRootPart
                         self.Humanoid.PlatformStand = true
                         self:UpdateMultipliers()
 
@@ -206,7 +208,9 @@ function Command:__new()
 
                         --Disable the flight.
                         self.Gyro.MaxTorque = Vector3.new(0,0,0)
+                        self.Gyro.Parent = nil
                         self.Velocity.MaxForce = Vector3.new(0,0,0)
+                        self.Velocity.Parent = nil
                         self.Humanoid.PlatformStand = false
                         self.FrontMultiplier = 0
                         self.SideMultiplier = 0
