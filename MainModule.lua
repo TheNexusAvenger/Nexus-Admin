@@ -19,10 +19,11 @@ return function(LoaderScript,Configuration)
     if LoaderScript then
         for _,Ins in pairs(LoaderScript:GetChildren()) do
             if Ins:IsA("ModuleScript") then
-                local Worked,Return = pcall(function() require(Ins) end)
-                if Worked ~= true then
-                    warn(tostring(Ins:GetFullName()).." module failed to load because "..tostring(Return))
-                end
+                xpcall(function()
+                    require(Ins)
+                end, function(Error)
+                    warn(tostring(Ins:GetFullName()).." module failed to load because \""..tostring(Error).."\"")
+                end)
             end
         end
     end
