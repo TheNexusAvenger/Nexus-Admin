@@ -6,6 +6,8 @@ Handles feature flags on the server.
 
 local FeatureFlags = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("FeatureFlags"))
 
+local NexusDataStore = require(script.Parent.Parent:WaitForChild("NexusDataStore"))
+
 local ServerFeatureFlags = FeatureFlags:Extend()
 ServerFeatureFlags:SetClassName("ServerFeatureFlags")
 
@@ -16,10 +18,10 @@ Creates a server feature flag instance.
 --]]
 function ServerFeatureFlags:__new(NexusAdminRemotes)
     self:InitializeSuper()
-    
-    self.MessagingService = game:GetService("MessagingService")
+
     self.DataStoreService = game:GetService("DataStoreService")
     self.HttpService = game:GetService("HttpService")
+    self.DataStoreConnectedFeatureFlags = {}
 
     --Create the remote objects.
     local FeatureFlagEvents = Instance.new("Folder")
@@ -39,129 +41,74 @@ function ServerFeatureFlags:__new(NexusAdminRemotes)
     function GetFeatureFlags.OnServerInvoke()
         return self.FeatureFlags
     end
-
-    --Connect on close to yield for saving.
-    self.SavesPending = 0
-    game:BindToClose(function()
-        while self.SavesPending > 0 do wait() end
-    end)
 end
 
 --[[
 Initializes the services.
 --]]
 function ServerFeatureFlags:InitializeServices()
-    --Initialize the messaging service.
-    coroutine.wrap(function()
-        local Worked,Return = pcall(function()
-            self.MessagingService:SubscribeAsync("NexusAdminFeatureFlagsChanged",function(Data)
-                if Data == "" then
-                    self:UpdateFeatureFlags()
-                else
-                    self:UpdateFeatureFlags(Data)
-                end
+    --Initialize the data store.
+    pcall(function()
+        --Get the data store.
+        self.DataStore = NexusDataStore:GetDataStore("NexusAdminFeatureFlags", "FeatureFlagOverrides")
+
+        --Convert the data if the data is JSON.
+        --This is for migrating from before Nexus Data Store (before V.2.3.0).
+        if typeof(self.DataStore.Data) == "string" then
+            self.DataStore.Data = self.HttpService:JSONDecode(self.DataStore.Data)
+            pcall(function()
+                self.DataStoreService:GetDataStore("NexusAdminFeatureFlags"):SetAsync("FeatureFlagOverrides", self.DataStore.Data)
             end)
-        end)
-        if not Worked then
-            warn("Connecting to messaging service for Nexus Admin Feature Flag changes failed because "..tostring(Return))
         end
-    end)()
 
-    --Initialize the existing DataStore fast flags.
-    self:UpdateFeatureFlags()
+        --Set the default values.
+        for Name, Value in pairs(self.DataStore.Data) do
+            self.super:SetFeatureFlag(Name, Value)
+            self.FeatureFlagChangedEvent:FireAllClients(Name, Value)
+        end
+    end)
 end
 
---[[
-Updates the feature flags from
-the data store.
---]]
-function ServerFeatureFlags:UpdateFeatureFlags(OverrideMessage)
-    local Worked,Return = pcall(function()
-        --Parse the message.
-        if not OverrideMessage then
-            OverrideMessage = self.DataStoreService:GetDataStore("NexusAdminFeatureFlags"):GetAsync("FeatureFlagOverrides")
-            self.FeatureFlagsLoadedFromDataStores = true
-        end
-        local OverrideFastFlags = self.HttpService:JSONDecode(OverrideMessage or {})
-        
-        --Set the overrides.
-        for Name,Value in pairs(OverrideFastFlags) do
-            self.super:SetFeatureFlag(Name,Value)
-            self.FeatureFlagChangedEvent:FireAllClients(Name,Value)
-        end
+function ServerFeatureFlags:ConnectFeatureFlagDataChanges(Name)
+    if self.DataStoreConnectedFeatureFlags[Name] then return end
+    self.DataStoreConnectedFeatureFlags[Name] = true
+    if not self.DataStore then return end
 
-        --Reset the defaults of the removed flags.
-        if self.PreviousOverrideFastFlags then
-            for Name,Value in pairs(self.PreviousOverrideFastFlags) do
-                if OverrideFastFlags[Name] == nil then
-                    self.super:SetFeatureFlag(Name,self.DefaultFeatureFlags[Name])
-                    self.FeatureFlagChangedEvent:FireAllClients(Name,self.DefaultFeatureFlags[Name])
-                end
-            end
+    --Connect the key updating.
+    self.DataStore:OnUpdate(Name, function()
+        local Value = self.DataStore:Get(Name)
+        if Value == nil then
+            Value = self.DefaultFeatureFlags[Name]
         end
-
-        --Store the flags changed as the previous.
-        self.PreviousOverrideFastFlags = OverrideFastFlags
+        self:SetFeatureFlag(Name, Value, true)
     end)
 end
 
 --[[
-Serializes the feature flags to the
-data store.
+Adds a feature flag if it wasn't set before.
 --]]
-function ServerFeatureFlags:SerializeFeatureFlags()
-    --Return if the feature flags were not loaded.
-    if not self.FeatureFlagsLoadedFromDataStores then
-        warn("Saving feature flags ignored because they weren't initially loaded.")
-        return
-    end
-
-    local Worked,Return = pcall(function()
-        self.SavesPending = self.SavesPending + 1
-
-        local FeatureFlagChangesJSON
-        self.DataStoreService:GetDataStore("NexusAdminFeatureFlags"):UpdateAsync("FeatureFlagOverrides",function()
-            --Determine the flags to save.
-            local FeatureFlagChanges = {}
-            for Name,Value in pairs(self.FeatureFlags) do
-                if self.DefaultFeatureFlags[Name] ~= Value then
-                    FeatureFlagChanges[Name] = Value
-                end
-            end
-
-            --Return the JSON of the changes.
-            FeatureFlagChangesJSON = self.HttpService:JSONEncode(FeatureFlagChanges)
-            return FeatureFlagChangesJSON
-        end)
-
-        --Send a message that the feature flags were changed.
-        if FeatureFlagChangesJSON then
-            local Message = ""
-            if string.len(FeatureFlagChangesJSON) < 950 then
-                Message = FeatureFlagChangesJSON
-            end
-            self.MessagingService:PublishAsync("NexusAdminFeatureFlagsChanged",Message)
-        end
-    end)
-    self.SavesPending = self.SavesPending - 1
-
-    --Display a warning if the serialization failed.
-    if not Worked then
-        warn("Saving feature flags in DataStore failed because "..tostring(Return))
-    end
+function ServerFeatureFlags:AddFeatureFlag(Name, Value)
+    self.super:AddFeatureFlag(Name, Value)
+    self:ConnectFeatureFlagDataChanges(Name)
 end
 
 --[[
 Sets a feature flag value.
 --]]
-function ServerFeatureFlags:SetFeatureFlag(Name,Value,SkipSaving)
+function ServerFeatureFlags:SetFeatureFlag(Name, Value, SkipSaving)
+    --Set the value.
     local InitialValue = self:GetFeatureFlag(Name)
-    self.super:SetFeatureFlag(Name,Value)
-    self.FeatureFlagChangedEvent:FireAllClients(Name,Value)
+    self.super:SetFeatureFlag(Name, Value)
+    self.FeatureFlagChangedEvent:FireAllClients(Name, Value)
+    self:ConnectFeatureFlagDataChanges(Name)
 
-    --Serialize the feature flags.
-    if InitialValue ~= nil and InitialValue ~= Value and not SkipSaving then
-        self:SerializeFeatureFlags()
+    --Save the feature flags.
+    if InitialValue ~= nil and InitialValue ~= Value and not SkipSaving and self.DataStore then
+        if Value ~= self.DefaultFeatureFlags[Name] then
+            self.DataStore:Set(Name, Value)
+        else
+            self.DataStore:Set(Name, nil)
+        end
     end
 end
 
