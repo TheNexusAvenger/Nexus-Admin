@@ -263,8 +263,8 @@ function Command:__new()
                 table.insert(Flight.Events,Humanoid.Died:Connect(function()
                     Flight:Destroy()
                 end))
-                table.insert(Flight.Events,self.UserInputService.InputBegan:Connect(function(Key)
-                    if self.UserInputService:GetFocusedTextBox() then return end
+                table.insert(Flight.Events,self.UserInputService.InputBegan:Connect(function(Key, Processeed)
+                    if Processeed then return end
 
                     --Handle the key.
                     if Key.KeyCode == Enum.KeyCode.E then
