@@ -13,7 +13,7 @@ local Command = BaseCommand:Extend()
 Creates the command.
 --]]
 function Command:__new()
-    self:InitializeSuper("fly","UsefulFunCommands","Gives a set of players the ability to fly. Use E to toggle on/off.")
+    self:InitializeSuper("fly", "UsefulFunCommands", "Gives a set of players the ability to fly. Use E to toggle on/off.")
 
     self.Arguments = {
         {
@@ -21,8 +21,14 @@ function Command:__new()
             Name = "Players",
             Description = "Players to fly.",
         },
+        {
+            Type = "number",
+            Name = "SpeedMultiplier",
+            Description = "Speed multiplier to apply to the fly speed.",
+            Optional = true,
+        },
     }
-    
+
     --Create the remote event.
     local FlyPlayerEvent = Instance.new("RemoteEvent")
     FlyPlayerEvent.Name = "FlyPlayer"
@@ -30,7 +36,7 @@ function Command:__new()
     self.FlyPlayerEvent = FlyPlayerEvent
 
     --Update the collision groups.
-    self.API.FeatureFlags:AddFeatureFlag("AllowFlyingThroughMap",true)
+    self.API.FeatureFlags:AddFeatureFlag("AllowFlyingThroughMap", true)
     coroutine.wrap(function()
         while true do
             --Determine if the flying collision group exists.
@@ -51,7 +57,7 @@ function Command:__new()
             --Update the collision groups.
             if HasFlyCollisionGroup then
                 for _,CollisionGroup in pairs(self.PhysicsService:GetCollisionGroups()) do
-                    self.PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name,"NexusAdmin_FlyingPlayerCollisionGroup",not AllowFlyingThroughMap)
+                    self.PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name,"NexusAdmin_FlyingPlayerCollisionGroup", not AllowFlyingThroughMap)
                 end
             end
 
@@ -64,12 +70,12 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Players)
+function Command:Run(CommandContext, Players, SpeedMultiplier)
     self.super:Run(CommandContext)
-    
+
     --Fling the players.
     for _,Player in pairs(Players) do
-        self.FlyPlayerEvent:FireClient(Player)
+        self.FlyPlayerEvent:FireClient(Player, SpeedMultiplier)
     end
 end
 

@@ -22,10 +22,18 @@ function Command:__new()
             Name = "Players",
             Description = "Players to fly.",
         },
+        {
+            Type = "number",
+            Name = "SpeedMultiplier",
+            Description = "Speed multiplier to apply to the fly speed.",
+            Optional = true,
+        },
     }
 
     --Connect the remote event.
-    self.API.EventContainer:WaitForChild("FlyPlayer").OnClientEvent:Connect(function()
+    self.API.EventContainer:WaitForChild("FlyPlayer").OnClientEvent:Connect(function(SpeedMultiplier)
+        SpeedMultiplier = SpeedMultiplier or 1
+
         local Character = self.Players.LocalPlayer.Character
         if Character then
             local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
@@ -65,14 +73,14 @@ function Command:__new()
                 Flight.Velocity = Velocity
                 Flight.Active = false
                 Flight.FrontSpeed = 0
-                Flight.MaxSpeed = 50
+                Flight.MaxSpeed = 50 * SpeedMultiplier
                 Flight.SideSpeed = 0
-                Flight.MaxSideSpeed = 30
-                Flight.Acceleration = 4 * 60
-                Flight.Decceleration = 1 * 60
+                Flight.MaxSideSpeed = 30 * SpeedMultiplier
+                Flight.Acceleration = 4 * 60 * SpeedMultiplier
+                Flight.Decceleration = 1 * 60 * SpeedMultiplier
                 Flight.FrontMultiplier = 0
                 Flight.SideMultiplier = 0
-                Flight.ShiftDownMultiplier = 2.5
+                Flight.ShiftDownMultiplier = 2.5 * SpeedMultiplier
                 Flight.Command = self
 
                 --[[
@@ -193,7 +201,7 @@ function Command:__new()
                             end
                             
                             --Set the physics properties.
-                            self.Gyro.CFrame = Rotation * CFrame.Angles(math.rad(self.FrontSpeed/2),0,0)
+                            self.Gyro.CFrame = Rotation * CFrame.Angles(math.rad(math.clamp(self.FrontSpeed / 2, -80, 80)),0,0)
                             self.Velocity.Velocity = (Rotation * CFrame.new(self.SideSpeed,0,self.FrontSpeed)).p
                         end)
                     end
