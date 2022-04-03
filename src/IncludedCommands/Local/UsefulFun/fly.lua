@@ -201,7 +201,7 @@ function Command:__new()
                             end
                             
                             --Set the physics properties.
-                            self.Gyro.CFrame = Rotation * CFrame.Angles(math.rad(math.clamp(self.FrontSpeed / 2, -80, 80)),0,0)
+                            self.Gyro.CFrame = Rotation * CFrame.Angles(math.rad(math.clamp(self.FrontSpeed / 2, -90, 90)),0,0)
                             self.Velocity.Velocity = (Rotation * CFrame.new(self.SideSpeed,0,self.FrontSpeed)).p
                         end)
                     end
@@ -264,7 +264,7 @@ function Command:__new()
                     Flight:Destroy()
                 end))
                 table.insert(Flight.Events,self.UserInputService.InputBegan:Connect(function(Key, Processeed)
-                    if Processeed then return end
+                    if Processeed and Key.KeyCode ~= Enum.KeyCode.LeftShift and Key.KeyCode ~= Enum.KeyCode.RightShift then return end
 
                     --Handle the key.
                     if Key.KeyCode == Enum.KeyCode.E then
