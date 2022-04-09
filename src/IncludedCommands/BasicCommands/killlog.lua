@@ -46,17 +46,18 @@ function Command:__new()
             local KillingCharacterHumanoidRootPart = KillingCharacter and KillingCharacter:FindFirstChild("HumanoidRootPart")
 
             --Build and store the message.
+            local Timestamp = "["..self.API.Time:GetTimeString().."]: "
             local KilledPlayerName = Player.DisplayName.." ("..Player.Name..")"
             if KillingPlayer then
                 local KillingPlayerName = KillingPlayer.DisplayName.." ("..KillingPlayer.Name..")"
-                local Message = KillingPlayerName.." killed "..KilledPlayerName.." "
+                local Message = Timestamp..KillingPlayerName.." killed "..KilledPlayerName.." "
                 if KillingCharacterTool then
                     Message = Message.."holding "..KillingCharacterTool.Name.." "
                 end
                 Message = Message.."("..tostring((KillingCharacterHumanoidRootPart.Position - HumanoidRootPart.Position).Magnitude).." studs)"
                 self.KillLogs:Add(Message)
             else
-                self.KillLogs:Add(KilledPlayerName.." died.")
+                self.KillLogs:Add(Timestamp..KilledPlayerName.." died.")
             end
         end)
     end
