@@ -6,7 +6,6 @@ Implementation of a command.
 
 local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
 local Command = BaseCommand:Extend()
-Command.LogService = game:GetService("LogService")
 
 
 

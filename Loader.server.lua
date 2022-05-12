@@ -113,6 +113,7 @@ local Config = {
             cmds = -1,
             cmdbar = -1,
             debug = 0,
+            localdebug = nil,
             logs = 0,
             admins = 0,
             bans = nil,
