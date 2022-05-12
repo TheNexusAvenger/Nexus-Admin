@@ -78,7 +78,7 @@ end
 --[[
 Returns if a command was executed from a keybind.
 --]]
-function BaseCommand:ExecutedFromGuiConsole()
+function BaseCommand:ExecutedFromKeybind()
     return self:ExecutedFromContext("Keybind")
 end
 
@@ -86,7 +86,7 @@ end
 Sends a response back to the executor.
 --]]
 function BaseCommand:SendResponse(Message,Color)
-    if self:ExecutedFromChat() or self:ExecutedFromGuiConsole() or self:ExecutedFromGuiConsole() then
+    if self:ExecutedFromChat() or self:ExecutedFromGuiConsole() or self:ExecutedFromKeybind() then
         if self.CurrentContext.Executor then
             if _G.GetNexusAdminServerAPI then
                 self.API.Messages:DisplayHint(self.CurrentContext.Executor,Message)

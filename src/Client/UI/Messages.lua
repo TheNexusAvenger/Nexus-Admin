@@ -81,6 +81,7 @@ Adds native hints.
 --]]
 local function AddNativeHints(API,Player)
     local HintsQueue = {}
+    local NexusAdminHintsScreenGui = nil
 
     --[[
     Updates the position of the hints.
