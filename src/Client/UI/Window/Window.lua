@@ -1,3 +1,5 @@
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 --[[
 TheNexusAvenger
 
@@ -46,9 +48,10 @@ function Window:__new()
     WindowFrame.Size = UDim2.new(0,ViewportSize.Y * 0.375,0,WindowHeight)
     self.WindowFrame = WindowFrame
 
-    local TopBarAdorn = Instance.new("Frame")
+    local TopBarAdorn = Instance.new("TextButton")
     TopBarAdorn.Size = UDim2.new(1,0,0,TopBarHeightPixel)
     TopBarAdorn.BackgroundTransparency = 1
+    TopBarAdorn.Text = ""
     TopBarAdorn.Parent = WindowFrame
     self.TopBarAdorn = TopBarAdorn
 
@@ -93,22 +96,21 @@ function Window:__new()
     TitleText.TextSize = TopBarHeightPixel * (36/44)
     TitleText.ZIndex = 3
     TitleText.Parent = TopBarAdorn
-        
+
     --Connect the events.
     self.Events = {}
     local MouseDown = false
     local LastPosition
-    table.insert(self.Events,TopBarAdorn.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            MouseDown = true
-            LastPosition = Input.Position
-        end
+    table.insert(self.Events,TopBarAdorn.MouseButton1Down:Connect(function()
+        MouseDown = true
+        LastPosition = UserInputService:GetMouseLocation()
     end))
 
     table.insert(self.Events,self.UserInputService.InputChanged:Connect(function(Input)
         if LastPosition and MouseDown and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-            local Delta = Input.Position - LastPosition
-            LastPosition =  Input.Position
+            local MousePosition = UserInputService:GetMouseLocation()
+            local Delta = MousePosition - LastPosition
+            LastPosition =  MousePosition
             WindowFrame.Position = UDim2.new(0,WindowFrame.Position.X.Offset + Delta.X,0,WindowFrame.Position.Y.Offset + Delta.Y)
         end
     end))
