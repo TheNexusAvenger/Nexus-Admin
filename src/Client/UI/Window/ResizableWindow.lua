@@ -4,6 +4,8 @@ TheNexusAvenger
 Extension of the Window class to add resizing.
 --]]
 
+local UserInputService = game:GetService("UserInputService")
+
 local Window = require(script.Parent:WaitForChild("Window"))
 
 local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
@@ -32,10 +34,11 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
     MaxHeight = MaxHeight or math.huge
 
     --Create the resize corner.
-    local ResizeCornerAdorn = Instance.new("Frame")
+    local ResizeCornerAdorn = Instance.new("TextButton")
     ResizeCornerAdorn.Size = UDim2.new(0,ResizeCornerSizePixel,0,ResizeCornerSizePixel)
     ResizeCornerAdorn.Position = UDim2.new(1,-ResizeCornerSizePixel,1,-ResizeCornerSizePixel)
     ResizeCornerAdorn.BackgroundTransparency = 1
+    ResizeCornerAdorn.Text = ""
     ResizeCornerAdorn.Parent = self.WindowFrame
 
     local ResizeCorner = CutFrame.new(ResizeCornerAdorn)
@@ -49,18 +52,17 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
     local MouseDown = false
     local LastPosition
     local IntendedSizeX,IntendedSizeY
-    table.insert(self.Events,ResizeCornerAdorn.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            MouseDown = true
-            LastPosition = Input.Position
-            IntendedSizeX,IntendedSizeY = self.WindowFrame.Size.X.Offset,self.WindowFrame.Size.Y.Offset
-        end
+    table.insert(self.Events,ResizeCornerAdorn.MouseButton1Down:Connect(function()
+        MouseDown = true
+        LastPosition = UserInputService:GetMouseLocation()
+        IntendedSizeX,IntendedSizeY = self.WindowFrame.Size.X.Offset,self.WindowFrame.Size.Y.Offset
     end))
 
     table.insert(self.Events,self.UserInputService.InputChanged:Connect(function(Input)
         if LastPosition and MouseDown and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-            local Delta = Input.Position - LastPosition
-            LastPosition =  Input.Position
+            local MousePosition = UserInputService:GetMouseLocation()
+            local Delta = MousePosition - LastPosition
+            LastPosition =  MousePosition
             IntendedSizeX,IntendedSizeY = IntendedSizeX + Delta.X,IntendedSizeY + Delta.Y
             self.WindowFrame.Size = UDim2.new(0,math.clamp(IntendedSizeX,MinWidth,MaxWidth),0,math.clamp(IntendedSizeY + Delta.Y,MinHeight,MaxHeight))
         end

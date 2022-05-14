@@ -1,5 +1,3 @@
-local GuiService = game:GetService("GuiService")
-local UserInputService = game:GetService("UserInputService")
 --[[
 TheNexusAvenger
 
@@ -9,6 +7,8 @@ Class representing a window.
 local REFRESH_ICON = "rbxasset://textures/StudioToolbox/AssetConfig/restore@3x.png"
 
 
+
+local UserInputService = game:GetService("UserInputService")
 
 local NexusInstance = require(script.Parent.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusInstance"))
 
@@ -150,7 +150,7 @@ function Window:__new()
             RefreshIcon.Image = REFRESH_ICON
             RefreshIcon.ZIndex = 4
             RefreshIcon.Parent = RefreshButton.AdornFrame
-            
+
             --Connect the button.
             table.insert(self.Events,RefreshButton.MouseButton1Down:Connect(function()
                 if DB == true then
@@ -171,7 +171,7 @@ function Window:__new()
             CloseButton.Position = UDim2.new(1,-TopBarHeightPixel * 0.9,0,TopBarHeightPixel * 0.075)
             CloseButton.Parent = TopBarAdorn
             self.CloseButton = CloseButton
-            
+
             --Connect the button.
             table.insert(self.Events,CloseButton.MouseButton1Down:Connect(function()
                 if DB == true then
