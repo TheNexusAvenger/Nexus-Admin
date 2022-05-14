@@ -54,28 +54,30 @@ function Command:Run(CommandContext, Players)
 
     --Display the text window.
     for _, Player in pairs(Players) do
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Client Output"
-        Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
-            --Get the output.
-            if not self.Output or ForceRefresh then
-                self.Output = self.API.EventContainer:WaitForChild("GetClientOutput"):InvokeServer(Player)
-            end
+        task.spawn(function()
+            local Window = ScrollingTextWindow.new()
+            Window.Title = "Client Output - "..Player.DisplayName.." ("..Player.Name..")"
+            Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
+                --Get the output.
+                if not self.Output or ForceRefresh then
+                    self.Output = self.API.EventContainer:WaitForChild("GetClientOutput"):InvokeServer(Player)
+                end
 
-            --Filter and return the output.
-            local FilteredOutput = {}
-            for _,Message in pairs(self.Output) do
-                local Text = Message
-                if type(Message) == "table" then
-                    Text = Message.Text
+                --Filter and return the output.
+                local FilteredOutput = {}
+                for _,Message in pairs(self.Output) do
+                    local Text = Message
+                    if type(Message) == "table" then
+                        Text = Message.Text
+                    end
+                    if string.find(string.lower(Text),string.lower(SearchTerm)) then
+                        table.insert(FilteredOutput,Message)
+                    end
                 end
-                if string.find(string.lower(Text),string.lower(SearchTerm)) then
-                    table.insert(FilteredOutput,Message)
-                end
+                return FilteredOutput
             end
-            return FilteredOutput
-        end
-        Window:Show()
+            Window:Show()
+        end)
     end
 end
 
