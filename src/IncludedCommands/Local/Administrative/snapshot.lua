@@ -119,8 +119,9 @@ function Command:Run(CommandContext, Players)
     SnapshotScreenGuisFolder.Parent = SnapshotFolder
 
     --Create the window.
+    local Camera = self.Workspace.Camera
+    local CameraViewportSize = Camera.ViewportSize
     local GetClientViewRemoteFunction = self.API.EventContainer:WaitForChild("GetClientViewRemoteFunction")
-    local CameraViewportSize = self.Workspace.Camera.ViewportSize
     local Window = ResizableWindow.new()
     Window.Title = "Snapshot - "..Player.DisplayName.." ("..Player.Name..")"
 
@@ -159,7 +160,7 @@ function Command:Run(CommandContext, Players)
     function Window:OnClose()
         SnapshotBackground:Destroy()
         SnapshotScreenGuisFolder:Destroy()
-        Window.WindowFrame:TweenPosition(UDim2.new(0, Window.WindowFrame.AbsolutePosition.X, 0, CameraViewportSize.Y), "Out", "Back", 0.5, false, function()
+        Window.WindowFrame:TweenPosition(UDim2.new(0, Window.WindowFrame.AbsolutePosition.X, 0, Camera.ViewportSize.Y), "Out", "Back", 0.5, false, function()
             Window:Destroy()
             SnapshotFolder:Destroy()
         end)
@@ -168,9 +169,9 @@ function Command:Run(CommandContext, Players)
     --Show the window.
     Window:OnRefresh()
     Window.WindowFrame.Parent = SnapshotBackgroundWindow
-    Window.WindowFrame.Size = UDim2.new(0, 400, 0, 100)
-    Window.WindowFrame.Position = UDim2.new(0, (CameraViewportSize.X / 2) - 200, 0, CameraViewportSize.Y)
-    Window.WindowFrame:TweenPosition(UDim2.new(0, (CameraViewportSize.X / 2) - 200, 0, CameraViewportSize.Y - 150), "Out", "Back", 0.5, false)
+    Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.3, 0, CameraViewportSize.Y * 0.125)
+    Window.WindowFrame.Position = UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y)
+    Window.WindowFrame:TweenPosition(UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y * 0.7), "Out", "Back", 0.5, false)
 end
 
 
