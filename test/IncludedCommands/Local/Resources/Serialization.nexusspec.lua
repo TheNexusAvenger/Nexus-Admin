@@ -7,7 +7,7 @@ Tests the Serialization class.
 local NexusUnitTesting = require("NexusUnitTesting")
 local BaseCommandUnitTest = NexusUnitTesting.UnitTest:Extend()
 
-local Serialization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("Resources"):WaitForChild("Serialization"))
+local Serialization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("Local"):WaitForChild("Resources"):WaitForChild("Serialization"))
 
 
 
