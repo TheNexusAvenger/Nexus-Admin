@@ -136,11 +136,12 @@ function Command:Run(CommandContext, Players)
     ScreenSizeText.TextSize = CameraViewportSize.Y * 0.5 * 0.045
     ScreenSizeText.TextXAlignment = Enum.TextXAlignment.Left
     ScreenSizeText.TextYAlignment = Enum.TextYAlignment.Top
-    ScreenSizeText.Text = ""
+    ScreenSizeText.Text = "Loading..."
     ScreenSizeText.Parent = Window.ContentsAdorn
 
     function Window:OnRefresh()
         --Get the screen data.
+        ScreenSizeText.Text = "Loading..."
         local ScreenData = GetClientViewRemoteFunction:InvokeServer(Player)
         if not ScreenData then
             return
@@ -167,11 +168,11 @@ function Command:Run(CommandContext, Players)
     end
 
     --Show the window.
-    Window:OnRefresh()
     Window.WindowFrame.Parent = SnapshotBackgroundWindow
     Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.3, 0, CameraViewportSize.Y * 0.125)
     Window.WindowFrame.Position = UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y)
     Window.WindowFrame:TweenPosition(UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y * 0.7), "Out", "Back", 0.5, false)
+    Window:OnRefresh()
 end
 
 
