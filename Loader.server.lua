@@ -16,7 +16,7 @@ local Config = {
     CommandPrefix = ":",
 
     --Default rank a new player would have.
-    DefaultAdminLevel = -1,
+    DefaultAdminLevel = 2,
 
     --This is for setting up other admins in your game. You don't need to add yourself as long as you are the owner
     --[[

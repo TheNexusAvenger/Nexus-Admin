@@ -30,6 +30,12 @@ Runs the command.
 function Command:Run(CommandContext,Players)
     self.super:Run(CommandContext)
 
+    --Disconnect the existing player event.
+    if self.CharacterAddedEvent then
+        self.CharacterAddedEvent:Disconnect()
+        self.CharacterAddedEvent = nil
+    end
+
     --Change the view.
     local Player = Players[1]
     if Player then
@@ -42,6 +48,10 @@ function Command:Run(CommandContext,Players)
                     Camera.CameraType = "Custom"
                 else
                     Camera.CameraType = "Track"
+                    self.CharacterAddedEvent = Player.CharacterAdded:Connect(function(Character)
+                        Humanoid = Character:WaitForChild("Humanoid")
+                        Camera.CameraSubject = Humanoid
+                    end)
                 end
             end
         end
