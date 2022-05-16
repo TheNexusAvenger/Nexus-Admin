@@ -90,7 +90,7 @@ end
 --[[
 Serializes a list of instances.
 --]]
-function Serialization:Serialize(Instances)
+function Serialization:Serialize(Instances, ExcludeCallback)
     --Create a list of instances to serialize.
     local CurrentIndex = 1
     local InstancesToSerialize = {}
@@ -102,6 +102,9 @@ function Serialization:Serialize(Instances)
         --Get the next instance and ignore it if it is not creatable or ignored.
         local Ins = table.remove(InstancesToAddQueue, 1)
         if IGNORED_INSTANCES[Ins.ClassName] or not ApiReference:IsCreateable(Ins.ClassName) then
+            continue
+        end
+        if ExcludeCallback and ExcludeCallback(Ins) then
             continue
         end
 
@@ -136,7 +139,12 @@ function Serialization:Serialize(Instances)
                 end
             elseif PropertyTypeCategory == "DataType" then
                 if PropertyValue then
-                    PropertyValue = DataTypeSerializers[PropertyTypeName](PropertyValue)
+                    if DataTypeSerializers[PropertyTypeName] then
+                        PropertyValue = DataTypeSerializers[PropertyTypeName](PropertyValue)
+                    elseif not IGNORED_TYPES[PropertyTypeName] then
+                        warn("Unsupported property serialization type: "..tostring(PropertyTypeName))
+                        PropertyValue = nil
+                    end
                 end
             end
             SerializedInstance[PropertyName] = PropertyValue
@@ -172,14 +180,19 @@ function Serialization:Deserialize(SerializedInstances)
                     end
                 elseif PropertyTypeCategory == "DataType" then
                     if PropertyValue then
-                        PropertyValue = DataTypeDeserializers[PropertyTypeName](PropertyValue)
+                        if DataTypeDeserializers[PropertyTypeName] then
+                            PropertyValue = DataTypeDeserializers[PropertyTypeName](PropertyValue)
+                        elseif not IGNORED_TYPES[PropertyTypeName] then
+                            warn("Unsupported property deserialization type: "..tostring(PropertyTypeName))
+                            PropertyValue = nil
+                        end
                     end
                 end
                 Ins[PropertyName] = PropertyValue
             end
         end
     end
-    
+
     --Return the instances with no parents.
     local NoParentInstances = {}
     for _, Ins in pairs(Instances) do
