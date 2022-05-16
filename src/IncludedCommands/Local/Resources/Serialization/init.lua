@@ -16,7 +16,9 @@ local IGNORED_INSTANCES = {
     LocalScript = true,
     ModuleScript = true,
 }
-
+local DEPENDENT_PROPERTIES = {
+    CanvasPosition = true,
+}
 
 
 
@@ -167,7 +169,9 @@ function Serialization:Deserialize(SerializedInstances)
 
     --Set the properties.
     for i, SerializedInstance in pairs(SerializedInstances) do
+        --Determine the properties to set.
         local Ins = Instances[i]
+        local Properties = {}
         for _, Property in pairs(ApiReference:GetProperties(Ins.ClassName)) do
             local PropertyName = Property.Name
             local PropertyValue = SerializedInstance[PropertyName]
@@ -188,7 +192,19 @@ function Serialization:Deserialize(SerializedInstances)
                         end
                     end
                 end
-                Ins[PropertyName] = PropertyValue
+                Properties[PropertyName] = PropertyValue
+            end
+        end
+
+        --Set the properties.
+        --Some properties are dependent on others, so they are set twice.
+        for PropertyName, PropertyValue in pairs(Properties) do
+            Ins[PropertyName] = PropertyValue
+        end
+        for PropertyName, _ in pairs(DEPENDENT_PROPERTIES) do
+            if Properties[PropertyName] then
+                warn(PropertyName)
+                Ins[PropertyName] = Properties[PropertyName]
             end
         end
     end
