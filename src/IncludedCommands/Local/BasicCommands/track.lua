@@ -37,10 +37,12 @@ function Command:Run(CommandContext,Players)
         if CommonState.PlayerTrackers[Player] then
             CommonState.PlayerTrackers[Player]:Destroy()
         end
-        
+
         --Add the psuedo-object.
+        local FeatureFlagsApi = self.API.FeatureFlags
         local Tracker = {}
         Tracker.Active = true
+        Tracker.Events = {}
         function Tracker:TrackCharacter()
             if not self.Active then return end
             if Player.Character then
@@ -66,52 +68,98 @@ function Command:Run(CommandContext,Players)
                 self.Text = Text
             end
         end
+
+        function Tracker:TrackBeam()
+            --Get the source and target.
+            local SourceCharacter = CommandContext.Executor.Character
+            local TargetCharacter = Player.Character
+            if not SourceCharacter or not TargetCharacter then return end
+            local SourceHead = SourceCharacter:WaitForChild("Head")
+            local TargetHead = TargetCharacter:WaitForChild("Head")
+            local SourceHumanoidRootPart = SourceCharacter:WaitForChild("HumanoidRootPart")
+            local TargetHumanoidRootPart = TargetCharacter:WaitForChild("HumanoidRootPart")
+            if not SourceHead or not TargetHead or not SourceHumanoidRootPart or not TargetHumanoidRootPart or SourceHumanoidRootPart == TargetHumanoidRootPart then warn("NO ROOT PART") return end
+            local SourceRootAttachment = SourceHead:FindFirstChild("FaceCenterAttachment") or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
+            local TargetRootAttachment = TargetHead:FindFirstChild("FaceCenterAttachment") or TargetHumanoidRootPart:FindFirstChild("RootAttachment")
+            if not SourceRootAttachment or not TargetRootAttachment then return end
+
+            --Remove the beam if the feature flag is disabled.
+            if not FeatureFlagsApi:GetFeatureFlag("UseBeamsWhenTracking") then
+                if self.Beam then
+                    self.Beam:Destroy()
+                end
+                return
+            end
+
+            --Create and update the beam.
+            if not self.Beam or not self.Beam:IsAncestorOf(game) then
+                if self.Beam then
+                    self.Beam:Destroy()
+                end
+                local Beam = Instance.new("Beam")
+                Beam.LightEmission = 0
+                Beam.LightInfluence = 0
+                Beam.Transparency = NumberSequence.new(0.5)
+                Beam.Segments = 1
+                Beam.Width0 = 0.05
+                Beam.Width1 = 0.05
+                Beam.FaceCamera = true
+                Beam.Parent = self.BillboardGui
+                self.Beam = Beam
+            end
+            self.Beam.Attachment0 = SourceRootAttachment
+            self.Beam.Attachment1 = TargetRootAttachment
+        end
+
         function Tracker:UpdateColor()
             if not self.Active then return end
+            local Color = (Player.Neutral and Color3.new(1, 1, 1) or Player.TeamColor.Color)
             if self.Text then
-                if Player.Neutral == true then
-                    self.Text.TextColor3 = Color3.new(1,1,1)
-                else
-                    self.Text.TextColor3 = Player.TeamColor.Color
-                end
+                self.Text.TextColor3 = Color
+            end
+            if self.Beam then
+                self.Beam.Color = ColorSequence.new(Color)
             end
         end
+
         function Tracker:Destroy()
             CommonState.PlayerTrackers[Player] = nil
             self.Active = false
             if self.BillboardGui then
                 self.BillboardGui:Destroy()
             end
-            if self.CharacterAddedEvent then
-                self.CharacterAddedEvent:Disconnect()
-                self.CharacterAddedEvent = nil
+            for _, Event in pairs(self.Events) do
+                Event:Disconnect()
             end
-            if self.TeamNeutralChangedConnection then
-                self.TeamNeutralChangedConnection:Disconnect()
-                self.TeamNeutralChangedConnection = nil
-            end
-            if self.TeamColorChangedConnection then
-                self.TeamColorChangedConnection:Disconnect()
-                self.TeamColorChangedConnection = nil
-            end
+            self.Events = {}
         end
         CommonState.PlayerTrackers[Player] = Tracker
 
-        --Connect the evnets and start tracking.
-        Tracker.CharacterAddedEvent = Player.CharacterAdded:Connect(function()
+        --Connect the events and start tracking.
+        table.insert(Tracker.Events, Player.CharacterAdded:Connect(function()
             Tracker:TrackCharacter()
+            Tracker:TrackBeam()
             Tracker:UpdateColor()
-        end)
-        Tracker.TeamNeutralChangedConnection = Player:GetPropertyChangedSignal("Neutral"):Connect(function()
+        end))
+        table.insert(Tracker.Events, Player:GetPropertyChangedSignal("Neutral"):Connect(function()
             Tracker:UpdateColor()
-        end)
-        Tracker.TeamColorChangedConnection = Player:GetPropertyChangedSignal("TeamColor"):Connect(function()
+        end))
+        table.insert(Tracker.Events, Player:GetPropertyChangedSignal("TeamColor"):Connect(function()
             Tracker:UpdateColor()
-        end)
-        coroutine.wrap(function()
+        end))
+        table.insert(Tracker.Events, CommandContext.Executor.CharacterAdded:Connect(function()
+            Tracker:TrackBeam()
+            Tracker:UpdateColor()
+        end))
+        table.insert(Tracker.Events, FeatureFlagsApi:GetFeatureFlagChangedEvent("UseBeamsWhenTracking"):Connect(function()
+            Tracker:TrackBeam()
+            Tracker:UpdateColor()
+        end))
+        task.spawn(function()
             Tracker:TrackCharacter()
+            Tracker:TrackBeam()
             Tracker:UpdateColor()
-        end)()
+        end)
     end
 end
 

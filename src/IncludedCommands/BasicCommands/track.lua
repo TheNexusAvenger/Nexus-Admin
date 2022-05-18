@@ -22,6 +22,9 @@ function Command:__new()
             Description = "Players to track.",
         },
     }
+
+    --Register the feature flag.
+    self.API.FeatureFlags:AddFeatureFlag("UseBeamsWhenTracking", true)
 end
 
 
