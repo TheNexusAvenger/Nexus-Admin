@@ -97,7 +97,7 @@ function Command:Run(CommandContext,Players)
                     self.Beam:Destroy()
                 end
                 local Beam = Instance.new("Beam")
-                Beam.LightEmission = 0
+                Beam.LightEmission = 1
                 Beam.LightInfluence = 0
                 Beam.Transparency = NumberSequence.new(0.5)
                 Beam.Segments = 1
