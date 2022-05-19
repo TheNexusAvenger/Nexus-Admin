@@ -78,7 +78,7 @@ function Command:Run(CommandContext,Players)
             local TargetHead = TargetCharacter:WaitForChild("Head")
             local SourceHumanoidRootPart = SourceCharacter:WaitForChild("HumanoidRootPart")
             local TargetHumanoidRootPart = TargetCharacter:WaitForChild("HumanoidRootPart")
-            if not SourceHead or not TargetHead or not SourceHumanoidRootPart or not TargetHumanoidRootPart or SourceHumanoidRootPart == TargetHumanoidRootPart then warn("NO ROOT PART") return end
+            if not SourceHead or not TargetHead or not SourceHumanoidRootPart or not TargetHumanoidRootPart or SourceHumanoidRootPart == TargetHumanoidRootPart then return end
             local SourceRootAttachment = SourceHead:FindFirstChild("FaceCenterAttachment") or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
             local TargetRootAttachment = TargetHead:FindFirstChild("FaceCenterAttachment") or TargetHumanoidRootPart:FindFirstChild("RootAttachment")
             if not SourceRootAttachment or not TargetRootAttachment then return end
