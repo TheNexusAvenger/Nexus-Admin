@@ -74,13 +74,13 @@ function Command:Run(CommandContext,Players)
             local SourceCharacter = CommandContext.Executor.Character
             local TargetCharacter = Player.Character
             if not SourceCharacter or not TargetCharacter then return end
-            local SourceHead = SourceCharacter:WaitForChild("Head")
-            local TargetHead = TargetCharacter:WaitForChild("Head")
-            local SourceHumanoidRootPart = SourceCharacter:WaitForChild("HumanoidRootPart")
-            local TargetHumanoidRootPart = TargetCharacter:WaitForChild("HumanoidRootPart")
-            if not SourceHead or not TargetHead or not SourceHumanoidRootPart or not TargetHumanoidRootPart or SourceHumanoidRootPart == TargetHumanoidRootPart then return end
-            local SourceRootAttachment = SourceHead:FindFirstChild("FaceCenterAttachment") or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
-            local TargetRootAttachment = TargetHead:FindFirstChild("FaceCenterAttachment") or TargetHumanoidRootPart:FindFirstChild("RootAttachment")
+            local SourceUpperTorso = SourceCharacter:FindFirstChild("UpperTorso")
+            local TargetUpperTorso = TargetCharacter:FindFirstChild("UpperTorso")
+            local SourceHumanoidRootPart = SourceCharacter:FindFirstChild("HumanoidRootPart")
+            local TargetHumanoidRootPart = TargetCharacter:FindFirstChild("HumanoidRootPart")
+            if not SourceHumanoidRootPart or not TargetHumanoidRootPart or SourceHumanoidRootPart == TargetHumanoidRootPart then return end
+            local SourceRootAttachment = (SourceUpperTorso and SourceUpperTorso:FindFirstChild("BodyFrontAttachment")) or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
+            local TargetRootAttachment = (TargetUpperTorso and TargetUpperTorso:FindFirstChild("BodyFrontAttachment")) or TargetHumanoidRootPart:FindFirstChild("RootAttachment")
             if not SourceRootAttachment or not TargetRootAttachment then return end
 
             --Remove the beam if the feature flag is disabled.
