@@ -17,11 +17,15 @@ ScrollingTextWindow.Players = game:GetService("Players")
 --[[
 Creates a scrolling text window.
 --]]
-function ScrollingTextWindow:__new(DontCreateSearch)
+function ScrollingTextWindow:__new(DontCreateSearch, UseTextBoxes)
     self:InitializeSuper()
 
     self.CurrentTextLabels = {}
     self.TextHeight = self.Camera.ViewportSize.Y * 0.5 * 0.045
+    self.UseTextBoxes = UseTextBoxes
+    if self.UseTextBoxes == nil then
+        self.UseTextBoxes = true
+    end
 
     --Create the scrolling frame.
     local ScrollingFrame = Instance.new("ScrollingFrame")
@@ -156,12 +160,14 @@ function ScrollingTextWindow:UpdateAdornText()
     local RequiredLabels = math.ceil(self.ScrollingFrame.AbsoluteWindowSize.Y / self.TextHeight) + 1
     local TextLabels = self.ScrollingAdornTextLabels
     for i = #TextLabels + 1, RequiredLabels do
-        local TextLabel = Instance.new("TextBox")
+        local TextLabel = Instance.new(self.UseTextBoxes and "TextBox" or "TextLabel")
         TextLabel.BackgroundTransparency = 1
         TextLabel.Size = UDim2.new(1, 0, 1, 0)
         TextLabel.Position = UDim2.new(0, 0, i - 1, 0)
-        TextLabel.ClearTextOnFocus = false
-        TextLabel.TextEditable = false
+        if self.UseTextBoxes then
+            TextLabel.ClearTextOnFocus = false
+            TextLabel.TextEditable = false
+        end
         TextLabel.TextSize = self.TextHeight
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.Parent = self.ScrollingAdornFrame
