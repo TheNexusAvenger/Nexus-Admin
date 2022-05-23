@@ -9,6 +9,7 @@ local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
 local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
 
 local SendFactory = TextButtonFactory.CreateDefault(Color3.new(0,200/255,0))
+SendFactory:SetTextDefault("Font",Enum.Font.SciFi)
 SendFactory:SetTextDefault("Text","Send")
 
 local PrivateChatWindow = Window:Extend()

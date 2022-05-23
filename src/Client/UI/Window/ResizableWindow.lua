@@ -9,7 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local Window = require(script.Parent:WaitForChild("Window"))
 
 local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
-local CutFrame = require(NexusButton:WaitForChild("Gui"):WaitForChild("CutFrame"))
+local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
 
 local ResizableWindow = Window:Extend()
 ResizableWindow:SetClassName("ResizableWindow")
@@ -28,7 +28,7 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
     local TopBarHeightPixel = WindowHeight * 0.1
     local CornerSizePixel = TopBarHeightPixel * 0.4
     local ResizeCornerSizePixel = CornerSizePixel * 1.5
-    MinWidth = MinWidth or WindowHeight * 0.6 
+    MinWidth = MinWidth or WindowHeight * 0.6
     MinHeight = MinHeight or TopBarHeightPixel * 2
     MaxWidth = MaxWidth or math.huge
     MaxHeight = MaxHeight or math.huge
@@ -41,12 +41,15 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
     ResizeCornerAdorn.Text = ""
     ResizeCornerAdorn.Parent = self.WindowFrame
 
-    local ResizeCorner = CutFrame.new(ResizeCornerAdorn)
+    local ResizeCorner = ThemedFrame.new()
     ResizeCorner.BackgroundColor3 = Color3.new(1,1,1)
     ResizeCorner.BackgroundTransparency = 0.5
-    ResizeCorner:CutCorner("Bottom","Right",UDim2.new(0,CornerSizePixel,0,CornerSizePixel))
+    ResizeCorner.Size = UDim2.new(1,0,1,0)
+    ResizeCorner.Theme = "CutBottomRightCorner"
+    ResizeCorner.SliceScaleMultiplier = 2
+    ResizeCorner.Parent = ResizeCornerAdorn
     self.ResizeCorner = ResizeCorner
-        
+
     --Connect the events.
     self.Events = {}
     local MouseDown = false

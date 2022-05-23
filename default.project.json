@@ -9,19 +9,16 @@
                 "NexusAdmin": {
                     "$path": "./src",
                     "NexusInstance": {
-                        "$path": "./module/Nexus-Instance/src"
+                        "$path": "./module/Nexus-Instance/"
                     },
                     "NexusButton": {
-                        "$path": "./module/Nexus-Button/src",
-                        "NexusInstance": {
-                            "$path": "./module/Nexus-Button/module/NexusInstance/src"
-                        }
+                        "$path": "./module/Nexus-Button/"
                     },
                     "NexusDataStore": {
-                        "$path": "./module/Nexus-Data-Store/src"
+                        "$path": "./module/Nexus-Data-Store/"
                     },
                     "Cmdr": {
-                        "$path": "./module/Cmdr/Cmdr"
+                        "$path": "./module/Cmdr/"
                     }
                 }
             },

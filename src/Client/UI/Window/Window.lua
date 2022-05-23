@@ -15,11 +15,12 @@ local NexusInstance = require(script.Parent.Parent.Parent:WaitForChild("NexusIns
 local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
 local ButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("ButtonFactory"))
 local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
-local CutFrame = require(NexusButton:WaitForChild("Gui"):WaitForChild("CutFrame"))
+local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
 
 local RefreshFactory = ButtonFactory.CreateDefault(Color3.new(0,200/255,0))
 local CloseFactory = TextButtonFactory.CreateDefault(Color3.new(200/255,0,0))
 CloseFactory:SetTextDefault("Text","X")
+CloseFactory:SetTextDefault("Font",Enum.Font.SciFi)
 CloseFactory:SetTextDefault("TextStrokeTransparency",1)
 
 local Window = NexusInstance:Extend()
@@ -70,16 +71,25 @@ function Window:__new()
     self.ContentsAdorn = ContentsAdorn
 
     --Create the backgrounds.
-    local Background = CutFrame.new(BackgroundAdorn)
+    local Background = ThemedFrame.new()
     Background.BackgroundColor3 = Color3.new(0,0,0)
     Background.BackgroundTransparency = 0.75
-    Background:CutCorner("Bottom","Right",UDim2.new(0,CornerSizePixel,0,CornerSizePixel))
+    Background.Size = UDim2.new(1,0,1,0)
+    Background.Theme = "CutBottomRightCorner"
+    Background.Parent = BackgroundAdorn
     self.Background = Background
 
-    local TopBarBackground = CutFrame.new(TopBarAdorn)
+    BackgroundAdorn:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        Background.SliceScaleMultiplier = 1.5 * (TopBarAdorn.AbsoluteSize.Y / BackgroundAdorn.AbsoluteSize.Y)
+    end)
+
+    local TopBarBackground = ThemedFrame.new()
     TopBarBackground.BackgroundColor3 = Color3.new(0,170/255,1)
     TopBarBackground.BackgroundTransparency = 0.5
-    TopBarBackground:CutCorner("Top","Left",UDim2.new(0,CornerSizePixel,0,CornerSizePixel))
+    TopBarBackground.Size = UDim2.new(1,0,1,0)
+    TopBarBackground.Theme = "CutTopLeftCorner"
+    TopBarBackground.SliceScaleMultiplier = 1.5
+    TopBarBackground.Parent = TopBarAdorn
     self.TopBarBackground = TopBarBackground
 
     --Create the top bar elements.
@@ -149,7 +159,7 @@ function Window:__new()
             RefreshIcon.Position = UDim2.new(0.5,0,0.5,0)
             RefreshIcon.Image = REFRESH_ICON
             RefreshIcon.ZIndex = 4
-            RefreshIcon.Parent = RefreshButton.AdornFrame
+            RefreshIcon.Parent = RefreshButton:GetAdornFrame()
 
             --Connect the button.
             table.insert(self.Events,RefreshButton.MouseButton1Down:Connect(function()

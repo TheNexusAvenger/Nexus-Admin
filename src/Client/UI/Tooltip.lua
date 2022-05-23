@@ -5,13 +5,12 @@ Adds the native tooltip API.
 --]]
 
 local TOOLTIP_SIZE_RELATIVE = 0.03
-local TOOLTIP_BORDER_CUT_RELATIVE = 0.2
 
 local UserInputService = game:GetService("UserInputService")
 local TextService = game:GetService("TextService")
 
 local NexusButton = script.Parent.Parent:WaitForChild("NexusButton")
-local CutFrame = require(NexusButton:WaitForChild("Gui"):WaitForChild("CutFrame"))
+local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
 
 
 
@@ -40,12 +39,12 @@ return function(API,Player)
         AdornFrame.ZIndex = 10
         AdornFrame.Parent = TooptipContainer
 
-        local Background = CutFrame.new(AdornFrame)
+        local Background = ThemedFrame.new()
+        Background.Size = UDim2.new(1,0,1,0)
         Background.BackgroundColor3 = Color3.new(0,0,0)
         Background.BackgroundTransparency = 0.75
-        Background:CutCorner("Top","Left",UDim2.new(TOOLTIP_BORDER_CUT_RELATIVE/BoundsYRelative,0,TOOLTIP_BORDER_CUT_RELATIVE/BoundsYRelative,0),"RelativeYY")
-        Background:CutCorner("Bottom","Right",UDim2.new(TOOLTIP_BORDER_CUT_RELATIVE/BoundsYRelative,0,TOOLTIP_BORDER_CUT_RELATIVE/BoundsYRelative,0),"RelativeYY")
-        
+        Background.Parent = AdornFrame
+
         local TextLabel = Instance.new("TextLabel")
         TextLabel.BackgroundTransparency = 1
         TextLabel.ZIndex = 12

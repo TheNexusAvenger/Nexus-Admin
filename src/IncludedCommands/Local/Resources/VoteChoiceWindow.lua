@@ -10,8 +10,10 @@ local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChi
 
 local YesFactory = TextButtonFactory.CreateDefault(Color3.new(0,200/255,0))
 YesFactory:SetTextDefault("Text","Yes")
+YesFactory:SetTextDefault("Font",Enum.Font.SciFi)
 local NoFactory = TextButtonFactory.CreateDefault(Color3.new(200/255,0,0))
 NoFactory:SetTextDefault("Text","No")
+NoFactory:SetTextDefault("Font",Enum.Font.SciFi)
 
 local VoteChoiceWindow = Window:Extend()
 VoteChoiceWindow:SetClassName("VoteChoiceWindow")
