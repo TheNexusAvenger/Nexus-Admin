@@ -28,9 +28,9 @@ function Command:__new()
     end
 
     --Connect the remote event.
-    self.API.EventContainer:WaitForChild("StartSoftShutdown").OnClientEvent:Connect(function()
+    self.API.EventContainer:WaitForChild("StartSoftShutdown").OnClientEvent:Connect(function(ShutdownSource)
         --Create the Gui and have it semi-transparent for 1 second.
-        local TeleportGui,Background = CreateTeleportScreen()
+        local TeleportGui,Background = CreateTeleportScreen(ShutdownSource)
         Background.BackgroundTransparency = 0.5
         TeleportGui.Parent = self.Players.LocalPlayer:WaitForChild("PlayerGui")
         wait(1)
