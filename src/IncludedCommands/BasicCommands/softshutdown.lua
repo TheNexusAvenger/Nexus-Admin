@@ -82,15 +82,15 @@ function Command:PerformSoftShutdown(ShutdownSource)
 
     --Create the teleport GUIs.
     local TeleportedPlayers = {}
-    local SourceScreenGui = CreateTeleportScreen()
-    local SourcelessScreenGui = CreateTeleportScreen(ShutdownSource)
+    local SourceScreenGui = CreateTeleportScreen(ShutdownSource)
+    local SourcelessScreenGui = CreateTeleportScreen()
     local function TeleportPlayers(Players)
         local SourcePlayers, SourcelessPlayers = self:SplitPlayersForSources(Players)
         for _, Player in pairs(Players) do
             TeleportedPlayers[Player.UserId] = true
         end
         if #SourcePlayers > 0 then
-            self.TeleportService:TeleportToPrivateServer(PlaceId, ReservedServerCode, SourcePlayers, nil, {IsNexusAdminTemporaryServer=true, PlaceId=PlaceId}, SourceScreenGui)
+            self.TeleportService:TeleportToPrivateServer(PlaceId, ReservedServerCode, SourcePlayers, nil, {IsNexusAdminTemporaryServer=true, PlaceId=PlaceId, ShutdownSource=ShutdownSource}, SourceScreenGui)
         end
         if #SourcelessPlayers > 0 then
             self.TeleportService:TeleportToPrivateServer(PlaceId, ReservedServerCode, SourcelessPlayers, nil, {IsNexusAdminTemporaryServer=true, PlaceId=PlaceId}, SourcelessScreenGui)
@@ -120,10 +120,15 @@ Runs the command.
 function Command:Run(CommandContext)
     self.super:Run(CommandContext)
 
+    --Return if the server instance is offline.
+    if game.JobId == "" then
+        return "Soft shutdown can not be used when in Roblox Studio."
+    end
+
     --Start the soft shutdown.
     self:PerformSoftShutdown({
         Source = "Player",
-        Name = CommandContext.Executor.Name.." ("..CommandContext.Executor.DisplayName..")",
+        Name = CommandContext.Executor.DisplayName.." ("..CommandContext.Executor.Name..")",
     })
 end
 

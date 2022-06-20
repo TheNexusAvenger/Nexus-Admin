@@ -19,7 +19,7 @@ function Command:__new()
     --Teleport the player back if they are in a temporary server.
     local TeleportData = self.TeleportService:GetLocalPlayerTeleportData()
     if TeleportData and TeleportData.IsNexusAdminTemporaryServer then
-        local TeleportGui = self.TeleportService:GetArrivingTeleportGui() or CreateTeleportScreen()
+        local TeleportGui = self.TeleportService:GetArrivingTeleportGui() or CreateTeleportScreen(TeleportData.ShutdownSource)
         TeleportGui.Parent = self.Players.LocalPlayer:WaitForChild("PlayerGui")
         self.StarterGui:SetCore("TopbarEnabled",false)
         self.StarterGui:SetCoreGuiEnabled("All",false)
