@@ -46,7 +46,7 @@ function Command:Run(CommandContext,Players)
         function Tracker:TrackCharacter()
             if not self.Active then return end
             if Player.Character then
-                local Head = Player.Character:WaitForChild("Head")
+                local Head = Player.Character:WaitForChild("Head", 10^99)
 
                 --Create the BillboardGui.
                 local BillboardGui = Instance.new("BillboardGui")
@@ -147,7 +147,19 @@ function Command:Run(CommandContext,Players)
         table.insert(Tracker.Events, Player:GetPropertyChangedSignal("TeamColor"):Connect(function()
             Tracker:UpdateColor()
         end))
-        table.insert(Tracker.Events, CommandContext.Executor.CharacterAdded:Connect(function()
+        table.insert(Tracker.Events, CommandContext.Executor.CharacterAdded:Connect(function(Character)
+            --Wait for the beam source to be ready.
+            local SourceHumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+            while true do
+                local SourceUpperTorso = Character:FindFirstChild("UpperTorso")
+                local SourceRootAttachment = (SourceUpperTorso and SourceUpperTorso:FindFirstChild("BodyFrontAttachment")) or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
+                if SourceRootAttachment then
+                    break
+                end
+                task.wait()
+            end
+
+            --Set up the beam.
             Tracker:TrackBeam()
             Tracker:UpdateColor()
         end))
