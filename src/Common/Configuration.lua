@@ -24,6 +24,7 @@ function Configuration:__new(ConfigurationTable)
     self.CmdrVersion = "Version 1.8.4"
     self.RawConfiguration = ConfigurationTable
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
+    self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash}
     self.DefaultAdminLevel = ConfigurationTable.DefaultAdminLevel or -1
     self.AdministrativeLevel = ConfigurationTable.AdministrativeLevel or 1
     self.BuildUtilityLevel = ConfigurationTable.BuildUtilityLevel or 1
