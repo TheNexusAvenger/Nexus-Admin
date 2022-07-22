@@ -15,6 +15,9 @@ local Config = {
     --Prefix for standard commands.
     CommandPrefix = ":",
 
+    --Keybinds for opening the console.
+    ActivationKeys = {Enum.KeyCode.BackSlash,},
+
     --Default rank a new player would have.
     DefaultAdminLevel = -1,
 
