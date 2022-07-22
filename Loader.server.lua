@@ -15,7 +15,8 @@ local Config = {
     --Prefix for standard commands.
     CommandPrefix = ":",
 
-    --Keybinds for opening the console.
+    --Keybinds for opening the command bar.
+    --WARNING: Keybinds that are set here become unusable in the command bar.
     ActivationKeys = {Enum.KeyCode.BackSlash,},
 
     --Default rank a new player would have.
