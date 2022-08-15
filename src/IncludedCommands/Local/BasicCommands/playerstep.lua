@@ -49,7 +49,7 @@ function Command:Run(CommandContext, Players, Command)
     local Window = ResizableWindow.new()
     Window.Title = "Player Step (1/"..tostring(#Players)..")"
 
-    local PlayerStepText = Instance.new("TextLabel")
+    local PlayerStepText = Instance.new("TextBox")
     PlayerStepText.BackgroundTransparency = 1
     PlayerStepText.Size = UDim2.new(0.95, 0, 1, -10)
     PlayerStepText.Position = UDim2.new(0.025, 0, 0, 5)
@@ -57,6 +57,8 @@ function Command:Run(CommandContext, Players, Command)
     PlayerStepText.TextColor3 = Color3.new(1, 1, 1)
     PlayerStepText.TextStrokeColor3 = Color3.new(0, 0, 0)
     PlayerStepText.ClipsDescendants = true
+    PlayerStepText.ClearTextOnFocus = false
+    PlayerStepText.TextEditable = false
     PlayerStepText.TextStrokeTransparency = 0
     PlayerStepText.TextSize = CameraViewportSize.Y * 0.5 * 0.045
     PlayerStepText.TextXAlignment = Enum.TextXAlignment.Left

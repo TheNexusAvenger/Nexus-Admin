@@ -40,7 +40,7 @@ function Command:Run(CommandContext, Players)
     --Display the text window.
     for _, Player in pairs(Players) do
         task.spawn(function()
-            local Window = ScrollingTextWindow.new(nil, false)
+            local Window = ScrollingTextWindow.new()
             Window.Title = "Consistency Check - "..Player.DisplayName.." ("..Player.Name..")"
             Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
                 --Get the output.
