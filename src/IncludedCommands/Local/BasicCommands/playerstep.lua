@@ -82,7 +82,7 @@ function Command:Run(CommandContext, Players, Command)
         PlayerStepText.Text = WindowText
 
         --Prepare the next player.
-        if CurrentPlayer <= #Players then
+        if CurrentPlayer < #Players then
             CurrentPlayer += 1
         end
 
