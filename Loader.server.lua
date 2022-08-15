@@ -136,6 +136,7 @@ local Config = {
             delay = nil,
             loop = nil,
             stoploops = nil,
+            playerstep = nil,
             m = nil,
             h = nil,
             pm = nil,
