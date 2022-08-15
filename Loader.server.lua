@@ -119,6 +119,7 @@ local Config = {
             debug = 0,
             localdebug = nil,
             snapshot = nil,
+            checkconsistency = nil,
             logs = 0,
             admins = 0,
             bans = nil,
