@@ -37,10 +37,10 @@ function Command:__new()
     function CheckConsistencyRemoteFunction.OnServerInvoke(Player, TargetPlayer)
         if not TargetPlayer or not TargetPlayer.Parent then
             return {"Disconnected"}
-        elseif self.API.Authorization:IsPlayerAuthorized(Player,self.AdminLevel) then
+        elseif self.API.Authorization:IsPlayerAuthorized(Player, self.AdminLevel) then
             return {
                 Server = GetConsistencyData(Player),
-                Client = CheckConsistencyRemoteFunction:InvokeClient(Player),
+                Client = CheckConsistencyRemoteFunction:InvokeClient(TargetPlayer),
             }
         else
             return {"Unauthorized"}
