@@ -39,7 +39,7 @@ function Command:__new()
             return {"Disconnected"}
         elseif self.API.Authorization:IsPlayerAuthorized(Player, self.AdminLevel) then
             return {
-                Server = GetConsistencyData(Player),
+                Server = GetConsistencyData(TargetPlayer),
                 Client = CheckConsistencyRemoteFunction:InvokeClient(TargetPlayer),
             }
         else
