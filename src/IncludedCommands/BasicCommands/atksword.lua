@@ -23,6 +23,7 @@ function Command:__new()
             Description = "Players to give swords.",
         },
     }
+    self.API.FeatureFlags:AddFeatureFlag("AllowDroppingSwords", true)
 end
 
 --[[
@@ -36,6 +37,7 @@ function Command:Run(CommandContext,Players)
         local Backpack = Player:FindFirstChild("Backpack")
         if Backpack then
             local NewSword = Sword:Clone()
+            NewSword.CanBeDropped = self.API.FeatureFlags:GetFeatureFlag("AllowDroppingSwords")
             NewSword:WaitForChild("Configurations"):WaitForChild("CanTeamkill").Value = false
             NewSword.Parent = Backpack
         end

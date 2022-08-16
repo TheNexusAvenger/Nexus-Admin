@@ -23,6 +23,7 @@ function Command:__new()
             Description = "Players to give swords.",
         },
     }
+    self.API.FeatureFlags:AddFeatureFlag("AllowDroppingSwords", true)
 end
 
 --[[
@@ -35,7 +36,9 @@ function Command:Run(CommandContext,Players)
     for _,Player in pairs(Players) do
         local Backpack = Player:FindFirstChild("Backpack")
         if Backpack then
-            Sword:Clone().Parent = Backpack
+            local NewSword = Sword:Clone()
+            NewSword.CanBeDropped = self.API.FeatureFlags:GetFeatureFlag("AllowDroppingSwords")
+            NewSword.Parent = Backpack
         end
     end
 end
