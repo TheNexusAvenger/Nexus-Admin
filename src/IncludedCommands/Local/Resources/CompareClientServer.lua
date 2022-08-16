@@ -76,6 +76,7 @@ local function CheckInstanceTree(ClientData, ServerData)
         local RemainingInstances = {}
         for _, SourceChild in Scan.Source do
             SourceChild.FullName = SourceChild.Name
+            SourceChild.NameParts = {SourceChild.Name}
             table.insert(RemainingInstances, SourceChild)
         end
 
@@ -96,10 +97,9 @@ local function CheckInstanceTree(ClientData, ServerData)
             end
 
             --Determine if the instance exists in the target.
-            local TargetPathParts = string.split(NextInstance.FullName, ".")
             local TargetInstance = nil
             local CurrentParent = Scan.Target
-            for i, Name in TargetPathParts do
+            for i, Name in NextInstance.NameParts do
                 local NewParent = nil
                 for _, TargetChild in CurrentParent.Children or CurrentParent do
                     if TargetChild.Name == Name then
@@ -109,7 +109,7 @@ local function CheckInstanceTree(ClientData, ServerData)
                 end
                 if NewParent then
                     CurrentParent = NewParent
-                    if i == #TargetPathParts then
+                    if i == #NextInstance.NameParts then
                         TargetInstance = NewParent
                     end
                 end
@@ -124,6 +124,12 @@ local function CheckInstanceTree(ClientData, ServerData)
                 end
                 for _, Child in pairs(NextInstance.Children) do
                     Child.FullName = NextInstance.FullName.."."..Child.Name
+                    local NameParts = {}
+                    for _, NamePart in NextInstance.NameParts do
+                        table.insert(NameParts, NamePart)
+                    end
+                    table.insert(NameParts, Child.Name)
+                    Child.NameParts = NameParts
                     table.insert(RemainingInstances, Child)
                 end
             end
