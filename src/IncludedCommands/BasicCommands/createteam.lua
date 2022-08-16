@@ -13,7 +13,7 @@ local Command = BaseCommand:Extend()
 Creates the command.
 --]]
 function Command:__new()
-    self:InitializeSuper({"createteam","addteam"},"BasicCommands","Creates teams of given colors.")
+    self:InitializeSuper({"createteam","addteam"},"BasicCommands","Creates teams of given colors and given name.")
 
     self.Arguments = {
         {
@@ -21,13 +21,18 @@ function Command:__new()
             Name = "Colors",
             Description = "Colors to create.",
         },
+        {
+            Type = "string",
+            Name = "Name",
+            Description = "Name to use.",
+        },
     }
 end
 
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Colors)
+function Command:Run(CommandContext,Colors, Name)
     self.super:Run(CommandContext)
     
     --Create the teams.
@@ -47,7 +52,7 @@ function Command:Run(CommandContext,Colors)
             local NewTeam = Instance.new("Team")
             NewTeam.TeamColor = Color
             NewTeam.AutoAssignable = false
-            NewTeam.Name = tostring(Color).." Team"
+            NewTeam.Name = Name
             NewTeam.Parent = self.Teams
         end
     end
