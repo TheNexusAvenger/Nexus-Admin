@@ -24,6 +24,7 @@ function Command:__new()
         {
             Type = "string",
             Name = "Name",
+            Optional = true,
             Description = "Name to use.",
         },
     }
@@ -52,7 +53,7 @@ function Command:Run(CommandContext,Colors, Name)
             local NewTeam = Instance.new("Team")
             NewTeam.TeamColor = Color
             NewTeam.AutoAssignable = false
-            NewTeam.Name = Name
+            NewTeam.Name = (Name == nil and tostring(Color).." Team" or self.API.Filter:FilterString(Name, CommandContext.Executor))
             NewTeam.Parent = self.Teams
         end
     end
