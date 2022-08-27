@@ -21,3 +21,7 @@ message will be displayed when the admin level is changed.
 ## AllowChatCommandExecuting (default: `true`)
 If true, commands can be executed from the chat with
 prefixes used. If false, chat executing will be ignored.
+
+## AllowDroppingSwords (default: `true`)
+If true, players will be able to drop swords. 
+If false, they won't.
