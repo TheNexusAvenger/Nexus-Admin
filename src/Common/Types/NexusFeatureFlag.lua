@@ -14,15 +14,7 @@ return function(API)
         Transforms the string to a list of fast flags.
         --]]
         Transform = function(Text)
-            --Get the feature flags.
-            local FeatureFlags = {}
-            for FeatureFlag,_ in pairs(API.FeatureFlags.FeatureFlags) do
-                table.insert(FeatureFlags,FeatureFlag)
-            end
-
-            --Find and return the feature flags.
-            local FindFastFlags = API.Cmdr.Util.MakeFuzzyFinder(FeatureFlags)
-            return FindFastFlags(Text)
+            return API.Cmdr.Util.MakeFuzzyFinder(API.FeatureFlags:GetAllFeatureFlags())(Text)
         end,
 
         --[[

@@ -86,15 +86,16 @@ function API:Load(ConfigurationTable)
     local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration,EventContainer)
     Authorization:InitializePlayers()
     local Messages = require(script:WaitForChild("Server"):WaitForChild("ServerMessages")).new(EventContainer)
-    local FeatureFlags = require(script:WaitForChild("Server"):WaitForChild("ServerFeatureFlags")).new(EventContainer)
-    FeatureFlags:InitializeServices()
+    local FeatureFlagsModule = script:WaitForChild("NexusFeatureFlags")
+    FeatureFlagsModule.Parent = NexusAdminClient
+    local FeatureFlags = require(FeatureFlagsModule)
     local Replicator = require(script:WaitForChild("Server"):WaitForChild("Replicator")).new()
     local Filter = require(script:WaitForChild("Server"):WaitForChild("Filter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
     local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr,Authorization,Messages,Logs,Time,Filter,EventContainer)
     local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
-    
+
     --Create the configuration fetching.
     local GetConfiguration = Instance.new("RemoteFunction")
     GetConfiguration.Name = "GetConfiguration"

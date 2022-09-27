@@ -12,7 +12,7 @@ guarentees the API is loaded before using.
 [`ServerAPI.Cmdr`](https://eryn.io/Cmdr/api/Cmdr.html)<br>
 [`ServerAPI.Configuration`](modules/configuration.md)<br>
 [`ServerAPI.Executor`](modules/executor.md)<br>
-[`ServerAPI.FeatureFlags`](modules/featureflags.md)<br>
+[`ServerAPI.FeatureFlags`](https://github.com/TheNexusAvenger/Nexus-Feature-Flags/blob/master/docs/usage.md)<br>
 [`ServerAPI.Filter`](modules/filter.md)<br>
 [`ServerAPI.Logs`](modules/logs.md)<br>
 [`ServerAPI.Messages`](modules/servermessages.md)<br>

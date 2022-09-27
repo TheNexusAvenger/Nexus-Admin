@@ -29,8 +29,8 @@ function Command:Run(CommandContext)
     Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
         --Filter and return the feature flags.
         local FeatureFlags = {}
-        for Name,Value in pairs(self.API.FeatureFlags.FeatureFlags) do
-            local Message = Name.." - "..tostring(Value)
+        for _, FeatureFlagName in pairs(self.API.FeatureFlags:GetAllFeatureFlags()) do
+            local Message = FeatureFlagName.." - "..tostring(self.API.FeatureFlags:GetFeatureFlag(FeatureFlagName))
             if string.find(string.lower(Message),string.lower(SearchTerm)) then
                 table.insert(FeatureFlags,Message)
             end

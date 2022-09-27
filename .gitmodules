@@ -10,3 +10,6 @@
 [submodule "module/Nexus-Data-Store"]
 	path = module/Nexus-Data-Store
 	url = https://github.com/TheNexusAvenger/Nexus-Data-Store.git
+[submodule "module/Nexus-Feature-Flags"]
+	path = module/Nexus-Feature-Flags
+	url = https://github.com/TheNexusAvenger/Nexus-Feature-Flags.git

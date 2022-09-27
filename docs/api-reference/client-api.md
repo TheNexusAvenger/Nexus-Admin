@@ -13,7 +13,7 @@ be initialized by the time the client connects.
 [`ClientAPI.Cmdr`](https://eryn.io/Cmdr/api/Cmdr.html)<br>
 [`ClientAPI.Configuration`](modules/configuration.md)<br>
 [`ClientAPI.Executor`](modules/executor.md)<br>
-[`ClientAPI.FeatureFlags`](modules/featureflags.md)<br>
+[`ClientAPI.FeatureFlags`](https://github.com/TheNexusAvenger/Nexus-Feature-Flags/blob/master/docs/usage.md)<br>
 [`ClientAPI.Gui`](modules/gui.md)<br>
 [`ClientAPI.Messages`](modules/clientmessages.md)<br>
 [`ClientAPI.Registry`](modules/registry.md)<br>

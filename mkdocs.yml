@@ -20,7 +20,6 @@ nav:
       - ClientMessages: api-reference/modules/clientmessages.md
       - Configuration: api-reference/modules/configuration.md
       - Executor: api-reference/modules/executor.md
-      - FeatureFlags: api-reference/modules/featureflags.md
       - Filter: api-reference/modules/filter.md
       - Gui: api-reference/modules/gui.md
       - Logs: api-reference/modules/logs.md
