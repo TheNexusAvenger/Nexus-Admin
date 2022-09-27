@@ -21,7 +21,7 @@ function Configuration:__new(ConfigurationTable)
     --Store the values.
     self.Version = "Version 2.4.0"
     self.VersionNumberId = 2.4
-    self.CmdrVersion = "Version 1.8.4"
+    self.CmdrVersion = "Version 1.9.0"
     self.RawConfiguration = ConfigurationTable
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
     self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash}
