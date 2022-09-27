@@ -10,9 +10,6 @@
             "NexusButton": {
                 "$path": "./module/Nexus-Button/"
             },
-            "NexusDataStore": {
-                "$path": "./module/Nexus-Data-Store/"
-            },
             "NexusFeatureFlags": {
                 "$path": "./module/Nexus-Feature-Flags/"
             },
