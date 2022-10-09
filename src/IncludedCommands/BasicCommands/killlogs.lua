@@ -16,19 +16,7 @@ Creates the command.
 function Command:__new()
     self:InitializeSuper("killlogs", "BasicCommands", "Opens up a window containing the logs of kills.")
     self.KillLogs = Logs.new()
-
-    --Create the remote function.
-    local GetKillLogsRemoteFunction = Instance.new("RemoteFunction")
-    GetKillLogsRemoteFunction.Name = "GetKillLogs"
-    GetKillLogsRemoteFunction.Parent = self.API.EventContainer
-
-    function GetKillLogsRemoteFunction.OnServerInvoke(Player)
-        if self.API.Authorization:IsPlayerAuthorized(Player, self.AdminLevel) then
-            return self.KillLogs:GetLogs()
-        else
-            return {"Unauthorized"}
-        end
-    end
+    self.API.LogsRegistry:RegisterLogs("KillLogs", self.KillLogs, self.AdminLevel)
 
     --[[
     Connects the a character dieing.

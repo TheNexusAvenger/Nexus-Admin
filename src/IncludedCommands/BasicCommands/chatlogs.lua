@@ -16,19 +16,7 @@ Creates the command.
 function Command:__new()
     self:InitializeSuper("chatlogs","BasicCommands","Opens up a window containing the chat logs.")
     self.ChatLogs = Logs.new()
-
-    --Create the remote function.
-    local GetChatLogsRemoteFunction = Instance.new("RemoteFunction")
-    GetChatLogsRemoteFunction.Name = "GetChatLogs"
-    GetChatLogsRemoteFunction.Parent = self.API.EventContainer
-
-    function GetChatLogsRemoteFunction.OnServerInvoke(Player)
-        if self.API.Authorization:IsPlayerAuthorized(Player,self.AdminLevel) then
-            return self.ChatLogs:GetLogs()
-        else
-            return {"Unauthorized"}
-        end
-    end
+    self.API.LogsRegistry:RegisterLogs("ChatLogs", self.ChatLogs, self.AdminLevel)
 
     --[[
     Connects the Chatted event for a player.

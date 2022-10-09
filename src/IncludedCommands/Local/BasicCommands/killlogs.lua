@@ -26,21 +26,7 @@ function Command:Run(CommandContext)
     --Display the text window.
     local Window = ScrollingTextWindow.new()
     Window.Title = "Kill Logs"
-    Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
-        --Get the logs.
-        if not self.Logs or ForceRefresh then
-            self.Logs = self.API.EventContainer:WaitForChild("GetKillLogs"):InvokeServer()
-        end
-
-        --Filter and return the logs.
-        local FilteredLogs = {}
-        for _,Message in pairs(self.Logs) do
-            if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                table.insert(FilteredLogs, Message)
-            end
-        end
-        return FilteredLogs
-    end
+    Window:DisplayLogs(self.API.LogsRegistry:GetLogs("KillLogs"))
     Window:Show()
 end
 

@@ -247,12 +247,51 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
 end
 
 --[[
+Connects logs for the window.
+--]]
+function ScrollingTextWindow:ConnectLogs(Logs)
+    self.LogAddedConnection = Logs.LogAdded:Connect(function()
+        self:UpdateText(true)
+    end)
+end
+
+--[[
+Sets up the window to display logs.
+--]]
+function ScrollingTextWindow:DisplayLogs(Logs)
+    --Remove the refresh button.
+    if self.RefreshButton then
+        self.RefreshButton:Destroy()
+    end
+
+    --Set the GetTextLines function.
+    self.GetTextLines = function(_, SearchTerm)
+        local FilteredLogs = {}
+        for _, Message in pairs(Logs:GetLogs()) do
+            local Text = Message
+            if type(Message) == "table" then
+                Text = Message.Text
+            end
+            if string.find(string.lower(Text), string.lower(SearchTerm)) then
+                table.insert(FilteredLogs, Message)
+            end
+        end
+        return FilteredLogs
+    end
+    self:ConnectLogs(Logs)
+end
+
+--[[
 Callback for the window closing.
 --]]
 function ScrollingTextWindow:OnClose()
     self.WindowFrame:TweenPosition(UDim2.new(0,-self.WindowFrame.AbsoluteSize.X - 50,0,self.WindowFrame.AbsolutePosition.Y),"In","Back",0.5,false,function()
         self:Destroy()
         self.ScreenGui:Destroy()
+        if self.LogAddedConnection then
+            self.LogAddedConnection:Disconnect()
+            self.LogAddedConnection = nil
+        end
     end)
 end
 
