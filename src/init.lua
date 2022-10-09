@@ -94,6 +94,7 @@ function API:Load(ConfigurationTable)
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
     local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr,Authorization,Messages,Logs,Time,Filter,EventContainer)
+    local LogsRegistry = require(script:WaitForChild("Server"):WaitForChild("ServerLogsRegistry")).new(Authorization,EventContainer)
     local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
 
     --Create the configuration fetching.
@@ -118,6 +119,7 @@ function API:Load(ConfigurationTable)
     API.Replicator = Replicator
     API.Logs = Logs
     API.Registry = Registry
+    API.LogsRegistry = LogsRegistry
     API.FeatureFlags = FeatureFlags
     API.Version = Configuration.Version
     API.VersionNumberId = Configuration.VersionNumberId
