@@ -30,6 +30,16 @@ function ClientLogsRegistry:__new(NexusAdminRemotes)
 end
 
 --[[
+Registers a log that can be streamed.
+--]]
+function ClientLogsRegistry:RegisterLogs(LogName, Logs)
+    if self.Logs[LogName] then
+        error("Log already registered: "..tostring(LogName))
+    end
+    self.Logs[LogName] = Logs
+end
+
+--[[
 Gets a registered log.
 --]]
 function ClientLogsRegistry:GetLogs(LogName)

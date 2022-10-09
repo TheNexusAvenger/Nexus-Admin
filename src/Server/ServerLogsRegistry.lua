@@ -98,6 +98,16 @@ function ServerLogsRegistry:RegisterLogs(LogName, Logs, MinimumAdminLevel)
     end)
 end
 
+--[[
+Gets a registered log.
+--]]
+function ServerLogsRegistry:GetLogs(LogName)
+    if not self.Logs[LogName] then
+        error("Unable to get registered log \""..tostring(LogName).."\": Log not found.")
+    end
+    return self.Logs[LogName].Logs
+end
+
 
 
 return ServerLogsRegistry
