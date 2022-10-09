@@ -23,6 +23,7 @@ nav:
       - Filter: api-reference/modules/filter.md
       - Gui: api-reference/modules/gui.md
       - Logs: api-reference/modules/logs.md
+      - LogsRegistry: api-reference/modules/logsRegistry.md
       - Registry: api-reference/modules/registry.md
       - Replicator: api-reference/modules/replicator.md
       - ServerMessages: api-reference/modules/servermessages.md

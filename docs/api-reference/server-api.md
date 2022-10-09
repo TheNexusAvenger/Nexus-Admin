@@ -16,6 +16,7 @@ guarentees the API is loaded before using.
 [`ServerAPI.Filter`](modules/filter.md)<br>
 [`ServerAPI.Logs`](modules/logs.md)<br>
 [`ServerAPI.Messages`](modules/servermessages.md)<br>
+[`ClientAPI.LogsRegistry`](modules/logsRegistry.md)<br>
 [`ServerAPI.Registry`](modules/registry.md)<br>
 [`ServerAPI.Replicator`](modules/replicator.md)<br>
 [`ServerAPI.Time`](modules/time.md)<br>

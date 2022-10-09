@@ -16,6 +16,7 @@ be initialized by the time the client connects.
 [`ClientAPI.FeatureFlags`](https://github.com/TheNexusAvenger/Nexus-Feature-Flags/blob/master/docs/usage.md)<br>
 [`ClientAPI.Gui`](modules/gui.md)<br>
 [`ClientAPI.Messages`](modules/clientmessages.md)<br>
+[`ClientAPI.LogsRegistry`](modules/logsRegistry.md)<br>
 [`ClientAPI.Registry`](modules/registry.md)<br>
 [`ClientAPI.Time`](modules/time.md)<br>
 [`ClientAPI.Types`](modules/types.md)<br>
