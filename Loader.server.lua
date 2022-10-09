@@ -133,6 +133,7 @@ local Config = {
             untrack = nil,
             chatlogs = nil,
             killlogs = nil,
+            joinlogs = nil,
             batch = nil,
             delay = nil,
             loop = nil,
