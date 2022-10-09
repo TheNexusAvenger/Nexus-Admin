@@ -21,19 +21,13 @@ function Command:__new()
             Name = "Colors",
             Description = "Colors to create.",
         },
-        {
-            Type = "string",
-            Name = "Name",
-            Optional = true,
-            Description = "Name to use.",
-        },
     }
 end
 
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Colors, Name)
+function Command:Run(CommandContext,Colors)
     self.super:Run(CommandContext)
     
     --Create the teams.
@@ -53,7 +47,7 @@ function Command:Run(CommandContext,Colors, Name)
             local NewTeam = Instance.new("Team")
             NewTeam.TeamColor = Color
             NewTeam.AutoAssignable = false
-            NewTeam.Name = (Name == nil and tostring(Color).." Team" or self.API.Filter:FilterString(Name, CommandContext.Executor))
+            NewTeam.Name = tostring(Color).." Team"
             NewTeam.Parent = self.Teams
         end
     end
