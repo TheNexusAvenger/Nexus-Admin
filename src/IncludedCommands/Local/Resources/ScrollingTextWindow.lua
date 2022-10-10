@@ -247,15 +247,6 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
 end
 
 --[[
-Connects logs for the window.
---]]
-function ScrollingTextWindow:ConnectLogs(Logs)
-    self.LogAddedConnection = Logs.LogAdded:Connect(function()
-        self:UpdateText(true)
-    end)
-end
-
---[[
 Sets up the window to display logs.
 --]]
 function ScrollingTextWindow:DisplayLogs(Logs)
@@ -264,21 +255,45 @@ function ScrollingTextWindow:DisplayLogs(Logs)
         self.RefreshButton:Destroy()
     end
 
+    --[[
+    Returns if a log entry is in the current search.
+    --]]
+    local function PassesSearch(Message, SearchTerm)
+        local Text = Message
+        if type(Message) == "table" then
+            Text = Message.Text
+        end
+        return string.find(string.lower(Text), string.lower(SearchTerm)) ~= nil
+    end
+
     --Set the GetTextLines function.
+    local CurrentMessages, LastSearchTerm = nil, ""
     self.GetTextLines = function(_, SearchTerm)
-        local FilteredLogs = {}
-        for _, Message in pairs(Logs:GetLogs()) do
-            local Text = Message
-            if type(Message) == "table" then
-                Text = Message.Text
-            end
-            if string.find(string.lower(Text), string.lower(SearchTerm)) then
-                table.insert(FilteredLogs, Message)
+        --Invalidate the current messages if the search term changed.
+        if SearchTerm ~= LastSearchTerm then
+            CurrentMessages = nil
+        end
+        LastSearchTerm = SearchTerm
+
+        --Build the current messages.
+        if CurrentMessages == nil then
+            CurrentMessages = {}
+            for _, Message in pairs(Logs:GetLogs()) do
+                if not PassesSearch(Message, SearchTerm) then continue end
+                table.insert(CurrentMessages, Message)
             end
         end
-        return FilteredLogs
+
+        --Return the messages.
+        return CurrentMessages
     end
-    self:ConnectLogs(Logs)
+
+    --Connect logs being added.
+    self.LogAddedConnection = Logs.LogAdded:Connect(function(LogEntry)
+        if not PassesSearch(LogEntry, LastSearchTerm) then return end
+        table.insert(CurrentMessages, 1, LogEntry)
+        self:UpdateText(true)
+    end)
 end
 
 --[[
