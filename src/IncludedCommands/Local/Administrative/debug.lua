@@ -26,7 +26,7 @@ function Command:Run(CommandContext)
     --Display the text window.
     local Window = ScrollingTextWindow.new()
     Window.Title = "Server Output"
-    Window:DisplayLogs(self.API.LogsRegistry:GetLogs("ServerOutput"))
+    Window:DisplayLogs(self.API.LogsRegistry:GetLogs("ServerOutput"), true)
     Window:Show()
 end
 

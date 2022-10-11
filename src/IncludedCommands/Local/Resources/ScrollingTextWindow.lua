@@ -249,7 +249,7 @@ end
 --[[
 Sets up the window to display logs.
 --]]
-function ScrollingTextWindow:DisplayLogs(Logs)
+function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
     --Remove the refresh button.
     if self.RefreshButton then
         self.RefreshButton:Destroy()
@@ -278,7 +278,9 @@ function ScrollingTextWindow:DisplayLogs(Logs)
         --Build the current messages.
         if CurrentMessages == nil then
             CurrentMessages = {}
-            for _, Message in pairs(Logs:GetLogs()) do
+            local LogEntries = Logs:GetLogs()
+            for i = (Inverted and #LogEntries or 1), (Inverted and 1 or #LogEntries), (Inverted and -1 or 1) do
+                local Message = LogEntries[i]
                 if not PassesSearch(Message, SearchTerm) then continue end
                 table.insert(CurrentMessages, Message)
             end
@@ -291,7 +293,7 @@ function ScrollingTextWindow:DisplayLogs(Logs)
     --Connect logs being added.
     self.LogAddedConnection = Logs.LogAdded:Connect(function(LogEntry)
         if not PassesSearch(LogEntry, LastSearchTerm) then return end
-        table.insert(CurrentMessages, 1, LogEntry)
+        table.insert(CurrentMessages, Inverted and #CurrentMessages or 1, LogEntry)
         self:UpdateText(true)
     end)
 end
