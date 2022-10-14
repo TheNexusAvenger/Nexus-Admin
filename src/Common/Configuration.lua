@@ -19,7 +19,7 @@ function Configuration:__new(ConfigurationTable)
     ConfigurationTable = ConfigurationTable or {}
 
     --Store the values.
-    self.Version = "Version 2.5.0"
+    self.Version = "Version 2.5.1"
     self.VersionNumberId = 2.5
     self.CmdrVersion = "Version 1.9.0"
     self.RawConfiguration = ConfigurationTable
