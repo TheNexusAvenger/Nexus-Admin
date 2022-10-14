@@ -54,13 +54,6 @@ function Command:__new()
             PlayerSenderCounts[Player] = nil
         end
     end)
-
-    task.spawn(function()
-        while true do
-            print(self.SenderCounts)
-            task.wait(5)
-        end
-    end)
 end
 
 --[[
