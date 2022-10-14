@@ -36,20 +36,11 @@ function Command:__new()
             self.API.EventContainer:WaitForChild("SendPrivateMessage"):FireServer(Player,Message)
             PrivateChatWindow:OnClose()
         end
+        PrivateChatWindow.CloseButton.MouseButton1Down:Connect(function()
+            self.API.EventContainer:WaitForChild("ClosePrivateMessage"):FireServer(Player)
+        end)
         PrivateChatWindow:Show()
     end)
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Message)
-    self.super:Run(CommandContext)
-
-    --Invoke the server to send messages.
-    for _,Player in pairs(Players) do
-        self.API.EventContainer:WaitForChild("SendPrivateMessage"):FireServer(Player,Message)
-    end
 end
 
 
