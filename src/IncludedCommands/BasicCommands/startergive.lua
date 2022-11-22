@@ -5,7 +5,7 @@ Implementation of a command.
 --]]
 
 local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local ToolFilter = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("ToolFilter"))
+local ToolListEnum = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("ToolListEnum"))
 local Command = BaseCommand:Extend()
 Command.Containers = {
     game:GetService("Lighting"),
@@ -21,6 +21,7 @@ Creates the command.
 --]]
 function Command:__new()
     self:InitializeSuper("startergive","BasicCommands","Gives a set of players tools matching the tool name(s) from Lighting, ReplicatedStorage, ServerStorage, or StarterPack and makes it so they spawn with them.")
+    ToolListEnum:SetUp(self.API.Registry)
     
     self.Arguments = {
         {
@@ -29,7 +30,7 @@ function Command:__new()
             Description = "Players to give tools.",
         },
         {
-            Type = "string",
+            Type = "nexusAdminTools",
             Name = "Tools",
             Description = "Tools to give.",
         },
@@ -39,11 +40,11 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Players,Tools)
+function Command:Run(CommandContext,Players,ToolNames)
     self.super:Run(CommandContext)
     
     --Give the tools.
-    for _,Tool in pairs(ToolFilter(Tools,self.Containers)) do
+    for _,Tool in ToolListEnum:GetTools(ToolNames) do
         for _,Player in pairs(Players) do
             local Backpack = Player:FindFirstChild("Backpack")
             local StarterGear = Player:FindFirstChild("StarterGear")

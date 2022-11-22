@@ -5,14 +5,8 @@ Implementation of a command.
 --]]
 
 local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local ToolFilter = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("ToolFilter"))
+local ToolListEnum = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("ToolListEnum"))
 local Command = BaseCommand:Extend()
-Command.Containers = {
-    game:GetService("Lighting"),
-    game:GetService("ReplicatedStorage"),
-    game:GetService("ServerStorage"),
-    game:GetService("StarterPack"),
-}
 
 
 
@@ -21,6 +15,7 @@ Creates the command.
 --]]
 function Command:__new()
     self:InitializeSuper("give","BasicCommands","Gives a set of players tools matching the tool name(s) from Lighting, ReplicatedStorage, ServerStorage, or StarterPack.")
+    ToolListEnum:SetUp(self.API.Registry)
     
     self.Arguments = {
         {
@@ -29,7 +24,7 @@ function Command:__new()
             Description = "Players to give tools.",
         },
         {
-            Type = "string",
+            Type = "nexusAdminTools",
             Name = "Tools",
             Description = "Tools to give.",
         },
@@ -39,11 +34,11 @@ end
 --[[
 Runs the command.
 --]]
-function Command:Run(CommandContext,Players,Tools)
+function Command:Run(CommandContext,Players,ToolNames)
     self.super:Run(CommandContext)
     
     --Give the tools.
-    for _,Tool in pairs(ToolFilter(Tools,self.Containers)) do
+    for _,Tool in ToolListEnum:GetTools(ToolNames) do
         for _,Player in pairs(Players) do
             local Backpack = Player:FindFirstChild("Backpack")
             if Backpack then
