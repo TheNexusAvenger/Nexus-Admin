@@ -17,7 +17,7 @@ local Config = {
 
     --Keybinds for opening the command bar.
     --WARNING: Keybinds that are set here become unusable in the command bar.
-    ActivationKeys = {Enum.KeyCode.BackSlash,},
+    ActivationKeys = {Enum.KeyCode.F2,},
 
     --Default rank a new player would have.
     DefaultAdminLevel = -1,

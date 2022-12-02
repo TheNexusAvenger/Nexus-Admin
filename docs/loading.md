@@ -30,8 +30,8 @@ as a `LocalScript`:
 --Require Nexus Admin. It will always be in this location after loading on the server.
 local NexusAdminClient = require(game:GetService("ReplicatedStorage"):WaitForChild("NexusAdminClient"))
 
---Register the \ key for opening the Cmdr console (optional).
-NexusAdminClient.Cmdr:SetActivationKeys({Enum.KeyCode.BackSlash})
+--Register the F2 key for opening the Cmdr console (optional).
+NexusAdminClient.Cmdr:SetActivationKeys({Enum.KeyCode.F2})
 
 --Load the commands already registered on the server (recommended,
 --for disabling loading of the included commands, do not remove this).

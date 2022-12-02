@@ -24,7 +24,7 @@ function Configuration:__new(ConfigurationTable)
     self.CmdrVersion = "Version 1.9.0"
     self.RawConfiguration = ConfigurationTable
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
-    self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash}
+    self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.F2}
     self.DefaultAdminLevel = ConfigurationTable.DefaultAdminLevel or -1
     self.AdministrativeLevel = ConfigurationTable.AdministrativeLevel or 1
     self.BuildUtilityLevel = ConfigurationTable.BuildUtilityLevel or 1
@@ -69,6 +69,15 @@ function Configuration:__new(ConfigurationTable)
             usage = -1,
             featureflag = nil,
         }
+    end
+
+    --Add F2 to the ActivationKeys if F2 is not defined but BackSlash is.
+    local ActivationKeysMap = {}
+    for _, Key in self.ActivationKeys do
+        ActivationKeysMap[Key] = true
+    end
+    if not ActivationKeysMap[Enum.KeyCode.F2] and ActivationKeysMap[Enum.KeyCode.BackSlash] then
+        table.insert(ConfigurationTable.ActivationKeys, Enum.KeyCode.F2)
     end
 end
 
