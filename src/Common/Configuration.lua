@@ -77,7 +77,7 @@ function Configuration:__new(ConfigurationTable)
         ActivationKeysMap[Key] = true
     end
     if not ActivationKeysMap[Enum.KeyCode.F2] and ActivationKeysMap[Enum.KeyCode.BackSlash] then
-        table.insert(ConfigurationTable.ActivationKeys, Enum.KeyCode.F2)
+        table.insert(self.ActivationKeys, Enum.KeyCode.F2)
     end
 end
 
