@@ -48,7 +48,7 @@ local Registry = require(script:WaitForChild("ClientRegistry")).new(Cmdr,Authori
 local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(EventContainer)
 local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
 local FeatureFlags = require(script:WaitForChild("NexusFeatureFlags"))
-local Time = require(script:WaitForChild("Common"):WaitForChild("Time")).new()
+local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
 
 --Create the API.
 local API = {

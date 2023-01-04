@@ -3,20 +3,22 @@ TheNexusAvenger
 
 Stores and parses the configuration.
 --]]
+--!strict
 
-local NexusObject = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusObject"))
+local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
-local Configuration = NexusObject:Extend()
-Configuration:SetClassName("Configuration")
+local Configuration = {}
+Configuration.__index = Configuration
 
 
 
 --[[
 Creates the configuration.
 --]]
-function Configuration:__new(ConfigurationTable)
-    self:InitializeSuper()
+function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configuration
     ConfigurationTable = ConfigurationTable or {}
+    local self = {}
+    setmetatable(self, Configuration)
 
     --Store the values.
     self.Version = "Version 2.5.3"
@@ -79,6 +81,9 @@ function Configuration:__new(ConfigurationTable)
     if not ActivationKeysMap[Enum.KeyCode.F2] and ActivationKeysMap[Enum.KeyCode.BackSlash] then
         table.insert(self.ActivationKeys, Enum.KeyCode.F2)
     end
+
+    --Return the configuration.
+    return (self :: any) :: Types.Configuration
 end
 
 --[[
@@ -92,9 +97,9 @@ end
 --[[
 Returns the admin level to use for an integrated command.
 --]]
-function Configuration:GetCommandAdminLevel(Category,Command)
+function Configuration:GetCommandAdminLevel(Category: string, Command: string): number
     --Get the category default.
-    local CategoryDefault = self[Category.."Level"]
+    local CategoryDefault = self[Category.."Level"] :: number
     if not CategoryDefault then
         error("\""..Category.."\" is not a category supported by the configuration.")
     end
@@ -109,4 +114,4 @@ end
 
 
 
-return Configuration
+return (Configuration :: any) :: Types.Configuration
