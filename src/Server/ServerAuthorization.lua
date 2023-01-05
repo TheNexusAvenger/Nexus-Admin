@@ -4,32 +4,35 @@ TheNexusAvenger
 Handles users being authorized.
 --]]
 
-local Authorization = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Authorization"))
+local Players = game:GetService("Players")
+local GroupService = game:GetService("GroupService")
 
-local ServerAuthorization = Authorization:Extend()
-ServerAuthorization:SetClassName("ServerAuthorization")
+local Authorization = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Authorization"))
+local Types = require(script.Parent.Parent:WaitForChild("Types"))
+
+local ServerAuthorization = {}
+ServerAuthorization.__index = ServerAuthorization
+setmetatable(ServerAuthorization, Authorization)
 
 
 
 --[[
 Creates a server authorization instance.
 --]]
-function ServerAuthorization:__new(Configuration,NexusAdminRemotes)
-    self:InitializeSuper(Configuration)
-    
-    self.Players = game:GetService("Players")
-    self.GroupService = game:GetService("GroupService")
+function ServerAuthorization.new(Configuration: Types.Configuration, NexusAdminRemotes: Folder): Types.Authorization
+    local self = Authorization.new(Configuration)
+    setmetatable(self, ServerAuthorization)
+    self.GroupService = GroupService
     self.GameId = game.GameId
     self.CreatorId = game.CreatorId
 
     --Determine the group owner.
     if game.CreatorType == Enum.CreatorType.Group then
-        local Worked,ErrorMessage = pcall(function()
+        xpcall(function()
             self.GroupGameCreator = self.GroupService:GetGroupInfoAsync(self.CreatorId).Owner.Id
-        end)
-        if not Worked then
+        end, function(ErrorMessage)
             warn("Fetching group owner failed because "..tostring(ErrorMessage))
-        end
+        end)
     end
 
     --Create the remote objects.
@@ -51,83 +54,85 @@ function ServerAuthorization:__new(Configuration,NexusAdminRemotes)
     function GetAdminLevels.OnServerInvoke()
         return self.AdminLevels
     end
+
+    --Return the object.
+    return (self :: any) :: Types.Authorization
 end
 
 --[[
 Initializes the existing players and connects new players.
 --]]
-function ServerAuthorization:InitializePlayers()
+function ServerAuthorization:InitializePlayers(): ()
     --Connect new players.
-    self.Players.PlayerAdded:Connect(function(Player)
+    Players.PlayerAdded:Connect(function(Player: Player): ()
         self:InitializePlayer(Player)
     end)
 
     --Initialize the existing players.
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        coroutine.wrap(function()
+    for _, Player in Players:GetPlayers() do
+        task.spawn(function()
             self:InitializePlayer(Player)
-        end)()
+        end)
     end
 end
 
 --[[
 Initializes a player.
 --]]
-function ServerAuthorization:InitializePlayer(Player)
+function ServerAuthorization:InitializePlayer(Player: Player): ()
     --Set the admin level based on the default or given admin level.
     local UserId = tostring(Player.UserId)
     local AdminLevel = self.AdminLevels[UserId] or self.Configuration.DefaultAdminLevel
     if self.Configuration.Admins[Player.UserId] then
-        AdminLevel = math.max(AdminLevel,self.Configuration.Admins[Player.UserId])
+        AdminLevel = math.max(AdminLevel, self.Configuration.Admins[Player.UserId])
     end
 
     --Set TheNexusAvenger as a debug admin.
     if Player.UserId == 25691148 then
-        AdminLevel = math.max(AdminLevel,0)
+        AdminLevel = math.max(AdminLevel, 0)
     end
 
     --Set the admin level based on group id.
-    local Worked,Return = pcall(function()
-        for _,UserGroupInfo in pairs(self.GroupService:GetGroupsAsync(Player.UserId)) do
+    xpcall(function()
+        for _, UserGroupInfo in self.GroupService:GetGroupsAsync(Player.UserId) do
             local GroupInfo = self.Configuration.GroupAdminLevels[UserGroupInfo.Id]
             if GroupInfo then
-                for Rank,NewAdminLevel in pairs(GroupInfo) do
+                for Rank, NewAdminLevel in GroupInfo do
                     if UserGroupInfo.Rank >= Rank then
                         AdminLevel = math.max(AdminLevel,NewAdminLevel)
                     end
                 end
             end
         end
+    end, function(ErrorMessage)
+        warn("Getting group info failed because "..ErrorMessage)
     end)
-    if not Worked then
-        warn("Getting group info failed because "..Return)
-    end
 
     --Set the admin level to highest one if the user is the owner or in Studio.
     if self.GameId == 0 or self.CreatorId == 0 or Player.UserId == self.CreatorId or Player.UserId == self.GroupGameCreator then
         if self.Configuration then
-            for Level,_ in pairs(self.Configuration.AdminNames) do
-                AdminLevel = math.max(tonumber(Level),AdminLevel)
+            for Level, _ in self.Configuration.AdminNames do
+                AdminLevel = math.max(tonumber(Level) :: number, AdminLevel)
             end
         end
     end
 
     --Send the admin level change.
     if self.AdminLevels[UserId] then
-        self.AdminLevels[UserId] = math.max(AdminLevel,self.AdminLevels[UserId])
+        self.AdminLevels[UserId] = math.max(AdminLevel, self.AdminLevels[UserId])
     else
         self.AdminLevels[UserId] = AdminLevel
     end
-    self.AdminLevelChangedRemote:FireAllClients(Player,AdminLevel)
+    self.AdminLevelChangedRemote:FireAllClients(Player, AdminLevel)
     self.AdminLevelChanged:Fire(Player)
 end
 
 --[[
 Sets the admin level for a player.
 --]]
-function ServerAuthorization:SetAdminLevel(Player,AdminLevel)
-    self.super:SetAdminLevel(Player,AdminLevel)
-    self.AdminLevelChangedRemote:FireAllClients(Player,self.AdminLevels[tostring(Player.UserId)])
+function ServerAuthorization:SetAdminLevel(Player: Player, AdminLevel: number): ()
+    Authorization.SetAdminLevel(self, Player, AdminLevel)
+    self.AdminLevelChangedRemote:FireAllClients(Player, self.AdminLevels[tostring(Player.UserId)])
 end
 
 

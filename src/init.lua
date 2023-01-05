@@ -64,6 +64,7 @@ function API:Load(ConfigurationTable)
     NexusAdminClient.Name = "NexusAdminClient"
     NexusAdminClient.Parent = ReplicatedStorage
 
+    NexusAdminClient:WaitForChild("Types"):Destroy()
     local TypesModule = script:WaitForChild("Types"):Clone()
     TypesModule.Parent = NexusAdminClient
 

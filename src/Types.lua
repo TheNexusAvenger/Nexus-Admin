@@ -165,6 +165,16 @@ export type NexusAdminCommandData = {
 }
 
 --Nexus Admin Modules
+export type Authorization = {
+    new: (Configuration: Configuration) -> (Authorization),
+
+    AdminLevelChanged: NexusEvent<Player>,
+    GetAdminLevel: (self: Authorization, Player: Player) -> number,
+    IsPlayerAuthorized: (self: Authorization, Player: Player, AdminLevel: number) -> boolean,
+    YieldForAdminLevel: (self: Authorization, Player: Player) -> (number),
+    SetAdminLevel: (self: Authorization, Player: Player, AdminLevel: number) -> (),
+}
+
 export type Configuration = {
     new: (ConfigurationTable: {[string]: any}) -> (Configuration),
 
