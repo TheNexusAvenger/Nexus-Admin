@@ -18,7 +18,7 @@ Creates a client logs registry instance.
 --]]
 function ClientLogsRegistry.new(NexusAdminRemotes: Folder): Types.LogsRegistryClient
     local self = {}
-    setmetatable(self, NexusAdminRemotes)
+    setmetatable(self, ClientLogsRegistry)
 
     --Connect listening for new log entries.
     local LogsRegistryEvents = NexusAdminRemotes:WaitForChild("LogsRegistry")

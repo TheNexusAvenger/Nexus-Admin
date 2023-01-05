@@ -70,7 +70,7 @@ export type CmdrCommandContext = {
     Response: string?,
 
     GetArgument: (self: CmdrCommandContext, number) -> (CmdrArgumentContext),
-    GetData: (self: CmdrCommandContext) -> (),
+    GetData: (self: CmdrCommandContext) -> (any),
     GetStore: (self: CmdrCommandContext, name: string) -> ({[any]: any}),
     SendEvent: (self: CmdrCommandContext, Player: Player, Event: string) -> (),
     BroadcastEvent: (self: CmdrCommandContext, Evnet: string, ...any) -> (),
@@ -318,6 +318,7 @@ export type NexusAdminApiServer = {
     Filter: Filter,
     Replicator: Replicator,
     Logs: Logs,
+    GetAdminLoaded: (self: NexusAdminApiServer) -> (boolean),
 } & NexusAdminApi
 
 

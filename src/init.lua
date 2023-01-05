@@ -79,6 +79,9 @@ function API:Load(ConfigurationTable)
     LocalIncludedCommands.Name = "IncludedCommands"
     LocalIncludedCommands.Parent = NexusAdminClient
 
+    local IncludedCommandUtil = script:WaitForChild("IncludedCommands"):WaitForChild("IncludedCommandUtil"):Clone()
+    IncludedCommandUtil.Parent = LocalIncludedCommands
+
     local BaseCommand = script:WaitForChild("IncludedCommands"):WaitForChild("BaseCommand"):Clone()
     BaseCommand.Parent = LocalIncludedCommands
 
