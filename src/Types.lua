@@ -210,6 +210,13 @@ export type Executor = {
     SplitCommands: (Command: string, Separator: string) -> ({string}),
 }
 
+export type Filter = {
+    new: (NexusAdminRemotes: Folder) -> Filter,
+
+    FilterString: (self: Filter, String: string, PlayerFrom: Player, PlayerTo: Player?) -> (string),
+    FilterStringForPlayers: (self: Filter, String: string, PlayerFrom: Player, PlayersTo: {Player}) -> ({[Player]: string}),
+}
+
 export type Logs = {
     new: (MaxLogs: number?) -> (Logs),
 
