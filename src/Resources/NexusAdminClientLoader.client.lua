@@ -3,20 +3,37 @@ TheNexusAvenger
 
 Loads Nexus Admin on the client.
 --]]
+--!strict
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiService = game:GetService("GuiService")
 local ContextActionService = game:GetService("ContextActionService")
 
-local NexusAdminClient = require(ReplicatedStorage:WaitForChild("NexusAdminClient"))
+local NexusAdminClient = require(ReplicatedStorage:WaitForChild("NexusAdminClient")) :: {
+    Cmdr: {
+        SetActivationKeys: (self: any, {Enum.KeyCode}) -> (),
+    },
+    Authorization: {
+        IsPlayerAuthorized: (self: any, Player: Player, AdminLevel: number) -> (boolean),
+    },
+    Configuration: {
+        ActivationKeys: {Enum.KeyCode},
+        DefaultAdminLevel: number,
+        GetCommandAdminLevel: (self: any, CommandGroup: string, Command: string) -> (number),
+    },
+    Registry: {
+        LoadServerCommands: (self: any) -> (),
+    },
+    LoadIncludedCommands: (self: any) -> (),
+}
 NexusAdminClient.Cmdr:SetActivationKeys(NexusAdminClient.Configuration.ActivationKeys)
 NexusAdminClient.Registry:LoadServerCommands()
 NexusAdminClient:LoadIncludedCommands()
 
 --Roblox's Keyboard Navigation collides with the original default keybind of \.
 --To get around this, navigation is disabled when \ is pressed, the user is an admin, and it is an activation key.
-local CmdrWindow = require(ReplicatedStorage:WaitForChild("CmdrClient"):WaitForChild("CmdrInterface"):WaitForChild("Window"))
+local CmdrWindow = require(ReplicatedStorage:WaitForChild("CmdrClient"):WaitForChild("CmdrInterface"):WaitForChild("Window")) :: {AddLine: (self: any, Message: string, {Color: Color3}) -> ()}
 for _, ActivationKey in NexusAdminClient.Configuration.ActivationKeys do
     if ActivationKey ~= Enum.KeyCode.BackSlash then return end
     ContextActionService:BindAction("NexusAdminLegacyKeybindWarning", function()
