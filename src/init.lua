@@ -3,6 +3,7 @@ TheNexusAvenger
 
 Server API for Nexus Admin.
 --]]
+--!strict
 
 local CMDR_OVERRIDE_ADMIN_LEVELS = {
     --Provides DataStore access.
@@ -15,26 +16,23 @@ local CMDR_OVERRIDE_ADMIN_LEVELS = {
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Types = require(script:WaitForChild("Types"))
+
 
 
 --[[
 Converts the number indexes to strings.
 --]]
-local function ConvertNumberIndexesToStrings(Array)
+local function ConvertNumberIndexesToStrings(Array: any): {[string]: any}
     local NewArray = {}
-    for Key,Value in pairs(Array) do
-        --Convert the key if it is a number.
-        if type(Key) == "number" then
-            Key = tostring(Key)
-        end
-
+    for Key,Value in Array do
         --Convert the value if it is an array.
         if type(Value) == "table" then
             Value = ConvertNumberIndexesToStrings(Value)
         end
 
         --Add the index.
-        NewArray[Key] = Value
+        NewArray[tostring(Key)] = Value
     end
 
     return NewArray
@@ -87,8 +85,8 @@ function API:Load(ConfigurationTable)
     --Initialize the resources.
     local Cmdr = require(script:WaitForChild("Cmdr"))
     local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConfigurationTable)
-    local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration,EventContainer)
-    Authorization:InitializePlayers()
+    local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration,EventContainer);
+    (Authorization :: {InitializePlayers: (self: Types.Authorization) -> ()} & Types.Authorization):InitializePlayers()
     local Messages = require(script:WaitForChild("Server"):WaitForChild("ServerMessages")).new(EventContainer)
     local FeatureFlagsModule = script:WaitForChild("NexusFeatureFlags")
     FeatureFlagsModule.Parent = NexusAdminClient
@@ -132,20 +130,20 @@ function API:Load(ConfigurationTable)
     API.AdminItemContainer = AdminItemContainer
 
     --Add the custom Cmdr types.
-    for _,TypeModule in pairs(script:WaitForChild("Common"):WaitForChild("Types"):GetChildren()) do
-        require(TypeModule)(API)
+    for _, TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
+        (require(TypeModule) :: (Types.NexusAdminApiServer) -> ())(API)
     end
 
     --Set the feature flag overrides.
-    for Name,Value in pairs(Configuration.FeatureFlagOverrides) do
+    for Name, Value in Configuration.FeatureFlagOverrides do
         FeatureFlags:SetFeatureFlag(Name,Value)
     end
 
     --Add the initial feature flags.
-    FeatureFlags:AddFeatureFlag("UseNativeMessageGui",true)
-    FeatureFlags:AddFeatureFlag("UseNativeHintGui",true)
-    FeatureFlags:AddFeatureFlag("DisplayAdminLevelNotifications",true)
-    FeatureFlags:AddFeatureFlag("AllowChatCommandExecuting",true)
+    FeatureFlags:AddFeatureFlag("UseNativeMessageGui", true)
+    FeatureFlags:AddFeatureFlag("UseNativeHintGui", true)
+    FeatureFlags:AddFeatureFlag("DisplayAdminLevelNotifications", true)
+    FeatureFlags:AddFeatureFlag("AllowChatCommandExecuting", true)
 
     --Mark the system as loaded.
     Loaded = true
@@ -154,36 +152,36 @@ end
 --[[
 Loads the including commands.
 --]]
-function API:LoadIncludedCommands()
+function API:LoadIncludedCommands(): ()
     --Load the Nexus Admin commands.
-    local Categories = {"Administrative","BasicCommands","BuildUtility","UsefulFun","Fun","Persistent"}
-    for _,Category in pairs(Categories) do
+    local Categories = {"Administrative", "BasicCommands", "BuildUtility", "UsefulFun", "Fun", "Persistent"}
+    for _, Category in Categories do
         --Add the scripts.
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
-        for _,Module in pairs(Folder:GetChildren()) do
+        for _, Module in Folder:GetChildren() do
             if Module:IsA("ModuleScript") then
-                self.Registry:LoadCommand(require(Module).new():Flatten())
+                self.Registry:LoadCommand((require(Module) :: any).new():Flatten())
             end
         end
 
         --Connect adding new scripts.
-        Folder.ChildAdded:Connect(function(Module)
+        Folder.ChildAdded:Connect(function(Module: Instance): ()
             if Module:IsA("ModuleScript") then
-                self.Registry:LoadCommand(require(Module).new():Flatten())
+                self.Registry:LoadCommand((require(Module) :: any).new():Flatten())
             end
         end)
     end
 
     --Load the Cmdr utility commands.
     local CmdrUtilityCommands = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility")
-    for _,CommandScript in pairs(CmdrUtilityCommands:GetChildren()) do
+    for _, CommandScript in CmdrUtilityCommands:GetChildren() do
         if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
             local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(CommandScript.Name.."Server")
-            local CommandData = require(CommandScript)
+            local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
             CommandData.AutoExec = nil --AutoExec is handled on the client.
             CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
             if ServerCommandScript then
-                CommandData.Run = require(ServerCommandScript)
+                CommandData.Run = require(ServerCommandScript) :: (CommandContext: Types.CmdrCommandContext, ...any) -> (string?)
             end
             if CommandData.Run then
                 local BaseRun = CommandData.Run
@@ -206,14 +204,14 @@ end
 --[[
 Loads the client loader to all clients.
 --]]
-function API:LoadClientLoader()
+function API:LoadClientLoader(): ()
     self.Replicator:GiveStarterScript(script:WaitForChild("Resources"):WaitForChild("NexusAdminClientLoader"))
 end
 
 --[[
 Returns if Nexus Admin is loaded.
 --]]
-function API:GetAdminLoaded()
+function API:GetAdminLoaded(): boolean
     return Loaded
 end
 
@@ -273,12 +271,12 @@ end
 
 function API.AddScriptToPlayer(Player,Script)
     warn("NexusAdminServerAPI.AddScriptToPlayer(Player,Script) is deprecated as of V.2.0.0. Please use NexusAdminServerAPI.Replicator:GiveScriptToPlayer(Player,Script) instead.")
-    return API.Replicator:GiveScriptToPlayer(Player,Script)
+    API.Replicator:GiveScriptToPlayer(Player, Script)
 end
 
 function API.BindScriptToSpawn(Script)
     warn("NexusAdminServerAPI.BindScriptToSpawn(Script) is deprecated as of V.2.0.0. Please use NexusAdminServerAPI.Replicator:GiveStarterScript(Script) instead.")
-    return API.Replicator:GiveStarterScript(Script)
+    API.Replicator:GiveStarterScript(Script)
 end
 
 function API.FilterStringAsync(String,PlayerFrom,PlayerTo)
@@ -292,9 +290,9 @@ function API.GetTimeString()
 end
 
 --Set the metatable for throwing errors for when the system is not loaded.
-setmetatable(API,{
-    __index = function(_,Index)
-        local Result = rawget(API,Index)
+setmetatable(API, {
+    __index = function(_, Index: string)
+        local Result = rawget(API, Index)
 
         --Throw an error if the result doesn't exist.
         if Result == nil then
@@ -313,4 +311,4 @@ setmetatable(API,{
 
 
 --Return the API.
-return API
+return (API :: any) :: Types.NexusAdminApiServer

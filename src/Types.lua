@@ -159,9 +159,21 @@ export type Cmdr = {
     Util: CmdrUtil,
 }
 
+--Nexus Feature Flags
+export type NexusFeatureFlagsSource = {
+    FeatureFlagChanged: RBXScriptSignal,
+    GetFeatureFlag: (NexusFeatureFlagsSource, Name: string) -> any?,
+    GetAllFeatureFlags: (NexusFeatureFlagsSource) -> {string},
+    AddFeatureFlag: (NexusFeatureFlagsSource, Name: string, Value: any, Type: string?) -> nil,
+    SetFeatureFlag: (NexusFeatureFlagsSource, Name: string, Value: any) -> nil,
+    GetFeatureFlagChangedEvent: (NexusFeatureFlagsSource, Name: string) -> RBXScriptSignal,
+    Destroy: (NexusFeatureFlagsSource) -> nil,
+}
+
 --Nexus Admin Data Types
 export type NexusAdminCommandData = {
     Prefix: string?,
+    AdminLevel: number?,
     Category: string?,
     CommandGroup: string?,
     Arguments: {CmdrCommandArgument | (Context: CmdrCommandContext) -> (CmdrCommandArgument)}?,
@@ -274,13 +286,39 @@ export type RegistryServer = {
 export type Replicator = {
     new: () -> Replicator,
 
-    GiveScriptToPlayer: (Player: Player, Script: BaseScript) -> (),
-    GiveStarterScript: (Script: BaseScript) -> (),
+    GiveScriptToPlayer: (self: Replicator, Player: Player, Script: BaseScript) -> (),
+    GiveStarterScript: (self: Replicator, Script: BaseScript) -> (),
 }
 
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),
 }
+
+--Nexus Admin API.
+export type NexusAdminApi = {
+    Types: {[any]: any},
+    CommandData: {[any]: any},
+    Version: string,
+    VersionNumberId: number,
+    CmdrVersion: string,
+    EventContainer: Folder,
+    AdminItemContainer: Folder,
+    Cmdr: Cmdr,
+    Configuration: Configuration,
+    Authorization: Authorization,
+    Messages: MessagesServer | MessagesClient,
+    Registry: Registry,
+    LogsRegistry: LogsRegistryServer,
+    Executor: Executor,
+    FeatureFlags: NexusFeatureFlagsSource,
+    Time: Time,
+}
+
+export type NexusAdminApiServer = {
+    Filter: Filter,
+    Replicator: Replicator,
+    Logs: Logs,
+} & NexusAdminApi
 
 
 

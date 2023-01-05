@@ -3,6 +3,7 @@ TheNexusAvengeer
 
 Client API for Nexus Admin.
 --]]
+--!strict
 
 --Get the containers.
 local Workspace = game:GetService("Workspace")
@@ -17,21 +18,16 @@ local AdminItemContainer = Workspace:WaitForChild("NexusAdminItemContainer")
 --[[
 Converts the string indexes to numbers.
 --]]
-local function ConvertStringIndexesToNumbers(Array)
+local function ConvertStringIndexesToNumbers(Array: {[any]: any}): any
     local NewArray = {}
-    for Key,Value in pairs(Array) do
-        --Convert the key if it is a number.
-        if tonumber(Key) then
-            Key = tonumber(Key)
-        end
-
+    for Key, Value in Array do
         --Convert the value if it is an array.
         if type(Value) == "table" then
             Value = ConvertStringIndexesToNumbers(Value)
         end
 
         --Add the index.
-        NewArray[Key] = Value
+        NewArray[tonumber(Key) or Key] = Value
     end
 
     return NewArray
@@ -40,15 +36,16 @@ end
 
 
 --Initialize the resources.
-local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient"))
-local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConvertStringIndexesToNumbers(EventContainer:WaitForChild("GetConfiguration"):InvokeServer()))
+local Types = require(script:WaitForChild("Types"))
+local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient")) :: Types.Cmdr
+local Configuration = (require(script:WaitForChild("Common"):WaitForChild("Configuration")) :: Types.Configuration).new(ConvertStringIndexesToNumbers(EventContainer:WaitForChild("GetConfiguration"):InvokeServer()))
 local Authorization = require(script:WaitForChild("ClientAuthorization")).new(Configuration,EventContainer)
 local Messages = require(script:WaitForChild("ClientMessages")).new(EventContainer)
 local Registry = require(script:WaitForChild("ClientRegistry")).new(Authorization, Messages, Cmdr, EventContainer)
 local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(EventContainer)
-local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
-local FeatureFlags = require(script:WaitForChild("NexusFeatureFlags"))
-local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
+local Executor = (require(script:WaitForChild("Common"):WaitForChild("Executor")) :: Types.Executor).new(Cmdr,Registry)
+local FeatureFlags = (require(script:WaitForChild("NexusFeatureFlags")) :: Types.NexusFeatureFlagsSource)
+local Time = (require(script:WaitForChild("Common"):WaitForChild("Time")) :: Types.Time)
 
 --Create the API.
 local API = {
@@ -76,23 +73,23 @@ local API = {
 }
 
 --Add the custom Cmdr types.
-for _,TypeModule in pairs(script:WaitForChild("Common"):WaitForChild("Types"):GetChildren()) do
-    require(TypeModule)(API)
+for _,TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
+    (require(TypeModule) :: (Types.NexusAdminApi) -> ())(API :: any)
 end
 
 --[[
 Loads the included commands.
 --]]
 function API:LoadIncludedCommands()
-    local Categories = {"Administrative","BasicCommands","UsefulFun","Persistent","Cmdr"}
-    for _,Category in pairs(Categories) do
+    local Categories = {"Administrative", "BasicCommands", "UsefulFun", "Persistent", "Cmdr"}
+    for _,Category in Categories do
         --[[
         Loads a module.
         --]]
-        local function LoadModule(Module)
+        local function LoadModule(Module: Instance): ()
             if not Module:IsA("ModuleScript") then return end
 
-            local Data = require(Module).new():Flatten()
+            local Data = (require(Module) :: any).new():Flatten()
             local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
             if ExistingCommand then
                 Data.Run = ExistingCommand.ClientRun
@@ -102,14 +99,12 @@ function API:LoadIncludedCommands()
 
         --Add the scripts.
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
-        for _,Module in pairs(Folder:GetChildren()) do
+        for _, Module in Folder:GetChildren() do
             LoadModule(Module)
         end
 
         --Connect adding new scripts.
-        Folder.ChildAdded:Connect(function(Module)
-            LoadModule(Module)
-        end)
+        Folder.ChildAdded:Connect(LoadModule)
     end
 end
 
@@ -128,14 +123,15 @@ function _G.GetNexusAdminClientAPI()
 end
 
 --Add the deprecated methods.
-local StaticContainer
+local StaticContainer: ScreenGui = nil
 function API.GetAdminGuiContainer()
     warn("NexusAdminClientAPI.GetAdminGuiContainer() is deprecated as of V.2.0.0. ScreenGuis should be created.")
     --Create the GUI.
     if not StaticContainer or not StaticContainer.Parent then
-        StaticContainer = Instance.new("ScreenGui")
-        StaticContainer.Name = "NexusAdminStaticGui"
-        StaticContainer.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
+        local NewStaticContainer = Instance.new("ScreenGui")
+        NewStaticContainer.Name = "NexusAdminStaticGui"
+        NewStaticContainer.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
+        StaticContainer = NewStaticContainer
     end
 
     --Return the GUI.
@@ -196,8 +192,8 @@ function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
 end
 
 function API.AddTooltipToFrame(Text,Frame)
-    warn("NexusAdminClientAPI.AddTooltipToFrame(Text,Frame) is deprecated as of V.2.0.0. Please use NexusAdminClientAPI.Gui:AddTooltipToFrame(Text,Frame) instead.")
-    API.Gui:AddTooltipToFrame(Text,Frame)
+    warn("NexusAdminClientAPI.AddTooltipToFrame(Text,Frame) is deprecated as of V.2.0.0. Please use NexusAdminClientAPI.Gui:AddTooltipToFrame(Text,Frame) instead.");
+    (API.Gui :: any):AddTooltipToFrame(Text,Frame)
 end
 
 function API.SendHint(Message,DisplayTime)
@@ -218,4 +214,4 @@ end
 
 
 --Return the API.
-return API
+return (API :: any) :: Types.NexusAdminApi
