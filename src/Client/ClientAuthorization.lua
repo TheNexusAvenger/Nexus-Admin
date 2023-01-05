@@ -17,15 +17,15 @@ setmetatable(ClientAuthorization, Authorization)
 --[[
 Creates a client authorization instance.
 --]]
-function ClientAuthorization.new(Configuration, NexusAdminRemotes): Types.Authorization
+function ClientAuthorization.new(Configuration: Types.Configuration, NexusAdminRemotes: Folder): Types.Authorization
     local self = Authorization.new(Configuration) :: Types.Authorization & {AdminLevels: {[string]: number}}
     setmetatable(self, ClientAuthorization)
 
-    local AuthorizationEvents = NexusAdminRemotes:WaitForChild("AuthorizationEvents")
-    self.AdminLevels = AuthorizationEvents:WaitForChild("GetAdminLevels"):InvokeServer()
+    local AuthorizationEvents = NexusAdminRemotes:WaitForChild("AuthorizationEvents") :: Folder
+    self.AdminLevels = (AuthorizationEvents:WaitForChild("GetAdminLevels") :: RemoteFunction):InvokeServer();
 
     --Connect the remote objects.
-    AuthorizationEvents:WaitForChild("AdminLevelChanged").OnClientEvent:Connect(function(Player: Player, AdminLevel: number): ()
+    (AuthorizationEvents:WaitForChild("AdminLevelChanged") :: RemoteEvent).OnClientEvent:Connect(function(Player: Player, AdminLevel: number): ()
         self:SetAdminLevel(Player, AdminLevel)
     end)
     return (self :: any) :: Types.Authorization

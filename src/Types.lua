@@ -2,7 +2,7 @@
 TheNexusAvenger
 
 Types for Nexus Admin.
-Since Nexus Admin is meant to be loaded at runtime, this file can be use independently to have types.
+Since Nexus Admin is meant to be loaded at runtime, this file can be used independently to have types.
 --]]
 
 --Nexus Instance
@@ -79,8 +79,8 @@ export type CmdrCommandContext = {
 }
 
 export type CmdrTypeDefinition = {
-    DisplayName: string,
-    Prefixes: string,
+    DisplayName: string?,
+    Prefixes: string?,
     Transform: (<T>(RawText: string, Exeuctor: Player) -> (T))?,
     Validate: (<T>(Value: T) -> (boolean, string?))?,
     ValidateOnce: (<T>(Value: T) -> (boolean, string?))?,
@@ -100,7 +100,7 @@ export type CmdrCommandArgument = {
 
 export type CmdrCommandDefinition = {
     Name: string,
-    Aliases: {string}?,
+    Aliases: {string},
     Description: string,
     Group: string?,
     Args: {CmdrCommandArgument | (Context: CmdrCommandContext) -> (CmdrCommandArgument)},
@@ -161,8 +161,14 @@ export type Cmdr = {
 
 --Nexus Admin Data Types
 export type NexusAdminCommandData = {
-
-}
+    Prefix: string?,
+    Category: string?,
+    CommandGroup: string?,
+    Arguments: {CmdrCommandArgument | (Context: CmdrCommandContext) -> (CmdrCommandArgument)}?,
+    ExtraInfo: string?,
+    Keyword: string? | {string}?,
+    Run: ((Context: CmdrCommandContext, ...any) -> (string?)),
+} & CmdrCommandDefinition
 
 --Nexus Admin Modules
 export type Authorization = {
@@ -227,10 +233,30 @@ export type Logs = {
     Destroy: (self: Logs) -> (),
 }
 
-export type Registry = {
-    LoadCommand: (self: Registry, CommandData: NexusAdminCommandData) -> (),
-    SetUpEnumValue: (self: Registry, ChildValue: StringValue) -> (),
+export type MessagesClient = {
+    new: (NexusAdminRemotes: Folder) -> MessagesClient,
+
+    DisplayMessage: (self: MessagesClient, TopText: string, Message: string, DisplayTime: number?) -> (),
+    DisplayHint: (self: MessagesClient, Message: string, DisplayTime: number) -> (),
 }
+
+export type MessagesServer = {
+    new: (NexusAdminRemotes: Folder) -> MessagesServer,
+
+    DisplayMessage: (self: MessagesServer, Player: Player, TopText: string, Message: string, DisplayTime: number?) -> (),
+    DisplayHint: (self: MessagesServer, Player: Player, Message: string, DisplayTime: number) -> (),
+}
+
+export type Registry = {
+    new: (Authorization: Authorization, Messages: MessagesServer | MessagesClient, Cmdr: Cmdr, NexusAdminRemotes: Folder) -> (Registry),
+
+    LoadCommand: (self: Registry, CommandData: NexusAdminCommandData) -> (),
+    AddEnumType: (self: Registry, Options: {string}) -> (),
+}
+
+export type RegistryServer = {
+    new: (Cmdr: Cmdr, Authorization: Authorization, Messages: MessagesServer, Logs: Logs, Time: Time, Filter: Filter, NexusAdminRemotes: Folder) -> (RegistryServer),
+} & Registry
 
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),
