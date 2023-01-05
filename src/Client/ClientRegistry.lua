@@ -70,4 +70,4 @@ end
 
 
 
-return ClientRegistry
+return (ClientRegistry :: any) :: Types.Registry

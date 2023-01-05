@@ -217,7 +217,7 @@ export type Executor = {
 }
 
 export type Filter = {
-    new: (NexusAdminRemotes: Folder) -> Filter,
+    new: () -> Filter,
 
     FilterString: (self: Filter, String: string, PlayerFrom: Player, PlayerTo: Player?) -> (string),
     FilterStringForPlayers: (self: Filter, String: string, PlayerFrom: Player, PlayersTo: {Player}) -> ({[Player]: string}),
@@ -232,6 +232,19 @@ export type Logs = {
     Add: (self: Logs, Log: any) -> (),
     Destroy: (self: Logs) -> (),
 }
+
+export type LogsRegistry = {
+    RegisterLogs: (self: LogsRegistry, LogName: string, Logs: Logs, MinimumAdminLevel: number) -> (),
+    GetLogs: (self: LogsRegistry, LogName: string) -> (Logs),
+}
+
+export type LogsRegistryClient = {
+    new: (NexusAdminRemotes: Folder) -> (LogsRegistryClient),
+} & LogsRegistry
+
+export type LogsRegistryServer = {
+    new: (Authorization: Authorization, NexusAdminRemotes: Folder) -> (LogsRegistryServer),
+} & LogsRegistry
 
 export type MessagesClient = {
     new: (NexusAdminRemotes: Folder) -> MessagesClient,
@@ -257,6 +270,13 @@ export type Registry = {
 export type RegistryServer = {
     new: (Cmdr: Cmdr, Authorization: Authorization, Messages: MessagesServer, Logs: Logs, Time: Time, Filter: Filter, NexusAdminRemotes: Folder) -> (RegistryServer),
 } & Registry
+
+export type Replicator = {
+    new: () -> Replicator,
+
+    GiveScriptToPlayer: (Player: Player, Script: BaseScript) -> (),
+    GiveStarterScript: (Script: BaseScript) -> (),
+}
 
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),

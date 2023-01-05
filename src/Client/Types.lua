@@ -12,6 +12,8 @@ export type Cmdr = Types.Cmdr
 export type NexusAdminCommandData = Types.NexusAdminCommandData
 export type Authorization = Types.Authorization
 export type Configuration = Types.Configuration
+export type Logs = Types.Logs
+export type LogsRegistryClient = Types.LogsRegistryClient
 export type MessagesClient = Types.MessagesClient
 export type Registry = Types.Registry
 

@@ -16,7 +16,7 @@ Filter.__index = Filter
 --[[
 Creates a filter instance.
 --]]
-function Filter.new(NexusAdminRemotes: Folder): Types.Filter
+function Filter.new(): Types.Filter
     return (setmetatable({
         TextService = game:GetService("TextService"),
         Chat = game:GetService("Chat"),

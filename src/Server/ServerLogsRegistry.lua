@@ -3,21 +3,29 @@ TheNexusAvenger
 
 Manages logs that are streamed to clients on the server.
 --]]
+--!strict
 
 local Players = game:GetService("Players")
 
-local NexusObject = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusObject"))
+local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
-local ServerLogsRegistry = NexusObject:Extend()
-ServerLogsRegistry:SetClassName("ServerLogRegistry")
+local ServerLogsRegistry = {}
+ServerLogsRegistry.__index = ServerLogsRegistry
+
+type LogDataEntry = {
+    MinimumAdminLevel: number,
+    ListeningPlayers: {Player},
+    Logs: Types.Logs,
+}
 
 
 
 --[[
 Creates a server logs registry instance.
 --]]
-function ServerLogsRegistry:__new(Authorization, NexusAdminRemotes)
-    self:InitializeSuper()
+function ServerLogsRegistry.new(Authorization: Types.Authorization, NexusAdminRemotes: Folder): Types.LogsRegistryServer
+    local self = {}
+    setmetatable(self, ServerLogsRegistry)
 
     --Create the remote objects.
     local LogsRegistryEvents = Instance.new("Folder")
@@ -35,8 +43,8 @@ function ServerLogsRegistry:__new(Authorization, NexusAdminRemotes)
     self.LogAddedEvent = LogAddedEvent
 
     --Connect getting logs.
-    self.Logs = {}
-    GetLogEntriesFunction.OnServerInvoke = function(Player, LogName)
+    self.Logs = {} :: {[string]: LogDataEntry}
+    GetLogEntriesFunction.OnServerInvoke = function(Player: Player, LogName: string): ({any} | string, number?)
         --Get the log.
         local LogData = self.Logs[LogName]
         if not LogData then
@@ -64,7 +72,7 @@ function ServerLogsRegistry:__new(Authorization, NexusAdminRemotes)
     end
 
     --Connect players leaving.
-    Players.PlayerRemoving:Connect(function(Player)
+    Players.PlayerRemoving:Connect(function(Player: Player)
         for _, LogData in self.Logs do
             for i = 1, #LogData.ListeningPlayers do
                 if LogData.ListeningPlayers[i] == Player then
@@ -74,12 +82,15 @@ function ServerLogsRegistry:__new(Authorization, NexusAdminRemotes)
             end
         end
     end)
+
+    --Return the object.
+    return (self :: any) :: Types.LogsRegistryServer
 end
 
 --[[
 Registers a log that can be streamed.
 --]]
-function ServerLogsRegistry:RegisterLogs(LogName, Logs, MinimumAdminLevel)
+function ServerLogsRegistry:RegisterLogs(LogName: string, Logs: Types.Logs, MinimumAdminLevel: number): ()
     --Store the log.
     if self.Logs[LogName] then
         error("Log already registered: "..tostring(LogName))
@@ -92,7 +103,7 @@ function ServerLogsRegistry:RegisterLogs(LogName, Logs, MinimumAdminLevel)
 
     --Connect entries being stored.
     Logs.LogAdded:Connect(function(LogEntry)
-        for _, Player in self.Logs[LogName].ListeningPlayers do
+        for _, Player in (self.Logs :: {[string]: LogDataEntry})[LogName].ListeningPlayers do
             self.LogAddedEvent:FireClient(Player, LogName, LogEntry)
         end
     end)
@@ -101,7 +112,7 @@ end
 --[[
 Gets a registered log.
 --]]
-function ServerLogsRegistry:GetLogs(LogName)
+function ServerLogsRegistry:GetLogs(LogName: string): Types.Logs
     if not self.Logs[LogName] then
         error("Unable to get registered log \""..tostring(LogName).."\": Log not found.")
     end
