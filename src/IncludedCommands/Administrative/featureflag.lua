@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper({"featureflag","feature"},"Administrative","Sets the value of a feature flag.")
-
-    self.Arguments = {
+return {
+    Keyword = {"featureflag", "feature"},
+    Category = "Administrative",
+    Description = "Sets the value of a feature flag.",
+    Arguments = {
         {
             Type = "nexusAdminFastFlags",
             Name = "Feature",
@@ -26,21 +23,14 @@ function Command:__new()
             Name = "Value",
             Description = "New value of the feature flag.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,FeatureFlags,Value)
-    self.super:Run(CommandContext)
-
-    --Change the feature flags.
-    for _,FeatureFlag in pairs(FeatureFlags) do
-        self.API.FeatureFlags:SetFeatureFlag(FeatureFlag,Value)
-    end
-end
-
-
-
-return Command
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, FeatureFlags: {string}, Value: boolean)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
+        
+        --Change the feature flags.
+        for _, FeatureFlag in FeatureFlags do
+            Api.FeatureFlags:SetFeatureFlag(FeatureFlag, Value)
+        end
+    end,
+}

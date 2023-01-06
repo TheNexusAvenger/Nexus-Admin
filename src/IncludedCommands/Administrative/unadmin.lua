@@ -3,48 +3,38 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unadmin","Administrative","Unadmin players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unadmin",
+    Category = "Administrative",
+    Description = "Unadmin players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to unadmin.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Set the admin levels.
-    local ExecutorAdminLevel = self.API.Authorization:GetAdminLevel(CommandContext.Executor)
-    for _,Player in pairs(Players) do
-        if Player ~= CommandContext.Executor then
-            if self.API.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
-                self.API.Authorization:SetAdminLevel(Player,-1)
+        --Set the admin levels.
+        local ExecutorAdminLevel = Api.Authorization:GetAdminLevel(CommandContext.Executor)
+        for _,Player in Players do
+            if Player ~= CommandContext.Executor then
+                if Api.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
+                    Api.Authorization:SetAdminLevel(Player,-1)
+                else
+                    Util:SendError("You can't unadmin players with higher levels than you.")
+                end
             else
-                self:SendError("You can't unadmin players with higher levels than you.")
+                Util:SendError("You can't unadmin yourself.")
             end
-        else
-            self:SendError("You can't unadmin yourself.")
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

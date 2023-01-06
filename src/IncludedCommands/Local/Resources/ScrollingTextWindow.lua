@@ -293,7 +293,7 @@ function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
     --Connect logs being added.
     self.LogAddedConnection = Logs.LogAdded:Connect(function(LogEntry)
         if not PassesSearch(LogEntry, LastSearchTerm) then return end
-        table.insert(CurrentMessages, Inverted and #CurrentMessages or 1, LogEntry)
+        table.insert(CurrentMessages, Inverted and #CurrentMessages + 1 or 1, LogEntry)
         self:UpdateText(true)
     end)
 end

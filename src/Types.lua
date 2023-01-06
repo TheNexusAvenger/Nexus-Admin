@@ -216,7 +216,7 @@ export type Configuration = {
     CommandLevelOverrides: {[string]: {[string]: number}},
     FeatureFlagOverrides: {[string]: any},
     GetRaw: (self: Configuration) -> ({[string]: any}),
-    GetCommandAdminLevel: (Category: string, Command: string) -> (number),
+    GetCommandAdminLevel: (self: Configuration, Category: string, Command: string) -> (number),
 }
 
 export type Executor = {
@@ -263,14 +263,14 @@ export type MessagesClient = {
     new: (NexusAdminRemotes: Folder) -> MessagesClient,
 
     DisplayMessage: (self: MessagesClient, TopText: string, Message: string, DisplayTime: number?) -> (),
-    DisplayHint: (self: MessagesClient, Message: string, DisplayTime: number) -> (),
+    DisplayHint: (self: MessagesClient, Message: string, DisplayTime: number?) -> (),
 }
 
 export type MessagesServer = {
     new: (NexusAdminRemotes: Folder) -> MessagesServer,
 
     DisplayMessage: (self: MessagesServer, Player: Player, TopText: string, Message: string, DisplayTime: number?) -> (),
-    DisplayHint: (self: MessagesServer, Player: Player, Message: string, DisplayTime: number) -> (),
+    DisplayHint: (self: MessagesServer, Player: Player, Message: string, DisplayTime: number?) -> (),
 }
 
 export type Registry = {

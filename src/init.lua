@@ -164,13 +164,13 @@ function API:LoadIncludedCommands(): ()
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
         for _, Module in Folder:GetChildren() do
             if not Module:IsA("ModuleScript") then return end
-            self.Registry:RegisterIncludedCommand(Module, IncludedCommands)
+            self.Registry:RegisterIncludedCommand(Module, self, IncludedCommands)
         end
 
         --Connect adding new scripts.
         Folder.ChildAdded:Connect(function(Module: Instance): ()
             if not Module:IsA("ModuleScript") then return end
-            self.Registry:RegisterIncludedCommand(Module, IncludedCommands)
+            self.Registry:RegisterIncludedCommand(Module, self, IncludedCommands)
         end)
     end
 

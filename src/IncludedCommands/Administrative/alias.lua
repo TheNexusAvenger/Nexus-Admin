@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("alias","Administrative","Creates a new, single command out of a command and given arguments. (Reimplmented for Nexus Admin)")
-
-    self.Arguments = {
+return {
+    Keyword = "alias",
+    Category = "Administrative",
+    Description = "Creates a new, single command out of a command and given arguments. (Reimplmented for Nexus Admin)",
+    Arguments = {
         {
             Type = "string";
             Name = "Name";
@@ -26,9 +23,20 @@ function Command:__new()
             Name = "Command";
             Description = "The command text you want to run. Separate multiple commands with \"&&\". Accept arguments with $1, $2, $3, etc."
         },
-    }
-end
+    },
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Name: string, Command: string): string
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
+        --Register the command in Nexus Admin for chat executing.
+        Api.Registry:LoadCommand({
+            Keyword = Name,
+            Group = "Aliases",
+            Prefix = Api.Configuration.CommandPrefix,
+        } :: any);
 
-
-return Command
+        --Register the Cmdr alias.
+        (CommandContext.Cmdr.Registry :: any):RegisterCommandObject((CommandContext.Cmdr.Util :: any).MakeAliasCommand(Name,Command), true)
+        return "Created alias "..tostring(Name)
+    end
+}

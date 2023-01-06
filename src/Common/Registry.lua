@@ -190,7 +190,7 @@ end
 --[[
 Registers an included command.
 --]]
-function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, LocalCommandContainer: Folder?): ()
+function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, Api: Types.NexusAdminApiServer | Types.NexusAdminApi, LocalCommandContainer: Folder?): ()
     --Load the command using the legacy system.
     --TODO: Remove when migrated.
     local CommandData = require(ModuleScript) :: any
@@ -200,7 +200,11 @@ function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, LocalComma
     end
 
     --Add the missing data.
-    CommandData.Prefix = CommandData.Prefix or self.Configuration.CommandPrefix
+    if CommandData.Prefix then
+        CommandData.Prefix = {self.Configuration.CommandPrefix, CommandData.Prefix}
+    else
+        CommandData.Prefix = self.Configuration.CommandPrefix
+    end
     if type(CommandData.Keyword) == "table" then
         CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword[1])
     else
@@ -218,15 +222,20 @@ function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, LocalComma
 
     --Store the run function.
     local HasClientImplementation = (CommandData.ClientRun ~= nil)
+    local RunFunction = CommandData.Run or CommandData.ClientRun or function() end
     if RunService:IsServer() then
-        CommandData.Run = CommandData.Run or CommandData.ServerRun or function() end
-    else
-        CommandData.Run = CommandData.Run or CommandData.ClientRun or function() end
+        RunFunction = CommandData.Run or CommandData.ServerRun or function() end
     end
+    CommandData.Run = function(_, ...) return RunFunction(...) end
     CommandData.ClientRun = nil
     CommandData.ServerRun = nil
 
     --Load the command.
+    if RunService:IsServer() and CommandData.ServerLoad then
+        CommandData.ServerLoad(Api)
+    elseif RunService:IsClient() and CommandData.ClientLoad then
+        CommandData.ClientLoad(Api)
+    end
     self:LoadCommand(CommandData)
 
     --Copy the module for the client.

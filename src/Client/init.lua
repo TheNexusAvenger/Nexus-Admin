@@ -88,7 +88,7 @@ function API:LoadIncludedCommands()
         --]]
         local function LoadModule(Module: Instance): ()
             if not Module:IsA("ModuleScript") then return end
-            self.Registry:RegisterIncludedCommand(Module)
+            self.Registry:RegisterIncludedCommand(Module, self)
         end
 
         --Add the scripts.

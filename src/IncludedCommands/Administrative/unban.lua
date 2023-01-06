@@ -3,67 +3,48 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unban","Administrative","Unbans players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unban",
+    Category = "Administrative",
+    Description = "Unbans players.",
+    Arguments = {
         {
             Type = "string",
             Name = "Players",
             Description = "Players to unban.",
         },
-    }
-    
-    --Connect kciking players on entry.
-    self.Players.PlayerAdded:Connect(function(Player)
-        local BanData = CommonState.BannedUserIds[Player.UserId]
-        if BanData then
-            Player:Kick(not BanData and BanData[1])
-        end
-    end)
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayersString: string)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,PlayersString)
-    self.super:Run(CommandContext)
-
-    --Get the user ids to remove.
-    local UserIdsToRemove = {}
-    for _,PlayerString in pairs(string.split(PlayersString,",")) do
-        PlayerString = string.lower(PlayerString)
-        if PlayerString == "all" or PlayerString == "other" or PlayerString == "*" then
-            for UserId,_ in pairs(CommonState.BannedUserIds) do
-                table.insert(UserIdsToRemove,UserId)
-            end
-        else
-            for UserId,Data in pairs(CommonState.BannedUserIds) do
-                if string.find(Data[2],PlayerString) then
-                    table.insert(UserIdsToRemove,UserId)
-                else
-                    self:SendError("\""..tostring(PlayerString).."\" doesn't match a banned user.")
+        --Get the user ids to remove.
+        local UserIdsToRemove = {}
+        for _, PlayerString in string.split(PlayersString, ",") do
+            PlayerString = string.lower(PlayerString)
+            if PlayerString == "all" or PlayerString == "other" or PlayerString == "*" then
+                for UserId, _ in Api.CommandData.BannedUserIds do
+                    table.insert(UserIdsToRemove, UserId)
+                end
+            else
+                for UserId, Data in Api.CommandData.BannedUserIds do
+                    if string.find(Data[2], PlayerString) then
+                        table.insert(UserIdsToRemove, UserId)
+                    else
+                        Util:SendError("\""..tostring(PlayerString).."\" doesn't match a banned user.")
+                    end
                 end
             end
         end
-    end
 
-    --Unban the users.
-    for _,UserId in pairs(UserIdsToRemove) do
-        CommonState.BannedUserIds[UserId] = nil
-    end
-end
-
-
-
-return Command
+        --Unban the users.
+        for _, UserId in pairs(UserIdsToRemove) do
+            Api.CommandData.BannedUserIds[UserId] = nil
+        end
+    end,
+}

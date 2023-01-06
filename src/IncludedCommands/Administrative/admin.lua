@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("admin","Administrative","Sets the admin level of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "admin",
+    Category = "Administrative",
+    Description = "Sets the admin level of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -28,35 +25,29 @@ function Command:__new()
             Optional = true,
             Default = 1,
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, AdminLevel: number): string?
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,AdminLevel)
-    self.super:Run(CommandContext)
-    
-    --Return if the admin level is higher than the player's admin level.
-    local ExecutorAdminLevel = self.API.Authorization:GetAdminLevel(CommandContext.Executor)
-    if AdminLevel >= ExecutorAdminLevel then
-        return "You can't set admin levels higher than yours."
-    end
-
-    --Set the admin levels.
-    for _,Player in pairs(Players) do
-        if Player ~= CommandContext.Executor then
-            if self.API.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
-                self.API.Authorization:SetAdminLevel(Player,AdminLevel)
-            else
-                self:SendError("You can't change admins with higher levels than you.")
-            end
-        else
-            self:SendError("You can't change your own admin level.")
+        --Return if the admin level is higher than the player's admin level.
+        local ExecutorAdminLevel = Api.Authorization:GetAdminLevel(CommandContext.Executor)
+        if AdminLevel >= ExecutorAdminLevel then
+            return "You can't set admin levels higher than yours."
         end
-    end
-end
 
-
-
-return Command
+        --Set the admin levels.
+        for _,Player in pairs(Players) do
+            if Player ~= CommandContext.Executor then
+                if Api.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
+                    Api.Authorization:SetAdminLevel(Player,AdminLevel)
+                else
+                    Util:SendError("You can't change admins with higher levels than you.")
+                end
+            else
+                Util:SendError("You can't change your own admin level.")
+            end
+        end
+        return nil
+    end,
+}

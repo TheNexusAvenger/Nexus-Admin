@@ -3,20 +3,27 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "logs",
+    Category = "Administrative",
+    Description = "Opens up a window containing the logs of the commands used.",
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        Api.LogsRegistry:RegisterLogs("MainLogs", Api.Logs, Api.Configuration:GetCommandAdminLevel("Administrative", "logs"))
+    end,
+    ClientRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
+        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("logs","Administrative","Opens up a window containing the logs of the commands used.")
-    self.API.LogsRegistry:RegisterLogs("MainLogs", self.API.Logs, self.AdminLevel)
-end
-
-
-
-return Command
+        --Display the text window.
+        local Window = ScrollingTextWindow.new()
+        Window.Title = "Logs"
+        Window:DisplayLogs(Api.LogsRegistry:GetLogs("MainLogs"))
+        Window:Show()
+    end,
+}
