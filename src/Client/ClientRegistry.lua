@@ -17,8 +17,8 @@ setmetatable(ClientRegistry, Registry)
 --[[
 Creates the client registry.
 --]]
-function ClientRegistry.new(Authorization: Types.Authorization, Messages: Types.MessagesClient,Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
-    local self = Registry.new(Authorization, Messages, Cmdr, NexusAdminRemotes)
+function ClientRegistry.new(Authorization: Types.Authorization, Configuration: Types.Configuration, Messages: Types.MessagesClient,Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
+    local self = Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes)
     setmetatable(self, ClientRegistry)
 
     --Set up the events.

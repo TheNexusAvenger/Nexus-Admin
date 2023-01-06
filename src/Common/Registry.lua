@@ -5,6 +5,8 @@ Base class for a command registry.
 --]]
 --!strict
 
+local RunService = game:GetService("RunService")
+
 local ArgumentParser = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("ArgumentParser"))
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
@@ -16,12 +18,13 @@ Registry.__index = Registry
 --[[
 Creates the server registry.
 --]]
-function Registry.new(Authorization: Types.Authorization, Messages: Types.MessagesServer | Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
+function Registry.new(Authorization: Types.Authorization, Configuration: Types.Configuration, Messages: Types.MessagesServer | Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
     local self = {}
     self.Prefixes = {}
     self.PrefixCommands = {}
     self.CommandsByGroup = {}
     self.Authorization = Authorization
+    self.Configuration = Configuration
     self.Messages = Messages
     self.Cmdr = Cmdr
     self.RunService = game:GetService("RunService")
@@ -156,7 +159,7 @@ end
 --[[
 Loads a command.
 --]]
-function Registry:LoadCommand(CommandData)
+function Registry:LoadCommand(CommandData: Types.NexusAdminCommandData)
     local Data = self:GetReplicatableCmdrData(CommandData)
 
     --Add the prefix commands.
@@ -168,7 +171,7 @@ function Registry:LoadCommand(CommandData)
         end
 
         --Add the prefixes.
-        for _, Prefix in Prefixes do
+        for _, Prefix in Prefixes :: {string} do
             self.Prefixes[string.lower(Prefix)] = true
             self.PrefixCommands[string.lower(Prefix..Data.Name)] = string.lower(Data.Name)
             for _, Alias in Data.Aliases do
@@ -182,6 +185,59 @@ function Registry:LoadCommand(CommandData)
         self.CommandsByGroup[Data.Group] = {}
     end
     table.insert(self.CommandsByGroup[Data.Group], CommandData)
+end
+
+--[[
+Registers an included command.
+--]]
+function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, LocalCommandContainer: Folder?): ()
+    --Load the command using the legacy system.
+    --TODO: Remove when migrated.
+    local CommandData = require(ModuleScript) :: any
+    if CommandData.Flatten then
+        self:LoadCommand(CommandData.new():Flatten())
+        return
+    end
+
+    --Add the missing data.
+    CommandData.Prefix = CommandData.Prefix or self.Configuration.CommandPrefix
+    if type(CommandData.Keyword) == "table" then
+        CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword[1])
+    else
+        CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword)
+    end
+    CommandData.Arguments = CommandData.Arguments or {}
+
+    --Replace the run command with an existing one.
+    if RunService:IsClient() then
+        local ExistingCommand = self.Cmdr.Registry.Commands[CommandData.Name]
+        if ExistingCommand then
+            CommandData.Run = ExistingCommand.ClientRun
+        end
+    end
+
+    --Store the run function.
+    local HasClientImplementation = (CommandData.ClientRun ~= nil)
+    if RunService:IsServer() then
+        CommandData.Run = CommandData.Run or CommandData.ServerRun or function() end
+    else
+        CommandData.Run = CommandData.Run or CommandData.ClientRun or function() end
+    end
+    CommandData.ClientRun = nil
+    CommandData.ServerRun = nil
+
+    --Load the command.
+    self:LoadCommand(CommandData)
+
+    --Copy the module for the client.
+    if HasClientImplementation and LocalCommandContainer then
+        if not LocalCommandContainer:FindFirstChild(CommandData.Category) then
+            local LocalCommandFolder = Instance.new("Folder")
+            LocalCommandFolder.Name = CommandData.Category
+            LocalCommandFolder.Parent = LocalCommandContainer
+        end
+        ModuleScript:Clone().Parent = LocalCommandContainer:FindFirstChild(CommandData.Category)
+    end
 end
 
 --[[

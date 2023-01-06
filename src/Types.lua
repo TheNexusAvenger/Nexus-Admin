@@ -172,7 +172,7 @@ export type NexusFeatureFlagsSource = {
 
 --Nexus Admin Data Types
 export type NexusAdminCommandData = {
-    Prefix: string?,
+    Prefix: string? | {string}?,
     AdminLevel: number?,
     Category: string?,
     CommandGroup: string?,
@@ -210,6 +210,7 @@ export type Configuration = {
     FunCommandsLevel: number,
     PersistentCommandsLevel: number,
     Admins: {[number]: number},
+    AdminNames: {[number]: string},
     GroupAdminLevels: {[number]: {[number]: number}},
     BannedUsers: {[number]: string | boolean},
     CommandLevelOverrides: {[string]: {[string]: number}},
@@ -273,14 +274,14 @@ export type MessagesServer = {
 }
 
 export type Registry = {
-    new: (Authorization: Authorization, Messages: MessagesServer | MessagesClient, Cmdr: Cmdr, NexusAdminRemotes: Folder) -> (Registry),
+    new: (Authorization: Authorization, Configuration: Configuration, Messages: MessagesServer | MessagesClient, Cmdr: Cmdr, NexusAdminRemotes: Folder) -> (Registry),
 
     LoadCommand: (self: Registry, CommandData: NexusAdminCommandData) -> (),
     AddEnumType: (self: Registry, Options: {string}) -> (),
 }
 
 export type RegistryServer = {
-    new: (Cmdr: Cmdr, Authorization: Authorization, Messages: MessagesServer, Logs: Logs, Time: Time, Filter: Filter, NexusAdminRemotes: Folder) -> (RegistryServer),
+    new: (Cmdr: Cmdr, Configuration: Configuration, Authorization: Authorization, Messages: MessagesServer, Logs: Logs, Time: Time, Filter: Filter, NexusAdminRemotes: Folder) -> (RegistryServer),
 } & Registry
 
 export type Replicator = {

@@ -286,7 +286,7 @@ local Config = {
 
 --This is where the actual loading happens. Feel free to use this in another script
 --Doubt you will need to, but here it is.
-local Worked,Return = pcall(function()
+xpcall(function()
     --Require the development module from ServerScriptService.
     local NexusAdminModule
     for _,Module in pairs(game:GetService("ServerScriptService"):GetChildren()) do
@@ -303,7 +303,6 @@ local Worked,Return = pcall(function()
 
     --Load Nexus admin.
     NexusAdminModule(script,Config)
+end, function(ErrorMessage: string)
+    warn("NEXUS ADMIN FAILED TO LOAD: "..tostring(ErrorMessage).."\n"..debug.traceback())
 end)
-if not Worked then
-    warn("NEXUS ADMIN FAILED TO LOAD: "..tostring(Return))
-end

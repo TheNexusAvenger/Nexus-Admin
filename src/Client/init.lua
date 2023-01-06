@@ -41,7 +41,7 @@ local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient")) :: Types.Cmdr
 local Configuration = (require(script:WaitForChild("Common"):WaitForChild("Configuration")) :: Types.Configuration).new(ConvertStringIndexesToNumbers(EventContainer:WaitForChild("GetConfiguration"):InvokeServer()))
 local Authorization = require(script:WaitForChild("ClientAuthorization")).new(Configuration,EventContainer)
 local Messages = require(script:WaitForChild("ClientMessages")).new(EventContainer)
-local Registry = require(script:WaitForChild("ClientRegistry")).new(Authorization, Messages, Cmdr, EventContainer)
+local Registry = require(script:WaitForChild("ClientRegistry")).new(Authorization, Configuration, Messages, Cmdr, EventContainer)
 local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(EventContainer)
 local Executor = (require(script:WaitForChild("Common"):WaitForChild("Executor")) :: Types.Executor).new(Cmdr,Registry)
 local FeatureFlags = (require(script:WaitForChild("NexusFeatureFlags")) :: Types.NexusFeatureFlagsSource)
@@ -73,7 +73,7 @@ local API = {
 }
 
 --Add the custom Cmdr types.
-for _,TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
+for _, TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
     (require(TypeModule) :: (Types.NexusAdminApi) -> ())(API :: any)
 end
 
@@ -88,13 +88,7 @@ function API:LoadIncludedCommands()
         --]]
         local function LoadModule(Module: Instance): ()
             if not Module:IsA("ModuleScript") then return end
-
-            local Data = (require(Module) :: any).new():Flatten()
-            local ExistingCommand = self.Cmdr.Registry.Commands[Data.Name]
-            if ExistingCommand then
-                Data.Run = ExistingCommand.ClientRun
-            end
-            self.Registry:LoadCommand(Data)
+            self.Registry:RegisterIncludedCommand(Module)
         end
 
         --Add the scripts.
@@ -109,9 +103,9 @@ function API:LoadIncludedCommands()
 end
 
 --Initialize the optional UI.
-require(script:WaitForChild("UI"):WaitForChild("Messages"))(API,Players.LocalPlayer)
-require(script:WaitForChild("UI"):WaitForChild("ChatExecuting"))(API,Players.LocalPlayer)
-require(script:WaitForChild("UI"):WaitForChild("Tooltip"))(API,Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("Messages"))(API, Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("ChatExecuting"))(API, Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("Tooltip"))(API, Players.LocalPlayer)
 
 --Add the API fetchers.
 function _G.NexusAdmin_GetLocalAPI()

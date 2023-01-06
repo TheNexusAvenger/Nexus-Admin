@@ -101,7 +101,7 @@ function Configuration:GetCommandAdminLevel(Category: string, Command: string): 
     --Get the category default.
     local CategoryDefault = self[Category.."Level"] :: number
     if not CategoryDefault then
-        error("\""..Category.."\" is not a category supported by the configuration.")
+        error("\""..tostring(Category).."\" is not a category supported by the configuration.")
     end
 
     --Return the override or the default.

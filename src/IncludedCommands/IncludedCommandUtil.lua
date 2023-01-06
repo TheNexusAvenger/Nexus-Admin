@@ -11,31 +11,33 @@ local RunService = game:GetService("RunService")
 
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
-local IncludedCommantUtil = {}
-IncludedCommantUtil.__index = IncludedCommantUtil
+local IncludedCommandUtil = {
+    ClientResources = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands"):WaitForChild("Resources"),
+}
+IncludedCommandUtil.__index = IncludedCommandUtil
 
 
 
 --[[
 Creates a version of the utility for a command context.
 --]]
-function IncludedCommantUtil.ForContext(CommandContext: Types.CmdrCommandContext)
+function IncludedCommandUtil.ForContext(CommandContext: Types.CmdrCommandContext)
     return setmetatable({
         CurrentContext = CommandContext
-    }, IncludedCommantUtil)
+    }, IncludedCommandUtil)
 end
 
 --[[
 Returns the client API.
 --]]
-function IncludedCommantUtil:GetClientApi(): Types.NexusAdminApi
+function IncludedCommandUtil:GetClientApi(): Types.NexusAdminApi
     return require(ReplicatedStorage:WaitForChild("NexusAdminClient")) :: Types.NexusAdminApi
 end
 
 --[[
 Returns the server API.
 --]]
-function IncludedCommantUtil:GetServerApi(): Types.NexusAdminApiServer
+function IncludedCommandUtil:GetServerApi(): Types.NexusAdminApiServer
     local Api = require(ServerScriptService:WaitForChild("NexusAdmin")) :: Types.NexusAdminApiServer
     while not Api:GetAdminLoaded() do task.wait() end
     return Api
@@ -44,9 +46,9 @@ end
 --[[
 Returns the relevant API for the given runtime.
 --]]
-function IncludedCommantUtil:GetApi(): Types.NexusAdminApi
+function IncludedCommandUtil:GetApi(): Types.NexusAdminApi
     if RunService:IsServer() then
-        self:GetServerApi()
+        return self:GetServerApi()
     end
     return self:GetClientApi()
 end
@@ -54,7 +56,7 @@ end
 --[[
 Returns if a command is from a context.
 --]]
-function IncludedCommantUtil:ExecutedFromContext(ContextName: string): boolean
+function IncludedCommandUtil:ExecutedFromContext(ContextName: string): boolean
     local Data = self.CurrentContext:GetData()
     return Data ~= nil and type(Data) == "table" and Data.ExecuteContext == ContextName
 end
@@ -62,7 +64,7 @@ end
 --[[
 Returns if a command was executed from the chat.
 --]]
-function IncludedCommantUtil:ExecutedFromChat(): boolean
+function IncludedCommandUtil:ExecutedFromChat(): boolean
     return self:ExecutedFromContext("Chat")
 end
 
@@ -70,21 +72,21 @@ end
 Returns if a command was executed from the gui console.
 The GUI console was cancelled. This should never be true.
 --]]
-function IncludedCommantUtil:ExecutedFromGuiConsole(): boolean
+function IncludedCommandUtil:ExecutedFromGuiConsole(): boolean
     return self:ExecutedFromContext("NexusAdminConsole")
 end
 
 --[[
 Returns if a command was executed from a keybind.
 --]]
-function IncludedCommantUtil:ExecutedFromKeybind(): boolean
+function IncludedCommandUtil:ExecutedFromKeybind(): boolean
     return self:ExecutedFromContext("Keybind")
 end
 
 --[[
 Sends a response back to the executor.
 --]]
-function IncludedCommantUtil:SendResponse(Message: string, Color: Color3): ()
+function IncludedCommandUtil:SendResponse(Message: string, Color: Color3): ()
     if self:ExecutedFromChat() or self:ExecutedFromGuiConsole() or self:ExecutedFromKeybind() then
         if self.CurrentContext.Executor then
             if RunService:IsServer() then
@@ -101,14 +103,14 @@ end
 --[[
 Sends a message back to the executor.
 --]]
-function IncludedCommantUtil:SendMessage(Message: string): ()
+function IncludedCommandUtil:SendMessage(Message: string): ()
     self:SendResponse(Message, Color3.new(1, 1, 1))
 end
 
 --[[
 Sends an error back to the executor.
 --]]
-function IncludedCommantUtil:SendError(Message: string): ()
+function IncludedCommandUtil:SendError(Message: string): ()
     self:SendResponse(Message, Color3.new(1, 0, 0))
 end
 
@@ -116,7 +118,7 @@ end
 Returns the remaining string after a specified
 amount of "sections".
 --]]
-function IncludedCommantUtil:GetRemainingString(CommandString: string, Sections: number): string
+function IncludedCommandUtil:GetRemainingString(CommandString: string, Sections: number): string
     --Remove parts of the string until the sections are passed.
     local InitialSpacesCleared = false
     local InQuotes = false
@@ -164,7 +166,7 @@ Moves a player to a given CFrame.
 Includes unsitting the player to prevent
 teleporting seats.
 --]]
-function IncludedCommantUtil:TeleportPlayer(Player: Player, TargetCFrame: CFrame): ()
+function IncludedCommandUtil:TeleportPlayer(Player: Player, TargetCFrame: CFrame): ()
     if not Player.Character then return end
     local Character = Player.Character :: Model
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: Part
@@ -186,4 +188,4 @@ end
 
 
 
-return IncludedCommantUtil
+return IncludedCommandUtil

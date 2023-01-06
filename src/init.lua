@@ -88,7 +88,7 @@ function API:Load(ConfigurationTable)
     --Initialize the resources.
     local Cmdr = require(script:WaitForChild("Cmdr"))
     local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConfigurationTable)
-    local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration,EventContainer);
+    local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration, EventContainer);
     (Authorization :: {InitializePlayers: (self: Types.Authorization) -> ()} & Types.Authorization):InitializePlayers()
     local Messages = require(script:WaitForChild("Server"):WaitForChild("ServerMessages")).new(EventContainer)
     local FeatureFlagsModule = script:WaitForChild("NexusFeatureFlags")
@@ -98,9 +98,9 @@ function API:Load(ConfigurationTable)
     local Filter = require(script:WaitForChild("Server"):WaitForChild("Filter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
-    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr,Authorization,Messages,Logs,Time,Filter,EventContainer)
-    local LogsRegistry = require(script:WaitForChild("Server"):WaitForChild("ServerLogsRegistry")).new(Authorization,EventContainer)
-    local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr,Registry)
+    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr, Configuration, Authorization, Messages, Logs, Time, Filter, EventContainer)
+    local LogsRegistry = require(script:WaitForChild("Server"):WaitForChild("ServerLogsRegistry")).new(Authorization, EventContainer)
+    local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr, Registry)
 
     --Create the configuration fetching.
     local GetConfiguration = Instance.new("RemoteFunction")
@@ -139,7 +139,7 @@ function API:Load(ConfigurationTable)
 
     --Set the feature flag overrides.
     for Name, Value in Configuration.FeatureFlagOverrides do
-        FeatureFlags:SetFeatureFlag(Name,Value)
+        FeatureFlags:SetFeatureFlag(Name, Value)
     end
 
     --Add the initial feature flags.
@@ -157,21 +157,20 @@ Loads the including commands.
 --]]
 function API:LoadIncludedCommands(): ()
     --Load the Nexus Admin commands.
+    local IncludedCommands = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands")
     local Categories = {"Administrative", "BasicCommands", "BuildUtility", "UsefulFun", "Fun", "Persistent"}
     for _, Category in Categories do
         --Add the scripts.
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
         for _, Module in Folder:GetChildren() do
-            if Module:IsA("ModuleScript") then
-                self.Registry:LoadCommand((require(Module) :: any).new():Flatten())
-            end
+            if not Module:IsA("ModuleScript") then return end
+            self.Registry:RegisterIncludedCommand(Module, IncludedCommands)
         end
 
         --Connect adding new scripts.
         Folder.ChildAdded:Connect(function(Module: Instance): ()
-            if Module:IsA("ModuleScript") then
-                self.Registry:LoadCommand((require(Module) :: any).new():Flatten())
-            end
+            if not Module:IsA("ModuleScript") then return end
+            self.Registry:RegisterIncludedCommand(Module, IncludedCommands)
         end)
     end
 
