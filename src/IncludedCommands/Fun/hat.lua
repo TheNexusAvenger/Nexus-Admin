@@ -3,19 +3,17 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local InsertService = game:GetService("InsertService")
 
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("hat","FunCommands","Gives hats to the given players.")
-    
-    self.Arguments = {
+return {
+    Keyword = "hat",
+    Category = "FunCommands",
+    Description = "Gives hats to the given players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,36 +24,26 @@ function Command:__new()
             Name = "Ids",
             Description = "Hats ids to insert.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Ids)
-    self.super:Run(CommandContext)
-    
-    --Get the hats.
-    local Hats = {}
-    for _,Id in pairs(Ids) do
-        local Model = self.InsertService:LoadAsset(Id)
-        for _,Hat in pairs(Model:GetChildren()) do
-            if Hat:IsA("Hat") or Hat:IsA("Accoutrement") or Hat:IsA("Accessory") then
-                table.insert(Hats,Hat)
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Ids: {number})
+        --Insert the hats.
+        local Hats = {}
+        for _,Id in Ids do
+            local Model = InsertService:LoadAsset(Id)
+            for _, Hat in pairs(Model:GetChildren()) do
+                if Hat:IsA("Hat") or Hat:IsA("Accoutrement") or Hat:IsA("Accessory") then
+                    table.insert(Hats, Hat)
+                end
             end
         end
-    end
 
-    --Give the hats to the players.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            for _,Hat in pairs(Hats) do
-                Hat:Clone().Parent = Player.Character
+        --Give the hats to the players.
+        for _,Player in Players do
+            if Player.Character then
+                for _, Hat in Hats do
+                    Hat:Clone().Parent = Player.Character
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

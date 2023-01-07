@@ -3,29 +3,19 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "pause",
+    Category = "FunCommands",
+    Description = "Pauses the audio.",
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("pause","FunCommands","Pauses the audio.")
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext)
-    self.super:Run(CommandContext)
-    
-    CommonState.GlobalAudio:Pause()
-end
-
-
-
-return Command
+        Api.CommandData.GlobalAudioSound:Pause()
+    end,
+}

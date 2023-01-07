@@ -3,19 +3,15 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("char","FunCommands","Changes the character appearance of a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "char",
+    Category = "FunCommands",
+    Description = "Changes the character appearance of a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,34 +22,27 @@ function Command:__new()
             Name = "AppearanceId",
             Description = "User id to use.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, AppearanceId: number)
+        for _, Player in Players do
+            task.spawn(function()
+                --Get the original position.
+                local HumanoidRootPart = (Player.Character :: Model):FindFirstChild("HumanoidRootPart") :: BasePart
+                if not HumanoidRootPart then return end
+                local HumanoidCFrame = HumanoidRootPart.CFrame
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,AppearanceId)
-    self.super:Run(CommandContext)
-    
-    for _,Player in pairs(Players) do
-        coroutine.wrap(function()
-            --Get the original position.
-            local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-            if not HumanoidRootPart then return end
-            local HumanoidCFrame = HumanoidRootPart.CFrame
+                --Set the character appearance.
+                Player.CharacterAppearanceId = AppearanceId
 
-            --Set the character appearance.
-            Player.CharacterAppearanceId = AppearanceId
-
-            --Respawn the character.
-            Player:LoadCharacter()
-            local Character = Player.Character
-            while not Character do wait() Character = Player.Character end
-            Character:WaitForChild("HumanoidRootPart").CFrame = HumanoidCFrame
-        end)()
-    end
-end
-
-
-
-return Command
+                --Respawn the character.
+                Player:LoadCharacter()
+                local Character = Player.Character
+                while not Character do
+                    task.wait()
+                    Character = Player.Character
+                end
+                ((Character :: Model):WaitForChild("HumanoidRootPart") :: BasePart).CFrame = HumanoidCFrame
+            end)
+        end
+    end,
+}

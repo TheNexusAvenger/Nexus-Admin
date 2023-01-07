@@ -3,46 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("sparkles","FunCommands","Adds a sparkles to a set of players.")
-    
-    self.Arguments = {
+return {
+    Keyword = "sparkles",
+    Category = "FunCommands",
+    Description = "Adds a sparkles to a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to give sparkles to.",
+            Description = "Players to sparkles smoke to.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Add the sparkles.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-            if HumanoidRootPart then
-                local Sparkles = Instance.new("Sparkles")
-                Sparkles.Name = "NexusAdminSparkles"
-                Sparkles.Parent = HumanoidRootPart
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            if Player.Character then
+                local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
+                if HumanoidRootPart then
+                    local Sparkles = Instance.new("Sparkles")
+                    Sparkles.Name = "NexusAdminSparkles"
+                    Sparkles.Parent = HumanoidRootPart
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

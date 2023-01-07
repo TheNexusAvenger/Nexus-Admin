@@ -3,64 +3,59 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("play","FunCommands","Plays music with the given id.")
-
-    self.Arguments = {
+return {
+    Keyword = "play",
+    Category = "FunCommands",
+    Description = "Plays music with the given id.",
+    Arguments = {
         {
             Type = "integer",
             Name = "AudioId",
             Description = "Audio id to play.",
         },
-    }
-    
-    --Create the audio.
-    CommonState.GlobalAudio = Instance.new("Sound")
-    CommonState.GlobalAudio.Name = "NexusAdmin_GlobalAudio"
-    CommonState.GlobalAudio.Looped = true
-    CommonState.GlobalAudio.Parent = self.Workspace
-end
+    },
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        local GlobalAudio = Instance.new("Sound")
+        GlobalAudio.Name = "NexusAdmin_GlobalAudio"
+        GlobalAudio.Looped = true
+        Api.CommandData.GlobalAudioSound = GlobalAudio
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, AudioId: number)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,AudioId)
-    self.super:Run(CommandContext)
-    
-    --Get the audio information.
-    local Worked,ProductData = pcall(function()
-        return self.MarketplaceService:GetProductInfo(AudioId)
-    end)
-    if not Worked or not ProductData then
-        self:SendError("Error loading audio "..AudioId..".")
-        return
-    end
+        --Get the audio information.
+        local Worked,ProductData = pcall(function()
+            return MarketplaceService:GetProductInfo(AudioId)
+        end)
+        if not Worked or not ProductData then
+            Util:SendError("Error loading audio "..tostring(AudioId)..".")
+            return
+        end
 
-    --Display a message for playing the audio.
-    if ProductData.AssetTypeId ~= 3 then 
-        self:SendError(tostring(ProductData.Name.."("..AudioId..") is not an audio."))
-        return
-    end
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        self.API.Messages:DisplayHint(Player,tostring("Now playing \""..tostring(ProductData.Name).."\" ("..AudioId..")."))
-    end
+        --Display a message for playing the audio.
+        if ProductData.AssetTypeId ~= 3 then 
+            Util:SendError(tostring(ProductData.Name.."("..tostring(AudioId)..") is not an audio."))
+            return
+        end
+        for _,Player in Players:GetPlayers() do
+            Api.Messages:DisplayHint(Player,tostring("Now playing \""..tostring(ProductData.Name).."\" ("..AudioId..")."))
+        end
 
-    --Play the audio.
-    CommonState.GlobalAudio:Stop()
-    CommonState.GlobalAudio.SoundId = "rbxassetid://"..AudioId
-    CommonState.GlobalAudio:Play()
-end
-
-
-
-return Command
+        --Play the audio.
+        local GlobalAudio = Api.CommandData.GlobalAudioSound
+        GlobalAudio:Stop()
+        GlobalAudio.SoundId = "rbxassetid://"..tostring(AudioId)
+        GlobalAudio.Parent = Workspace
+        GlobalAudio:Play()
+    end,
+}

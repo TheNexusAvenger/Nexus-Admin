@@ -3,44 +3,29 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unblind","FunCommands","Unblinds a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unblind",
+    Category = "FunCommands",
+    Description = "Unblinds a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to unblind.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Blind the players.
-    for _,Player in pairs(Players) do
-        local PlayerGui = Player:FindFirstChild("PlayerGui")
-        if PlayerGui then
-            if PlayerGui:FindFirstChild("NexusAdminBlind") then
-                PlayerGui:FindFirstChild("NexusAdminBlind"):Destroy()
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            local PlayerGui = Player:FindFirstChild("PlayerGui")
+            if PlayerGui then
+                if PlayerGui:FindFirstChild("NexusAdminBlind") then
+                    (PlayerGui:FindFirstChild("NexusAdminBlind") :: ScreenGui):Destroy()
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

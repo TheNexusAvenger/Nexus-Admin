@@ -3,37 +3,26 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("volume","FunCommands","Changes the volume of the audio.")
-
-    self.Arguments = {
+return {
+    Keyword = "volume",
+    Category = "FunCommands",
+    Description = "Changes the volume of the audio.",
+    Arguments = {
         {
             Type = "number",
             Name = "Volume",
             Description = "Volume to set.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Volume: number)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Volume)
-    self.super:Run(CommandContext)
-    
-    CommonState.GlobalAudio.Volume = Volume
-end
-
-
-
-return Command
+        Api.CommandData.GlobalAudioSound.Volume = Volume
+    end,
+}

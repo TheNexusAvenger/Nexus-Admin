@@ -7,5 +7,4 @@ Common state for the included commands.
 return {
     PlayerJails = {},
     PlayerCollisionEvents = {},
-    PlayerVibrations = {},
 }

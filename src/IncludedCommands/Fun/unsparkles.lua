@@ -4,47 +4,31 @@ TheNexusAvenger
 Implementation of a command.
 --]]
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unsparkles","FunCommands","Removes all sparkles from a set of players.")
-    
-    self.Arguments = {
+return {
+    Keyword = "unsparkles",
+    Category = "FunCommands",
+    Description = "Removes all sparkles from a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to remove sparkles from.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Remove the sparkles.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-            if HumanoidRootPart then
-                for _,Sparkles in pairs(HumanoidRootPart:GetChildren()) do
-                    if Sparkles.Name == "NexusAdminSparkles" then
-                        Sparkles:Destroy()
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            if Player.Character then
+                local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
+                if HumanoidRootPart then
+                    for _, Sparkles in HumanoidRootPart:GetChildren() do
+                        if Sparkles.Name == "NexusAdminSparkles" then
+                            Sparkles:Destroy()
+                        end
                     end
                 end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}
