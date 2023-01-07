@@ -81,7 +81,7 @@ end
 Loads the included commands.
 --]]
 function API:LoadIncludedCommands()
-    local Categories = {"Administrative", "BasicCommands", "UsefulFun", "Persistent", "DefaultUtil"}
+    local Categories = {"Administrative", "BasicCommands", "UsefulFun", "PersistentCommands", "DefaultUtil"}
     for _,Category in Categories do
         --[[
         Loads a module.
