@@ -3,29 +3,17 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Workspace = game:GetService("Workspace")
 
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("clearterrain","BuildUtility","Clears the terrain.")
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Team)
-    self.super:Run(CommandContext)
-    
-    --Clear the terrain.
-    self.Workspace.Terrain:Clear()
-end
-
-
-
-return Command
+return {
+    Keyword = "clearterrain",
+    Category = "BuildUtility",
+    Description = "Clears the terrain.",
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        Workspace.Terrain:Clear()
+    end,
+}

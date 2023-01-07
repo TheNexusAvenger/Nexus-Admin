@@ -3,33 +3,28 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Lighting = game:GetService("Lighting")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "fixlighting",
+    Category = "BuildUtility",
+    Description = "Reverts the lighting changed by the admin.",
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        Api.CommandData.LightingProperties = {}
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("fixlighting","BuildUtility","Reverts the lighting changed by the admin.")
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,TimeOfDay)
-    self.super:Run(CommandContext)
-    
-    --Revert the settings.
-    for Key,Value in pairs(CommonState.LightingProperties) do
-        self.Lighting[Key] = Value
-    end
-    CommonState.LightingProperties = {}
-end
-
-
-
-return Command
+        --Revert the settings.
+        for Key,Value in Api.CommandData.LightingProperties do
+            Lighting[Key] = Value
+        end
+        Api.CommandData.LightingProperties = {}
+    end,
+}

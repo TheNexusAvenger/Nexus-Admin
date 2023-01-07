@@ -3,43 +3,35 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
-Command.loadstring = loadstring
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("s","BuildUtility","Executes a string as a script. ServerScriptService.LoadStringEnabled must be enabled.")
-    self.LoadStringEnabled = pcall(function() self.loadstring("local Works = true")() end)
-
-    self.Arguments = {
+return {
+    Keyword = "s",
+    Category = "BuildUtility",
+    Description = "Executes a string as a script. ServerScriptService.LoadStringEnabled must be enabled.",
+    Arguments = {
         {
             Type = "string",
             Name = "Source",
             Description = "Source to run.",
         },
-    }
-end
+    },
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        Api.CommandData.LoadStringEnabled = pcall(function() (loadstring("local Works = true") :: any)() end)
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Source: string): string?
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Source)
-    self.super:Run(CommandContext)
-    
-    --Run the source.
-    if not self.LoadStringEnabled then
-        return "LoadStringEnabled is not enabled. Scripts can't be run."
-    else
-        self.loadstring(Source)()
-    end
-end
-
-
-
-return Command
+        --Run the source.
+        if not Api.CommandData.LoadStringEnabled then
+            return "LoadStringEnabled is not enabled. Scripts can't be run."
+        else
+            (loadstring(Source) :: any)()
+        end
+        return nil
+    end,
+}

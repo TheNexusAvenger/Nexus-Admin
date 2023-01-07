@@ -3,41 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Lighting = game:GetService("Lighting")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("time","BuildUtility","Sets the time of day.")
-
-    self.Arguments = {
+return {
+    Keyword = "time",
+    Category = "BuildUtility",
+    Description = "Sets the time of day.",
+    Arguments = {
         {
-            Type = "string",
+            Type = "number",
             Name = "Time",
             Description = "Time of day to set.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, ClockTime: number)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,TimeOfDay)
-    self.super:Run(CommandContext)
-    
-    --Set the time.
-    if not CommonState.LightingProperties.TimeOfDay then
-        CommonState.LightingProperties.TimeOfDay = self.Lighting.TimeOfDay
-    end
-    self.Lighting.TimeOfDay = TimeOfDay
-end
-
-
-
-return Command
+        if Api.CommandData.LightingProperties and not Api.CommandData.LightingProperties.ClockTime then
+            Api.CommandData.LightingProperties.ClockTime = Lighting.ClockTime
+        end
+        Lighting.ClockTime = ClockTime
+    end,
+}

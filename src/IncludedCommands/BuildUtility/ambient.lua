@@ -3,41 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Lighting = game:GetService("Lighting")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("ambient","BuildUtility","Sets the ambient.")
-
-    self.Arguments = {
+return {
+    Keyword = "ambient",
+    Category = "BuildUtility",
+    Description = "Sets the ambient.",
+    Arguments = {
         {
             Type = "color3",
             Name = "Ambient",
             Description = "Ambient to set.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Ambient: Color3)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Ambient)
-    self.super:Run(CommandContext)
-    
-    --Set the ambient.
-    if not CommonState.LightingProperties.Ambient then
-        CommonState.LightingProperties.Ambient = self.Lighting.Ambient
-    end
-    self.Lighting.Ambient = Ambient
-end
-
-
-
-return Command
+        if Api.CommandData.LightingProperties and not Api.CommandData.LightingProperties.Ambient then
+            Api.CommandData.LightingProperties.Ambient = Lighting.Ambient
+        end
+        Lighting.Ambient = Ambient
+    end,
+}

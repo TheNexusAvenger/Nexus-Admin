@@ -3,33 +3,24 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Lighting = game:GetService("Lighting")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "shadows",
+    Category = "BuildUtility",
+    Description = "Toggles the shadows",
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("shadows","BuildUtility","Toggles the shadows.")
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext)
-    self.super:Run(CommandContext)
-    
-    --Set the shadows.
-    if not CommonState.LightingProperties.GlobalShadows then
-        CommonState.LightingProperties.GlobalShadows = self.Lighting.GlobalShadows
-    end
-    self.Lighting.GlobalShadows = not self.Lighting.GlobalShadows
-end
-
-
-
-return Command
+        if Api.CommandData.LightingProperties and not Api.CommandData.LightingProperties.GlobalShadows then
+            Api.CommandData.LightingProperties.GlobalShadows = Lighting.GlobalShadows
+        end
+        Lighting.GlobalShadows = not Lighting.GlobalShadows
+    end,
+}

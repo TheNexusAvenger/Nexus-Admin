@@ -3,41 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local Lighting = game:GetService("Lighting")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("fogstart","BuildUtility","Sets the fog start.")
-
-    self.Arguments = {
+return {
+    Keyword = "fogstart",
+    Category = "BuildUtility",
+    Description = "Sets the fog start.",
+    Arguments = {
         {
             Type = "number",
             Name = "FogStart",
             Description = "Fog start to set.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, FogStart: number)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,FogStart)
-    self.super:Run(CommandContext)
-    
-    --Set the fog start.
-    if not CommonState.LightingProperties.FogStart then
-        CommonState.LightingProperties.FogStart = self.Lighting.FogStart
-    end
-    self.Lighting.FogStart = FogStart
-end
-
-
-
-return Command
+        if Api.CommandData.LightingProperties and not Api.CommandData.LightingProperties.FogStart then
+            Api.CommandData.LightingProperties.FogStart = Lighting.FogStart
+        end
+        Lighting.FogStart = FogStart
+    end,
+}
