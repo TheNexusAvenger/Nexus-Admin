@@ -29,7 +29,7 @@ return {
                 Player:Kick("Server was locked by an admin. Please try again later.")
                 for _, Admin in Players:GetPlayers() do
                     if Api.Authorization:GetAdminLevel(Admin) >= 0 then
-                        (Api.Messages :: Types.MessagesServer):DisplayHint(Admin,Player.Name.." ("..Player.UserId..") tried to enter the server.")
+                        Api.Messages:DisplayHint(Admin, Player.Name.." ("..Player.DisplayName..", "..tostring(Player.UserId)..") tried to enter the server.")
                     end
                 end
             end

@@ -3,46 +3,35 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 local Sword = script.Parent.Parent:WaitForChild("Resources"):WaitForChild("Sword")
-local Command = BaseCommand:Extend()
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("sword","BasicCommands","Gives a sword to the given players.")
-    
-    self.Arguments = {
+return {
+    Keyword = "sword",
+    Category = "BasicCommands",
+    Description = "Gives a sword to the given players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to give swords.",
         },
-    }
-    self.API.FeatureFlags:AddFeatureFlag("AllowDroppingSwords", true)
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Give the swords.
-    for _,Player in pairs(Players) do
-        local Backpack = Player:FindFirstChild("Backpack")
-        if Backpack then
-            local NewSword = Sword:Clone()
-            NewSword.CanBeDropped = self.API.FeatureFlags:GetFeatureFlag("AllowDroppingSwords")
-            NewSword.Parent = Backpack
+        --Give the swords.
+        for _, Player in Players do
+            local Backpack = Player:FindFirstChild("Backpack")
+            if Backpack then
+                local NewSword = Sword:Clone()
+                NewSword.CanBeDropped = Api.FeatureFlags:GetFeatureFlag("AllowDroppingSwords")
+                NewSword.Parent = Backpack
+            end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

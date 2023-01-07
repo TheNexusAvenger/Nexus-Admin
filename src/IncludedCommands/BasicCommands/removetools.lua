@@ -44,7 +44,7 @@ function Command:Run(CommandContext,Players)
         local Backpack = Player:FindFirstChild("Backpack")
         if Backpack then
             for _,Tool in pairs(Backpack:GetChildren()) do
-                if Tool:IsA("Tool") or Tool:IsA("HopperBin") then
+                if Tool:IsA("BackpackItem") then
                     Tool:Destroy()
                 end
             end

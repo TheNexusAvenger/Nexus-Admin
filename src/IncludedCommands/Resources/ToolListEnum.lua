@@ -3,6 +3,7 @@ TheNexusAvenger
 
 Manages the tool enum.
 --]]
+--!strict
 
 local TOOL_CONTAINERS = {
     game:GetService("Lighting"),
@@ -10,6 +11,8 @@ local TOOL_CONTAINERS = {
     game:GetService("ServerStorage"),
     game:GetService("StarterPack"),
 }
+
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 local ToolListEnum = {}
 ToolListEnum.ToolsLookup = {}
@@ -19,7 +22,7 @@ ToolListEnum.ToolChangedEvents = {}
 --[[
 Updates the tools lookup map and enum.
 --]]
-function ToolListEnum:UpdateEnum()
+function ToolListEnum:UpdateEnum(): ()
     --Disconnect the changed events.
     for _, Event in self.ToolChangedEvents do
         Event:Disconnect()
@@ -31,7 +34,7 @@ function ToolListEnum:UpdateEnum()
     local ToolNames = {}
     for _, Container in TOOL_CONTAINERS do
         for _, Tool in Container:GetDescendants() do
-            if not Tool:IsA("Tool") and not Tool:IsA("HopperBin") then continue end
+            if not Tool:IsA("BackpackItem") then continue end
             if not ToolsLookup[Tool.Name] then
                 ToolsLookup[Tool.Name] = {}
                 table.insert(ToolNames, Tool.Name)
@@ -65,7 +68,7 @@ end
 --[[
 Returns the tools for the given names.
 --]]
-function ToolListEnum:GetTools(ToolNames)
+function ToolListEnum:GetTools(ToolNames: {string}): {Tool}
     local ToolSet = {}
     local ToolSetLookup = {}
     for _, ToolName in ToolNames do
@@ -82,7 +85,7 @@ end
 --[[
 Sets up the enum with Nexus Admin.
 --]]
-function ToolListEnum:SetUp(NexusAdminRegistry)
+function ToolListEnum:SetUp(NexusAdminRegistry: Types.Registry): ()
     if self.NexusAdminRegistry then return end
     self.NexusAdminRegistry = NexusAdminRegistry
 
@@ -92,7 +95,7 @@ function ToolListEnum:SetUp(NexusAdminRegistry)
     --Connect tools appearing and disappearing.
     for _, Container in TOOL_CONTAINERS do
         Container.DescendantAdded:Connect(function(Tool)
-            if not Tool:IsA("Tool") and not Tool:IsA("HopperBin") then return end
+            if not Tool:IsA("BackpackItem") then return end
             self:UpdateEnum()
         end)
     end

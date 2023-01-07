@@ -3,49 +3,44 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local StarterGui = game:GetService("StarterGui")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("mute","BasicCommands","Mutes a set of players. Admins can not be muted.")
-
-    self.Arguments = {
+return {
+    Keyword = "mute",
+    Category = "BasicCommands",
+    Description = "Mutes a set of players. Admins can not be muted.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to mute.",
         },
-    }
-    
-    --Create the remote event.
-    local MutePlayerEvent = Instance.new("RemoteEvent")
-    MutePlayerEvent.Name = "MutePlayer"
-    MutePlayerEvent.Parent = self.API.EventContainer
-    self.MutePlayerEvent = MutePlayerEvent
-end
+    },
+    ClientLoad = function(Api: Types.NexusAdminApi)
+        (IncludedCommandUtil:GetRemote("MutePlayer") :: RemoteEvent).OnClientEvent:Connect(function()
+            StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+        end)
+    end,
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        IncludedCommandUtil:CreateRemote("RemoteEvent", "MutePlayer")
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Mute the players.
-    for _,Player in pairs(Players) do
-        if self.API.Authorization:GetAdminLevel(Player) >= 0 then
-            self:SendError("You can't mute admins.")
-        else
-            self.MutePlayerEvent:FireClient(Player)
+        --Mute the players.
+        local MutePlayerEvent = Util:GetRemote("MutePlayer") :: RemoteEvent
+        for _, Player in Players do
+            if Api.Authorization:GetAdminLevel(Player) >= 0 then
+                Util:SendError("You can't crash admins.")
+            else
+                MutePlayerEvent:FireClient(Player)
+            end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

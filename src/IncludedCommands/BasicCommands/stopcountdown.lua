@@ -3,41 +3,34 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "stopcountdown",
+    Category = "BasicCommands",
+    Description = "Stops the current countdowns.",
+    ClientLoad = function(Api: Types.NexusAdminApi)
+        (IncludedCommandUtil:GetRemote("StopCountdown") :: RemoteEvent).OnClientEvent:Connect(function()
+            --Stop and clear the countdowns.
+            for _, Countdown in Api.CommandData.Countdowns do
+                Countdown:Stop()
+            end
+            Api.CommandData.Countdowns = {}
+        end)
+    end,
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        IncludedCommandUtil:CreateRemote("RemoteEvent", "StopCountdown")
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext);
 
+        --Send the countdown stop.
+        (Util:GetRemote("StopCountdown") :: RemoteEvent):FireAllClients();
 
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("stopcountdown","BasicCommands","Stops the current countdowns.")
-    
-    --Create the remote event.
-    local StopCountdownEvent = Instance.new("RemoteEvent")
-    StopCountdownEvent.Name = "StopCountdown"
-    StopCountdownEvent.Parent = self.API.EventContainer
-    self.StopCountdownEvent = StopCountdownEvent
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext)
-    self.super:Run(CommandContext)
-    
-    --Send the countdown stop.
-    self.StopCountdownEvent:FireAllClients()
-
-    --Clear the countdown values.
-    local PreviousCountdownsValue = self.API.EventContainer:FindFirstChild("PreviousCountdowns")
-    if PreviousCountdownsValue then
-        PreviousCountdownsValue.Value = "[]"
-    end
-end
-
-
-
-return Command
+        --Clear the countdown values.
+        (Util:GetRemote("PreviousCountdowns") :: StringValue).Value = "[]"
+    end,
+}

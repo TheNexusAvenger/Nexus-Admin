@@ -3,39 +3,24 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("removeteam","BasicCommands","Removes selected teams.")
-
-    self.Arguments = {
+return {
+    Keyword = "removeteam",
+    Category = "BasicCommands",
+    Description = "Removes selected teams.",
+    Arguments = {
         {
             Type = "teams",
             Name = "Teams",
             Description = "Teams to remove.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Teams)
-    self.super:Run(CommandContext)
-    
-    --Remove the teams.
-    for _,Team in pairs(Teams) do
-        Team:Destroy()
-    end
-end
-
-
-
-return Command
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Teams: {Team})
+        for _,Team in Teams do
+            Team:Destroy()
+        end
+    end,
+}

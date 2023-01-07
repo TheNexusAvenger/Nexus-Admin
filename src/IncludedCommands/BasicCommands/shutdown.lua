@@ -3,40 +3,33 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Players = game:GetService("Players")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "shutdown",
+    Category = "BasicCommands",
+    Description = "Shuts down the server.",
+    ServerRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("shutdown","BasicCommands","Shuts down the server.")
-end
+        --Display the server is shutting down.
+        for _,Player in Players:GetPlayers() do
+            Api.Messages:DisplayMessage(Player, "Nexus Admin", "Server is shutting down.")
+        end
+        task.wait(1)
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Display the server is shutting down.
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        self.API.Messages:DisplayMessage(Player,"Nexus Admin","Server is shutting down.")
-    end
-    wait(1)
-
-    --Kick the players.
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        Player:Kick("Server has shut down")
-    end
-    self.Players.PlayerAdded:Connect(function(Player)
-        Player:Kick("Server has shut down")
-    end)
-end
-
-
-
-return Command
+        --Kick the players.
+        for _,Player in Players:GetPlayers() do
+            Player:Kick("Server has shut down.")
+        end
+        Players.PlayerAdded:Connect(function(Player)
+            Player:Kick("Server has shut down.")
+        end)
+    end,
+}

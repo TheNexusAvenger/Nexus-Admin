@@ -3,50 +3,40 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("refresh","BasicCommands","Respawns a player and moves them back to where they originally were.")
-
-    self.Arguments = {
+return {
+    Keyword = "refresh",
+    Category = "BasicCommands",
+    Description = "Respawns a player and moves them back to where they originally were.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to refresh.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        --Refresh the players.
+        for _, Player in Players do
+            task.spawn(function()
+                --Get the existing position.
+                if not Player.Character then return end
+                local HumanoidRootPart = (Player.Character :: Model):FindFirstChild("HumanoidRootPart")
+                if not HumanoidRootPart then return end
+                local CurrentCFrame = (HumanoidRootPart :: BasePart).CFrame
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Refresh the players.
-    for _,Player in pairs(Players) do
-        coroutine.wrap(function()
-            --Get the existing position.
-            local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-            if not HumanoidRootPart then return end
-            local CurrentCFrame = HumanoidRootPart.CFrame
-
-            --Load the character and move it to the original position.
-            Player:LoadCharacter()
-            local Character = Player.Character
-            while not Character do wait() Character = Player.Character end
-            Character:WaitForChild("HumanoidRootPart").CFrame = CurrentCFrame
-        end)()
-    end
-end
-
-
-
-return Command
+                --Load the character and move it to the original position.
+                Player:LoadCharacter()
+                local Character = Player.Character
+                while not Character do
+                    task.wait()
+                    Character = Player.Character
+                end
+                ((Character :: Model):WaitForChild("HumanoidRootPart") :: BasePart).CFrame = CurrentCFrame
+            end)
+        end
+    end,
+}

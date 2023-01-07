@@ -3,39 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Players = game:GetService("Players")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("h","BasicCommands","Creates a hint visible to everyone.")
-
-    self.Arguments = {
+return {
+    Keyword = "h",
+    Category = "BasicCommands",
+    Description = "Creates a hint visible to everyone.",
+    Arguments = {
         {
             Type = "string",
             Name = "Message",
             Description = "Announcement text.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Message: string)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Message)
-    self.super:Run(CommandContext)
-    
-    --Filter and send the message.
-    for Player,FilteredMessage in pairs(self.API.Filter:FilterStringForPlayers(Message,CommandContext.Executor,self.Players:GetPlayers())) do
-        self.API.Messages:DisplayHint(Player,CommandContext.Executor.Name..": "..FilteredMessage)
-    end
-end
-
-
-
-return Command
+        --Filter and send the message.
+        for Player, FilteredMessage in Api.Filter:FilterStringForPlayers(Message, CommandContext.Executor, Players:GetPlayers()) do
+            Api.Messages:DisplayHint(Player, CommandContext.Executor.Name..": "..FilteredMessage)
+        end
+    end,
+}

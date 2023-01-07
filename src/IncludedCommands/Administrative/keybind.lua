@@ -28,14 +28,14 @@ return {
             Description = "Command to run.",
         },
     },
-    ClientLoad = function(Api: Types.NexusAdminApi)
+    ClientLoad = function(Api: Types.NexusAdminApiClient)
         Api.CommandData.Keybinds = {}
         UserInputService.InputBegan:Connect(function(Input, Processed)
             if Processed then return end
             local Commands = Api.CommandData.Keybinds[Input.KeyCode] or Api.CommandData.Keybinds[Input.UserInputType]
             if Commands then
                 for _, Command in Commands do
-                    (Api.Messages :: Types.MessagesClient):DisplayHint(Api.Executor:ExecuteCommandWithOrWithoutPrefix(Command, Players.LocalPlayer, {ExecuteContext = "Keybind"}))
+                    Api.Messages:DisplayHint(Api.Executor:ExecuteCommandWithOrWithoutPrefix(Command, Players.LocalPlayer, {ExecuteContext = "Keybind"}))
                 end
             end
         end)

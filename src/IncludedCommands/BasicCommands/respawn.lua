@@ -3,39 +3,24 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("respawn","BasicCommands","Respawns a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "respawn",
+    Category = "BasicCommands",
+    Description = "Respawns a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to respawn.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Punish the players.
-    for _,Player in pairs(Players) do
-        Player:LoadCharacter()
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            Player:LoadCharacter()
+        end
     end
-end
-
-
-
-return Command
+}

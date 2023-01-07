@@ -3,19 +3,15 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("team","BasicCommands","Changes a set of player's team to the given team.")
-
-    self.Arguments = {
+return {
+    Keyword = "team",
+    Category = "BasicCommands",
+    Description = "Changes a set of player's team to the given team.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,21 +22,10 @@ function Command:__new()
             Name = "Team",
             Description = "Team to set to.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Team)
-    self.super:Run(CommandContext)
-    
-    --Set the team.
-    for _,Player in pairs(Players) do
-        Player.Team = Team
-    end
-end
-
-
-
-return Command
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Team: Team)
+        for _, Player in Players do
+            Player.Team = Team
+        end
+    end,
+}

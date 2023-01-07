@@ -3,39 +3,28 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("age","BasicCommands","Displays the age of a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "age",
+    Category = "BasicCommands",
+    Description = "Displays the age of a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to show the age of.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Send the ages.
-    for _,Player in pairs(Players) do
-        self:SendMessage(Player.Name.." ("..Player.UserId..") has the age of "..Player.AccountAge.." days.")
-    end
-end
-
-
-
-return Command
+        --Show the ages.
+        for _, Player in Players do
+            Util:SendMessage(Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") has the age of "..tostring(Player.AccountAge).." days.")
+        end
+    end,
+}

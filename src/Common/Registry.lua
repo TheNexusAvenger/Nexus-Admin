@@ -221,7 +221,7 @@ function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, Api: Types
     end
 
     --Store the run function.
-    local HasClientImplementation = (CommandData.ClientRun ~= nil)
+    local HasClientImplementation = (CommandData.ClientRun ~= nil or CommandData.ClientLoad ~= nil)
     local RunFunction = CommandData.Run or CommandData.ClientRun or function() end
     if RunService:IsServer() then
         RunFunction = CommandData.Run or CommandData.ServerRun or function() end

@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("renameteam","BasicCommands","Renames a given team.")
-
-    self.Arguments = {
+return {
+    Keyword = "renameteam",
+    Category = "BasicCommands",
+    Description = "Renames a given team.",
+    Arguments = {
         {
             Type = "team",
             Name = "Team",
@@ -26,20 +23,8 @@ function Command:__new()
             Name = "Name",
             Description = "Name to use.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Team,Name)
-    self.super:Run(CommandContext)
-    
-    --Rename the team.
-    local FilteredName = self.API.Filter:FilterString(Name,CommandContext.Executor)
-    Team.Name = FilteredName
-end
-
-
-
-return Command
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Team: Team, Name: string)
+        Team.Name = IncludedCommandUtil.ForContext(CommandContext):GetServerApi().Filter:FilterString(Name, CommandContext.Executor)
+    end,
+}

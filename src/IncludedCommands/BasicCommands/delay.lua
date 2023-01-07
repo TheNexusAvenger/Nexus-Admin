@@ -3,19 +3,18 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Players = game:GetService("Players")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("delay","BasicCommands","Runs a command after a given amount of seconds.")
-
-    self.Arguments = {
+return {
+    Keyword = "delay",
+    Category = "BasicCommands",
+    Description = "Runs a command after a given amount of seconds.",
+    Arguments = {
         {
             Type = "number",
             Name = "Delay",
@@ -26,9 +25,24 @@ function Command:__new()
             Name = "Command",
             Description = "Command to run.",
         },
-    }
-end
+    },
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Delay: number)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
+        --Schedule the command.
+        task.delay(Delay, function()
+            local Message = Api.Executor:ExecuteCommandWithOrWithoutPrefix(Util:GetRemainingString(CommandContext.RawText,2), Players.LocalPlayer, CommandContext:GetData())
+            if Message ~= "" then
+                Util:SendMessage(Message)
+            end
+        end)
 
-
-return Command
+        --Return the command being scheduled.
+        if Delay == 1 then
+            return "Command scheduled to run in 1 second."
+        else
+            return "Command scheduled to run in "..tostring(Delay).." seconds."
+        end
+    end,
+}

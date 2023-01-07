@@ -30,8 +30,8 @@ end
 --[[
 Returns the client API.
 --]]
-function IncludedCommandUtil:GetClientApi(): Types.NexusAdminApi
-    return require(ReplicatedStorage:WaitForChild("NexusAdminClient")) :: Types.NexusAdminApi
+function IncludedCommandUtil:GetClientApi(): Types.NexusAdminApiClient
+    return require(ReplicatedStorage:WaitForChild("NexusAdminClient")) :: Types.NexusAdminApiClient
 end
 
 --[[
@@ -184,6 +184,28 @@ function IncludedCommandUtil:TeleportPlayer(Player: Player, TargetCFrame: CFrame
         --Teleport the player.
         HumanoidRootPart.CFrame = TargetCFrame
     end
+end
+
+--[[
+Creates an object in the remote container.
+--]]
+function IncludedCommandUtil:CreateRemote<T>(ClassName: string, Name: string, AdditionalProperties: {[string]: any}?): T
+    local Object = Instance.new(ClassName :: any)
+    Object.Name = Name
+    if AdditionalProperties then
+        for Key, Value in AdditionalProperties do
+            (Object :: any)[Key] = Value
+        end
+    end
+    Object.Parent = self:GetApi().EventContainer
+    return (Object :: any) :: T
+end
+
+--[[
+Gets an object in the remote container.
+--]]
+function IncludedCommandUtil:GetRemote<T>(Name: string): T
+    return self:GetApi().EventContainer:WaitForChild(Name) :: T
 end
 
 

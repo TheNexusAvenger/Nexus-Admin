@@ -74,7 +74,7 @@ local API = {
 
 --Add the custom Cmdr types.
 for _, TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
-    (require(TypeModule) :: (Types.NexusAdminApi) -> ())(API :: any)
+    (require(TypeModule) :: (Types.NexusAdminApiClient) -> ())(API :: any)
 end
 
 --[[
@@ -208,4 +208,4 @@ end
 
 
 --Return the API.
-return (API :: any) :: Types.NexusAdminApi
+return (API :: any) :: Types.NexusAdminApiClient

@@ -3,37 +3,48 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Logs = require(script.Parent.Parent.Parent:WaitForChild("Common"):WaitForChild("Logs"))
-local Command = BaseCommand:Extend()
+local Players = game:GetService("Players")
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("chatlogs","BasicCommands","Opens up a window containing the chat logs.")
-    self.ChatLogs = Logs.new()
-    self.API.LogsRegistry:RegisterLogs("ChatLogs", self.ChatLogs, self.AdminLevel)
-
-    --[[
-    Connects the Chatted event for a player.
-    --]]
-    local function ConnectPlayerChatted(Player)
-        Player.Chatted:Connect(function(Message)
-            self.ChatLogs:Add(Player.Name.." ["..self.API.Time:GetTimeString().."]: "..self.API.Filter:FilterString(Message,Player))
-        end)
-    end
-
-    --Connect the players.
-    self.Players.PlayerAdded:Connect(ConnectPlayerChatted)
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        ConnectPlayerChatted(Player)
-    end
-end
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 
 
-return Command
+return {
+    Keyword = "chatlogs",
+    Category = "BasicCommands",
+    Description = "Opens up a window containing the chat logs.",
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        --Create the logs.
+        local ChatLogs = Api.Logs.new()
+        Api.LogsRegistry:RegisterLogs("ChatLogs", ChatLogs, Api.Configuration:GetCommandAdminLevel("BasicCommands", "chatlogs"))
+        
+        --[[
+        Connects the Chatted event for a player.
+        --]]
+        local function ConnectPlayerChatted(Player: Player)
+            Player.Chatted:Connect(function(Message: string)
+                ChatLogs:Add(Player.Name.." ["..Api.Time:GetTimeString().."]: "..Api.Filter:FilterString(Message, Player))
+            end)
+        end
+
+        --Connect the players.
+        Players.PlayerAdded:Connect(ConnectPlayerChatted)
+        for _, Player in Players:GetPlayers() do
+            ConnectPlayerChatted(Player)
+        end
+    end,
+    ClientRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
+        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+
+        --Display the text window.
+        local Window = ScrollingTextWindow.new()
+        Window.Title = "Chat Logs"
+        Window:DisplayLogs(Api.LogsRegistry:GetLogs("ChatLogs"))
+        Window:Show()
+    end,
+}

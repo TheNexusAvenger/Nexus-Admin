@@ -4,32 +4,40 @@ TheNexusAvenger
 Implementation of a command.
 --]]
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Logs = require(script.Parent.Parent.Parent:WaitForChild("Common"):WaitForChild("Logs"))
-local Command = BaseCommand:Extend()
+local Players = game:GetService("Players")
 
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "joinlogs",
+    Category = "BasicCommands",
+    Description = "Opens up a window containing the logs of when players joined and left.",
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        --Create the logs.
+        local JoinLogs = Api.Logs.new()
+        Api.LogsRegistry:RegisterLogs("JoinLogs", JoinLogs, Api.Configuration:GetCommandAdminLevel("BasicCommands", "joinlogs"))
+    
+        --Connect the players.
+        Players.PlayerAdded:Connect(function(Player)
+            JoinLogs:Add("["..Api.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") joined.")
+        end)
+        Players.PlayerRemoving:Connect(function(Player)
+            JoinLogs:Add("["..Api.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") left.")
+        end)
+        for _, Player in Players:GetPlayers() do
+            JoinLogs:Add("["..Api.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") was already in the server when Nexus Admin loaded.")
+        end
+    end,
+    ClientRun = function(CommandContext: Types.CmdrCommandContext)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
+        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
 
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("joinlogs", "BasicCommands", "Opens up a window containing the logs of when players joined and left.")
-    self.JoinLogs = Logs.new()
-    self.API.LogsRegistry:RegisterLogs("JoinLogs", self.JoinLogs, self.AdminLevel)
-
-    --Connect the players.
-    self.Players.PlayerAdded:Connect(function(Player)
-        self.JoinLogs:Add("["..self.API.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") joined.")
-    end)
-    self.Players.PlayerRemoving:Connect(function(Player)
-        self.JoinLogs:Add("["..self.API.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") left.")
-    end)
-    for _,Player in pairs(self.Players:GetPlayers()) do
-        self.JoinLogs:Add("["..self.API.Time:GetTimeString().."]: "..Player.DisplayName.." ("..Player.Name..", "..tostring(Player.UserId)..") was already in the server when Nexus Admin loaded.")
-    end
-end
-
-
-
-return Command
+        --Display the text window.
+        local Window = ScrollingTextWindow.new()
+        Window.Title = "Join Logs"
+        Window:DisplayLogs(Api.LogsRegistry:GetLogs("JoinLogs"))
+        Window:Show()
+    end,
+}

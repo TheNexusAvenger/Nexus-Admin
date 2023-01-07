@@ -3,19 +3,23 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+return {
+    Keyword = "stoploops",
+    Category = "BasicCommands",
+    Description = "Stops all active loop commands.",
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Times: number, Delay: number, Command: string)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("stoploops","BasicCommands","Stops all active loop commands.")
-end
-
-
-
-return Command
+        --Stop and unregister the loops.
+        for _, Loop in Api.CommandData.Loops do
+            Loop:Stop()
+        end
+        Api.CommandData.Loops = {}
+    end,
+}

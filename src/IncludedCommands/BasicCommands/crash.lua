@@ -3,49 +3,44 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("crash","BasicCommands","Crashes a set of players. Admins can not be crashed.")
-
-    self.Arguments = {
+return {
+    Keyword = "crash",
+    Category = "BasicCommands",
+    Description = "Crashes a set of players. Admins can not be crashed.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to crash.",
         },
-    }
-    
-    --Create the remote event.
-    local CrashPlayerEvent = Instance.new("RemoteEvent")
-    CrashPlayerEvent.Name = "CrashPlayer"
-    CrashPlayerEvent.Parent = self.API.EventContainer
-    self.CrashPlayerEvent = CrashPlayerEvent
-end
+    },
+    ClientLoad = function(Api: Types.NexusAdminApi)
+        (IncludedCommandUtil:GetRemote("CrashPlayer") :: RemoteEvent).OnClientEvent:Connect(function()
+            while true do
+                string.rep("Crash",3e12)
+            end
+        end)
+    end,
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        IncludedCommandUtil:CreateRemote("RemoteEvent", "CrashPlayer")
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Crash the players.
-    for _,Player in pairs(Players) do
-        if self.API.Authorization:GetAdminLevel(Player) >= 0 then
-            self:SendError("You can't crash admins.")
-        else
-            self.CrashPlayerEvent:FireClient(Player)
+        --Crash the players.
+        local CrashPlayerEvent = Util:GetRemote("CrashPlayer") :: RemoteEvent
+        for _, Player in Players do
+            if Api.Authorization:GetAdminLevel(Player) >= 0 then
+                Util:SendError("You can't crash admins.")
+            else
+                CrashPlayerEvent:FireClient(Player)
+            end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

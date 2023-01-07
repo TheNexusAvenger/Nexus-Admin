@@ -3,19 +3,17 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local InsertService = game:GetService("InsertService")
 
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("gear","BasicCommands","Gives gear items to the given players.")
-    
-    self.Arguments = {
+return {
+    Keyword = "gear",
+    Category = "BasicCommands",
+    Description = "Gives gear items to the given players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,37 +24,27 @@ function Command:__new()
             Name = "Ids",
             Description = "Gear ids to insert.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Ids)
-    self.super:Run(CommandContext)
-    
-    --Get the tools.
-    local Tools = {}
-    for _,Id in pairs(Ids) do
-        local Model = self.InsertService:LoadAsset(Id)
-        for _,Tool in pairs(Model:GetChildren()) do
-            if Tool:IsA("Tool") then
-                table.insert(Tools,Tool)
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Ids: {number})
+        --Get the tools.
+        local Tools = {}
+        for _, Id in Ids do
+            local Model = InsertService:LoadAsset(Id)
+            for _, Tool in Model:GetChildren() do
+                if Tool:IsA("Tool") then
+                    table.insert(Tools,Tool)
+                end
             end
         end
-    end
 
-    --Give the tools to the players.
-    for _,Player in pairs(Players) do
-        local Backpack = Player:FindFirstChild("Backpack")
-        if Backpack then
-            for _,Tool in pairs(Tools) do
-                Tool:Clone().Parent = Backpack
+        --Give the tools to the players.
+        for _, Player in Players do
+            local Backpack = Player:FindFirstChild("Backpack")
+            if Backpack then
+                for _, Tool in Tools do
+                    Tool:Clone().Parent = Backpack
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

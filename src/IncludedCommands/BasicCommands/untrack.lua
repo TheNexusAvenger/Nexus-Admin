@@ -3,27 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("untrack","BasicCommands","Untracks a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "untrack",
+    Category = "BasicCommands",
+    Description = "Untracks a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to untrack.",
         },
-    }
-end
+    },
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
-
-
-return Command
+        --Destroy the trackers.
+        for _, Player in Players do
+            if Api.CommandData.PlayerTrackers[Player] then
+                Api.CommandData.PlayerTrackers[Player]:Destroy()
+            end
+        end
+    end,
+}

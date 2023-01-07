@@ -226,7 +226,7 @@ export type Executor = {
     ExecuteCommand: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
     ExecuteCommandWithPrefix: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
     ExecuteCommandWithOrWithoutPrefix: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
-    SplitCommands: (Command: string, Separator: string) -> ({string}),
+    SplitCommands: (self: Executor, Command: string, Separator: string) -> ({string}),
 }
 
 export type Filter = {
@@ -315,8 +315,13 @@ export type NexusAdminApi = {
     Time: Time,
 }
 
+export type NexusAdminApiClient = {
+    Messages: MessagesClient,
+} & NexusAdminApi
+
 export type NexusAdminApiServer = {
     Filter: Filter,
+    Messages: MessagesServer,
     Replicator: Replicator,
     Logs: Logs,
     GetAdminLoaded: (self: NexusAdminApiServer) -> (boolean),
