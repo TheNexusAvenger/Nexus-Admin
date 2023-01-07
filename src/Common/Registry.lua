@@ -205,10 +205,12 @@ function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, Api: Types
     else
         CommandData.Prefix = self.Configuration.CommandPrefix
     end
-    if type(CommandData.Keyword) == "table" then
-        CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword[1])
-    else
-        CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword)
+    if not CommandData.AllowAllUsers then
+        if type(CommandData.Keyword) == "table" then
+            CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword[1])
+        else
+            CommandData.AdminLevel = self.Configuration:GetCommandAdminLevel(CommandData.Category, CommandData.Keyword)
+        end
     end
     CommandData.Arguments = CommandData.Arguments or {}
 

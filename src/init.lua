@@ -158,7 +158,7 @@ Loads the including commands.
 function API:LoadIncludedCommands(): ()
     --Load the Nexus Admin commands.
     local IncludedCommands = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands")
-    local Categories = {"Administrative", "BasicCommands", "BuildUtility", "UsefulFun", "Fun", "Persistent"}
+    local Categories = {"Administrative", "BasicCommands", "BuildUtility", "Cmdr", "UsefulFun", "Fun", "Persistent"}
     for _, Category in Categories do
         --Add the scripts.
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
