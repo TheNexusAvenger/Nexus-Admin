@@ -20,7 +20,9 @@ return {
     },
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         for _, Player in Players do
-            Player:LoadCharacter()
+            pcall(function()
+                Player:LoadCharacter()
+            end)
         end
     end
 }
