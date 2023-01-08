@@ -285,7 +285,7 @@ export type Registry = {
     new: (Authorization: Authorization, Configuration: Configuration, Messages: MessagesServer | MessagesClient, Cmdr: Cmdr, NexusAdminRemotes: Folder) -> (Registry),
 
     LoadCommand: (self: Registry, CommandData: NexusAdminCommandData) -> (),
-    AddEnumType: (self: Registry, Options: {string}) -> (),
+    AddEnumType: (self: Registry, Name: string, Options: {string}) -> (),
 }
 
 export type RegistryServer = {
