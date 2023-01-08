@@ -297,7 +297,13 @@ export type Time = {
 
 --Nexus Admin API.
 export type NexusAdminApi = {
-    Types: {[any]: any},
+    Types: {
+        NexusAdminPlayers: {
+            RegisterShortHand: (self: any, Name: string | {string}, Callback: (Text: string, Executor: Player, Players: {Player}) -> ({Player})) -> (),
+            RegisterPatternShortHand: (self: any, Name: string | {string}, Callback: (Text: string, Executor: Player, Players: {Player}) -> ({Player})) -> (),
+        },
+        [any]: any,
+    },
     CommandData: {[any]: any},
     Version: string,
     VersionNumberId: number,
