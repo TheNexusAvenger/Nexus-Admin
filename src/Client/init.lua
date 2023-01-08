@@ -103,8 +103,8 @@ function API:LoadIncludedCommands()
 end
 
 --Initialize the optional UI.
-require(script:WaitForChild("UI"):WaitForChild("Messages"))(API, Players.LocalPlayer)
-require(script:WaitForChild("UI"):WaitForChild("ChatExecuting"))(API, Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("Messages"))(API :: any, Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("ChatExecuting"))(API :: any, Players.LocalPlayer)
 require(script:WaitForChild("UI"):WaitForChild("Tooltip"))(API, Players.LocalPlayer)
 
 --Add the API fetchers.
