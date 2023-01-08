@@ -95,7 +95,7 @@ function API:Load(ConfigurationTable)
     FeatureFlagsModule.Parent = NexusAdminClient
     local FeatureFlags = require(FeatureFlagsModule)
     local Replicator = require(script:WaitForChild("Server"):WaitForChild("Replicator")).new()
-    local Filter = require(script:WaitForChild("Server"):WaitForChild("Filter")).new()
+    local Filter = require(script:WaitForChild("Server"):WaitForChild("ServerFilter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
     local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr, Configuration, Authorization, Messages, Logs, Time, Filter, EventContainer)
@@ -134,7 +134,7 @@ function API:Load(ConfigurationTable)
 
     --Add the custom Cmdr types.
     for _, TypeModule in script:WaitForChild("Common"):WaitForChild("Types"):GetChildren() do
-        (require(TypeModule) :: (Types.NexusAdminApiServer) -> ())(API)
+        (require(TypeModule) :: (Types.NexusAdminApiServer) -> ())(API :: any)
     end
 
     --Set the feature flag overrides.

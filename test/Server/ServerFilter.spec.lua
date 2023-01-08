@@ -1,16 +1,16 @@
 --[[
 TheNexusAvenger
 
-Tests the Filter class.
+Tests the ServerFilter class.
 --]]
 --!strict
 
-local Filter = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Server"):WaitForChild("Filter"))
+local ServerFilter = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Server"):WaitForChild("ServerFilter"))
 
 return function()
     local MockPlayers, TestFilter = nil, nil
     beforeEach(function()
-        TestFilter = Filter.new()
+        TestFilter = ServerFilter.new()
 
         MockPlayers = {
             {UserId=1},

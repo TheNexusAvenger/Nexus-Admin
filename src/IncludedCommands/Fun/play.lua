@@ -48,7 +48,7 @@ return {
             return
         end
         for _,Player in Players:GetPlayers() do
-            Api.Messages:DisplayHint(Player,tostring("Now playing \""..tostring(ProductData.Name).."\" ("..AudioId..")."))
+            Api.Messages:DisplayHint(Player, Api.Filter:EscapeRichText("Now playing \""..tostring(ProductData.Name).."\" ("..AudioId..")."))
         end
 
         --Play the audio.

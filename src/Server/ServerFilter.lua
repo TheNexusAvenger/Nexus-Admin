@@ -6,27 +6,30 @@ Filters strings to comply with Roblox's filtering rules.
 
 local CANT_SEE_CHAT_MESSAGE = "(Your chat settings prevent you from seeing messages)"
 
+local Filter = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Filter"))
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
-local Filter = {}
-Filter.__index = Filter
+local ServerFilter = {}
+ServerFilter.__index = ServerFilter
+setmetatable(ServerFilter, Filter)
 
 
 
 --[[
 Creates a filter instance.
 --]]
-function Filter.new(): Types.Filter
-    return (setmetatable({
-        TextService = game:GetService("TextService"),
-        Chat = game:GetService("Chat"),
-    }, Filter) :: any) :: Types.Filter
+function ServerFilter.new(): Types.FilterServer
+    local self = Filter.new()
+    self.TextService = game:GetService("TextService")
+    self.Chat = game:GetService("Chat")
+    setmetatable(self, ServerFilter)
+    return (self :: any) :: Types.FilterServer
 end
 
 --[[
 Filters a string for a user.
 --]]
-function Filter:FilterString(String: string, PlayerFrom: Player, PlayerTo: Player?): string
+function ServerFilter:FilterString(String: string, PlayerFrom: Player, PlayerTo: Player?): string
     --Return the string if it is an empty string.
     if not string.match(String,"([%w%p])") then return String end
 
@@ -56,7 +59,7 @@ end
 Filters a string for a set of users.
 Returns a map of the players to their filtered string.
 --]]
-function Filter:FilterStringForPlayers(String: string, PlayerFrom: Player, PlayersTo: {Player}): {[Player]: string}
+function ServerFilter:FilterStringForPlayers(String: string, PlayerFrom: Player, PlayersTo: {Player}): {[Player]: string}
     --Return the string if it is an empty string.
     local FilteredResults = {}
     if not string.match(String,"([%w%p])") then
@@ -103,4 +106,4 @@ end
 
 
 
-return (Filter :: any) :: Types.Filter
+return (ServerFilter :: any) :: Types.FilterServer

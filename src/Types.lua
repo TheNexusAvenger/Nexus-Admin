@@ -232,9 +232,15 @@ export type Executor = {
 export type Filter = {
     new: () -> Filter,
 
+    EscapeRichText: (self: Filter, String: string) -> (string),
+}
+
+export type FilterServer = {
+    new: () -> FilterServer,
+
     FilterString: (self: Filter, String: string, PlayerFrom: Player, PlayerTo: Player?) -> (string),
     FilterStringForPlayers: (self: Filter, String: string, PlayerFrom: Player, PlayersTo: {Player}) -> ({[Player]: string}),
-}
+} & Filter
 
 export type Logs = {
     new: (MaxLogs: number?) -> (Logs),
@@ -313,6 +319,7 @@ export type NexusAdminApi = {
     Cmdr: Cmdr,
     Configuration: Configuration,
     Authorization: Authorization,
+    Filter: Filter,
     Messages: MessagesServer | MessagesClient,
     Registry: Registry,
     LogsRegistry: LogsRegistryServer,
@@ -326,7 +333,7 @@ export type NexusAdminApiClient = {
 } & NexusAdminApi
 
 export type NexusAdminApiServer = {
-    Filter: Filter,
+    Filter: FilterServer,
     Messages: MessagesServer,
     Replicator: Replicator,
     Logs: Logs,

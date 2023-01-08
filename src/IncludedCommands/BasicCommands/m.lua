@@ -27,7 +27,7 @@ return {
 
         --Filter and send the message.
         for Player, FilteredMessage in Api.Filter:FilterStringForPlayers(Message, CommandContext.Executor, Players:GetPlayers()) do
-            Api.Messages:DisplayMessage(Player, CommandContext.Executor.Name, FilteredMessage)
+            Api.Messages:DisplayMessage(Player, CommandContext.Executor.Name, Api.Filter:EscapeRichText(FilteredMessage))
         end
     end,
 }

@@ -27,7 +27,7 @@ return {
 
         --Filter and send the message.
         for Player, FilteredMessage in Api.Filter:FilterStringForPlayers(Message, CommandContext.Executor, Players:GetPlayers()) do
-            Api.Messages:DisplayMessage(Player, "Nexus Admin", FilteredMessage)
+            Api.Messages:DisplayMessage(Player, "Nexus Admin", Api.Filter:EscapeRichText(FilteredMessage))
         end
     end,
 }

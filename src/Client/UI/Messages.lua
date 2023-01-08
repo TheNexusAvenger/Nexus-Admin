@@ -43,6 +43,7 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             TextLabel.Font = Enum.Font.SourceSans
             TextLabel.TextWrapped = true
             TextLabel.Text = Message
+            TextLabel.RichText = true
             TextLabel.TextColor3 = Color3.new(1, 1, 1)
             TextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
             TextLabel.TextStrokeTransparency = 0
@@ -54,6 +55,7 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             TopTextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
             TopTextLabel.Font = Enum.Font.SourceSansBold
             TopTextLabel.Text = TopText
+            TopTextLabel.RichText = true
             TopTextLabel.TextColor3 = Color3.new(1, 1, 1)
             TopTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
             TopTextLabel.TextStrokeTransparency = 0
@@ -170,6 +172,7 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
             HintFrame.TextColor3 = Color3.new(1, 1, 1)
             HintFrame.TextStrokeColor3 = Color3.new(0, 0, 0)
             HintFrame.Text = Message
+            HintFrame.RichText = true
             HintFrame.TextStrokeTransparency = 0
             
             --Add the hint.
