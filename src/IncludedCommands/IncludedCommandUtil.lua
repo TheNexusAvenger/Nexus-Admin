@@ -11,9 +11,10 @@ local RunService = game:GetService("RunService")
 
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
-local IncludedCommandUtil = {
-    ClientResources = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands"):WaitForChild("Resources"),
-}
+local IncludedCommandUtil = {}
+if RunService:IsRunning() then
+    IncludedCommandUtil.ClientResources = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands"):WaitForChild("Resources")
+end
 IncludedCommandUtil.__index = IncludedCommandUtil
 
 

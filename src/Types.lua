@@ -223,9 +223,9 @@ export type Executor = {
     new: (Cmdr: Cmdr, Registry: Registry) -> (Executor),
 
     Unescape: (self: Executor, Command: string) -> (string),
-    ExecuteCommand: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
-    ExecuteCommandWithPrefix: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
-    ExecuteCommandWithOrWithoutPrefix: (self: Executor, Command: string, ReferencePlayer: Player, Data: any?) -> (string),
+    ExecuteCommand: (self: Executor, Command: string, ReferencePlayer: Player?, Data: any?) -> (string),
+    ExecuteCommandWithPrefix: (self: Executor, Command: string, ReferencePlayer: Player?, Data: any?) -> (string),
+    ExecuteCommandWithOrWithoutPrefix: (self: Executor, Command: string, ReferencePlayer: Player?, Data: any?) -> (string),
     SplitCommands: (self: Executor, Command: string, Separator: string) -> ({string}),
 }
 

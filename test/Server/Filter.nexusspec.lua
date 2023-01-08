@@ -56,24 +56,13 @@ function FilterUnitTest:Setup()
 end
 
 --[[
-Tests the FilterString method.
---]]
-NexusUnitTesting:RegisterUnitTest(FilterUnitTest.new("FilterString"):SetRun(function(self)
-    self:AssertEquals(self.CuT:FilterString("     ",self.MockPlayers[1]),"     ","String of spaces was filtered.")
-    self:AssertEquals(self.CuT:FilterString("FailMessage",self.MockPlayers[1]),"###########","String was incorrectly filtered.")
-    self:AssertEquals(self.CuT:FilterString("Test message",self.MockPlayers[1]),"Test #######","String was incorrectly filtered.")
-    self:AssertEquals(self.CuT:FilterString("Test message",self.MockPlayers[1],self.MockPlayers[2]),"Test message","String was incorrectly filtered.")
-    self:AssertEquals(self.CuT:FilterString("Test message",self.MockPlayers[2],self.MockPlayers[3]),"(Your chat settings prevent you from seeing messages)","String was incorrectly filtered.")
-end))
-
---[[
 Tests the FilterStringForPlayers method.
 --]]
 NexusUnitTesting:RegisterUnitTest(FilterUnitTest.new("FilterStringForPlayers"):SetRun(function(self)
-    self:AssertEquals(self.CuT:FilterStringForPlayers("     ",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "     ",[self.MockPlayers[2]] = "     "},"String of spaces was filtered.")
-    self:AssertEquals(self.CuT:FilterStringForPlayers("FailMessage",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "###########",[self.MockPlayers[2]] = "###########"},"String was incorrectly filtered.")
-    self:AssertEquals(self.CuT:FilterStringForPlayers("Test message",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "#### message",[self.MockPlayers[2]] = "Test message"},"String was incorrectly filtered.")
-    self:AssertEquals(self.CuT:FilterStringForPlayers("Test message",self.MockPlayers[2],{self.MockPlayers[1],self.MockPlayers[3]}),{[self.MockPlayers[1]] = "#### message",[self.MockPlayers[3]] = "(Your chat settings prevent you from seeing messages)"},"String was incorrectly filtered.")
+    self:AssertEquals(self.CuT:FilterStringForPlayers("     ",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "     ",[self.MockPlayers[2]] = "     "})
+    self:AssertEquals(self.CuT:FilterStringForPlayers("FailMessage",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "###########",[self.MockPlayers[2]] = "###########"})
+    self:AssertEquals(self.CuT:FilterStringForPlayers("Test message",self.MockPlayers[1],{self.MockPlayers[1],self.MockPlayers[2]}),{[self.MockPlayers[1]] = "#### message",[self.MockPlayers[2]] = "Test message"})
+    self:AssertEquals(self.CuT:FilterStringForPlayers("Test message",self.MockPlayers[2],{self.MockPlayers[1],self.MockPlayers[3]}),{[self.MockPlayers[1]] = "#### message",[self.MockPlayers[3]] = "(Your chat settings prevent you from seeing messages)"})
 end))
 
 

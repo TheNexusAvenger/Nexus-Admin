@@ -60,7 +60,7 @@ end
 Executes a command. Authorization checks are performs
 in the command if it was registered through Nexus Admin.
 --]]
-function Executor:ExecuteCommand(Command: string, ReferencePlayer: Player, Data: any?): string
+function Executor:ExecuteCommand(Command: string, ReferencePlayer: Player?, Data: any?): string
     return self.Cmdr.Dispatcher:EvaluateAndRun(self:Unescape(Command), ReferencePlayer, {Data = Data})
 end
 
@@ -68,7 +68,7 @@ end
 Executes a command with prefixes. Authorization checks are performs
 in the command if it was registered through Nexus Admin.
 --]]
-function Executor:ExecuteCommandWithPrefix(Command: string, ReferencePlayer: Player, Data: any?): string
+function Executor:ExecuteCommandWithPrefix(Command: string, ReferencePlayer: Player?, Data: any?): string
     --Get the command.
     local BaseCommand = Command
     if string.find(Command," ") then
@@ -91,7 +91,7 @@ Executes a command that may or may not have a prefix. Authorization
 checks are performs in the command if it was registered through
 Nexus Admin.
 --]]
-function Executor:ExecuteCommandWithOrWithoutPrefix(Command: string, ReferencePlayer: Player, Data: any?): string
+function Executor:ExecuteCommandWithOrWithoutPrefix(Command: string, ReferencePlayer: Player?, Data: any?): string
     local Message = self:ExecuteCommand(Command, ReferencePlayer, Data)
     if string.find(Message, "Use the help command to see all available commands.") then
         Message = self:ExecuteCommandWithPrefix(Command, ReferencePlayer, Data)
