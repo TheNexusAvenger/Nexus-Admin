@@ -241,7 +241,7 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
             Background.BackgroundColor3 = Color3.new(0, 0, 0)
             Background.BackgroundTransparency = 0.5
             Background.Size = UDim2.new(1, 0, 1, 0)
-            Background.SliceScaleMultiplier = 0.4
+            Background.SliceScaleMultiplier = 0.3
             Background.Parent = NotificationFrame
 
             local TopTextLabel = Instance.new("TextLabel")
@@ -352,15 +352,15 @@ local function AddAdminLevelNotifications(API: Types.NexusAdminApiClient, Player
 
             --Display a message.
             if IsAuthorized then
-                API.Messages:DisplayMessage("Nexus Admin","You are an admin. Use "..API.Configuration.CommandPrefix.."cmds or !cmds to view the commands. Use !usage to view using the system.")
+                API.Messages:DisplayNotification("Nexus Admin", "You are an admin. Use "..API.Configuration.CommandPrefix.."cmds or !cmds to view the commands. Use !usage to view using the system.", 10)
             else
-                API.Messages:DisplayHint("[Nexus Admin]: You are no longer an admin.")
+                API.Messages:DisplayNotification("Nexus Admin", "Your admin level has changed and you no longer are an admin.", 5)
             end
         end
     end
 
     --Initialize the admin level.
-    API.Authorization.AdminLevelChanged:Connect(function(OtherPlayer,_)
+    API.Authorization.AdminLevelChanged:Connect(function(OtherPlayer, _)
         if Player == OtherPlayer then
             AdminLevelChanged()
         end

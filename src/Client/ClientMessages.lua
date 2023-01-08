@@ -71,7 +71,7 @@ end
 Sends a notification to the local player.
 --]]
 function ClientMessages:DisplayNotification(TopText: string, Message: string, DisplayTime: number?)
-    self.DisplayHintLoopbackEvent:Fire(TopText, Message, DisplayTime)
+    self.DisplayNotificationLoopbackEvent:Fire(TopText, Message, DisplayTime)
 end
 
 
