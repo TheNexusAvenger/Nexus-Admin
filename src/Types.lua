@@ -270,6 +270,7 @@ export type MessagesClient = {
 
     DisplayMessage: (self: MessagesClient, TopText: string, Message: string, DisplayTime: number?) -> (),
     DisplayHint: (self: MessagesClient, Message: string, DisplayTime: number?) -> (),
+    DisplayNotification: (self: MessagesClient, TopText: string, Message: string, DisplayTime: number?) -> (),
 }
 
 export type MessagesServer = {
@@ -277,6 +278,7 @@ export type MessagesServer = {
 
     DisplayMessage: (self: MessagesServer, Player: Player, TopText: string, Message: string, DisplayTime: number?) -> (),
     DisplayHint: (self: MessagesServer, Player: Player, Message: string, DisplayTime: number?) -> (),
+    DisplayNotification: (self: MessagesClient, TopText: string, Message: string, DisplayTime: number?) -> (),
 }
 
 export type Registry = {

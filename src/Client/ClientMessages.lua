@@ -33,12 +33,20 @@ function ClientMessages.new(NexusAdminRemotes: Folder): Types.MessagesClient
     DisplayMessageLoopbackEvent.Parent = MessageEvents
     self.DisplayMessageLoopbackEvent = DisplayMessageLoopbackEvent;
 
+    local DisplayNotificationLoopbackEvent = Instance.new("BindableEvent")
+    DisplayNotificationLoopbackEvent.Name = "DisplayNotificationLoopback"
+    DisplayNotificationLoopbackEvent.Parent = MessageEvents
+    self.DisplayNotificationLoopbackEvent = DisplayNotificationLoopbackEvent;
+
     --Connect the remote events.
     (MessageEvents:WaitForChild("DisplayMessage") :: RemoteEvent).OnClientEvent:Connect(function(TopText: string, Message: string, DisplayTime: number?): ()
         self:DisplayMessage(TopText, Message, DisplayTime)
     end);
     (MessageEvents:WaitForChild("DisplayHint") :: RemoteEvent).OnClientEvent:Connect(function(Message: string, DisplayTime: number?): ()
         self:DisplayHint(Message, DisplayTime)
+    end);
+    (MessageEvents:WaitForChild("DisplayNotification") :: RemoteEvent).OnClientEvent:Connect(function(TopText: string, Message: string, DisplayTime: number?): ()
+        self:DisplayNotification(TopText, Message, DisplayTime)
     end)
 
     --Return the object.
@@ -57,6 +65,13 @@ Sends a hint to the local player.
 --]]
 function ClientMessages:DisplayHint(Message: string, DisplayTime: number?)
     self.DisplayHintLoopbackEvent:Fire(Message, DisplayTime)
+end
+
+--[[
+Sends a notification to the local player.
+--]]
+function ClientMessages:DisplayNotification(TopText: string, Message: string, DisplayTime: number?)
+    self.DisplayHintLoopbackEvent:Fire(TopText, Message, DisplayTime)
 end
 
 
