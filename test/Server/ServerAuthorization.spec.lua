@@ -39,8 +39,8 @@ return function()
             {UserId = 7},
         } :: {any}
 
-        (TestServerAuthorization :: any).CuT.GroupService = {
-            GetGroupsAsync = function(self,Id)
+        (TestServerAuthorization :: any).GroupService = {
+            GetGroupsAsync = function(self, Id)
                 if Id == 3 then
                     return {
                         {
