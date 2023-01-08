@@ -3,42 +3,35 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unjail","UsefulFunCommands","Unjails a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unjail",
+    Category = "UsefulFunCommands",
+    Description = "Unjails a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to unjail.",
         },
-    }
-end
+    },
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        Api.CommandData.PlayerJails = {}
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Destroy the jails.
-    for _,Player in pairs(Players) do
-        if CommonState.PlayerJails[Player] then
-            CommonState.PlayerJails[Player]:Destroy()
+        --Destroy the jails.
+        local PlayerJails = Api.CommandData.PlayerJails
+        for _, Player in Players do
+            if PlayerJails[Player] then
+                PlayerJails[Player]:Destroy()
+            end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

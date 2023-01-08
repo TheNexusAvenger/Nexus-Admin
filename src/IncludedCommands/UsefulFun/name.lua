@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("name","UsefulFunCommands","Changes the name for a player.")
-
-    self.Arguments = {
+return {
+    Keyword = "name",
+    Category = "UsefulFunCommands",
+    Description = "Changes the name for a player.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,29 +23,18 @@ function Command:__new()
             Name = "Name",
             Description = "Name to set.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Name)
-    self.super:Run(CommandContext)
-    
-    --Set the names.
-    Name = self.API.Filter:FilterString(Name,CommandContext.Executor)
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Character then
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.DisplayName = Name
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Name: string)
+        Name = IncludedCommandUtil.ForContext(CommandContext):GetServerApi().Filter:FilterString(Name,CommandContext.Executor)
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+                if Humanoid then
+                    Humanoid.DisplayName = Name
+                end
             end
         end
-    end
-    return "Renamed using the name \""..Name.."\""
-end
-
-
-
-return Command
+        return "Renamed using the name \""..Name.."\""
+    end,
+}

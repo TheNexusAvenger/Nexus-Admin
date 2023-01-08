@@ -3,46 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("god","UsefulFunCommands","Heals a set of players, and makes their health infinite.")
-
-    self.Arguments = {
+return {
+    Keyword = "god",
+    Category = "UsefulFunCommands",
+    Description = "Heals a set of players, and makes their health infinite.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to god.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Set the max helath.
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Character then
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.MaxHealth = math.huge
-                Humanoid.Health = math.huge
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+                if Humanoid then
+                    Humanoid.MaxHealth = math.huge
+                    Humanoid.Health = math.huge
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

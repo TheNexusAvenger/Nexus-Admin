@@ -3,44 +3,30 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("sit","UsefulFunCommands","Sits a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "sit",
+    Category = "UsefulFunCommands",
+    Description = "Sits a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to sit.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-
-    --Sit the players.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.Sit = true
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+                if Humanoid then
+                    Humanoid.Sit = true
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

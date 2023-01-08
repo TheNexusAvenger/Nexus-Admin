@@ -3,19 +3,17 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local TeleportService = game:GetService("TeleportService")
 
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("place","UsefulFunCommands","Teleports a set of players to the given place.")
-
-    self.Arguments = {
+return {
+    Keyword = "place",
+    Category = "UsefulFunCommands",
+    Description = "Teleports a set of players to the given place.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,21 +24,10 @@ function Command:__new()
             Name = "PlaceId",
             Description = "Place to teleport to.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,PlaceId)
-    self.super:Run(CommandContext)
-    
-    --Telelport the players.
-    for _,Player in pairs(Players) do
-        self.TeleportService:Teleport(PlaceId,Player)
-    end
-end
-
-
-
-return Command
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, PlaceId: number)
+        for _, Player in Players do
+            TeleportService:Teleport(PlaceId,Player)
+        end
+    end,
+}

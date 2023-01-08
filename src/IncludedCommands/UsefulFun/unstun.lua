@@ -3,44 +3,30 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unstun","UsefulFunCommands","Unstuns a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unstun",
+    Category = "UsefulFunCommands",
+    Description = "Unstuns a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to unstun.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-
-    --Unstun the players.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.PlatformStand = false
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+                if Humanoid then
+                    Humanoid.PlatformStand = false
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

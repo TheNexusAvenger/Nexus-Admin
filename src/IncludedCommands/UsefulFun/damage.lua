@@ -3,19 +3,15 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("damage","UsefulFunCommands","Damages a given set of players, ignoring force fields.")
-
-    self.Arguments = {
+return {
+    Keyword = "damage",
+    Category = "UsefulFunCommands",
+    Description = "Damages a given set of players, ignoring force fields.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,27 +22,16 @@ function Command:__new()
             Name = "Damage",
             Description = "Amount of damage.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Damage)
-    self.super:Run(CommandContext)
-    
-    --Damage the players.
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Character then
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.Health = Humanoid.Health - Damage
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Damage: number)
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                if Humanoid then
+                    Humanoid.Health = Humanoid.Health - Damage
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

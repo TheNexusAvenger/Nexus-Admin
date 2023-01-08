@@ -3,45 +3,30 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unname","UsefulFunCommands","Removes the name of a player's character from :name.")
-
-    self.Arguments = {
+return {
+    Keyword = "unname",
+    Category = "UsefulFunCommands",
+    Description = "Removes the name of a player's character from :name.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to set the name.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Set the names to empty strings.
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Character then
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.DisplayName = ""
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+                if Humanoid then
+                    Humanoid.DisplayName = ""
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

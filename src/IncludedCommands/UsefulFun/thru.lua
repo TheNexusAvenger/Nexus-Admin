@@ -3,19 +3,15 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("thru","UsefulFunCommands","Teleports a set of players forward a given amount of studs.")
-
-    self.Arguments = {
+return {
+    Keyword = "thru",
+    Category = "UsefulFunCommands",
+    Description = "Teleports a set of players forward a given amount of studs.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Player",
@@ -27,28 +23,16 @@ function Command:__new()
             Description = "Distance to move forward.",
             Optional = true,
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,Distance)
-    self.super:Run(CommandContext)
-    Distance = Distance or 0
-
-    --Telelport the players.
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Player.Character then
-            local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
-            if HumanoidRootPart then
-                HumanoidRootPart.CFrame = HumanoidRootPart.CFrame * CFrame.new(0,0,-Distance)
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Distance: number?)
+        for _, Player in Players do
+            local Character = Player.Character :: Model
+            if Player.Character then
+                local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
+                if HumanoidRootPart then
+                    HumanoidRootPart.CFrame = HumanoidRootPart.CFrame * CFrame.new(0, 0, -(Distance or 0))
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

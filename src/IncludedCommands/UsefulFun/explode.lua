@@ -3,46 +3,31 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("explode","UsefulFunCommands","Explodes a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "explode",
+    Category = "UsefulFunCommands",
+    Description = "Explodes a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to explode.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-
-    --Clone the players.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
-            if HumanoidRootPart then
-                local Explosion = Instance.new("Explosion")
-                Explosion.Position = HumanoidRootPart.Position
-                Explosion.Parent = game.Workspace
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            if Player.Character then
+                local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart") :: BasePart
+                if HumanoidRootPart then
+                    local Explosion = Instance.new("Explosion")
+                    Explosion.Position = HumanoidRootPart.Position
+                    Explosion.Parent = game.Workspace
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

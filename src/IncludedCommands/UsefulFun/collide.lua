@@ -3,55 +3,44 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local CommonState = require(script.Parent.Parent:WaitForChild("CommonState"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("collide","UsefulFunCommands","Makes a set of players able to collide with each other.")
-
-    self.Arguments = {
+return {
+    Keyword = "collide",
+    Category = "UsefulFunCommands",
+    Description = "Makes a set of players able to collide with each other.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to make collidable with each other.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-
-    --Make the players collidable.
-    for _,Player in pairs(Players) do
-        --Disconnect the events.
-        if CommonState.PlayerCollisionEvents[Player] then
-            for _,Event in pairs(CommonState.PlayerCollisionEvents[Player]) do
-                Event:Disconnect()
+        --Make the players collidable.
+        for _, Player in Players do
+            --Disconnect the events.
+            if Api.CommandData.PlayerCollisionEvents[Player] then
+                for _,Event in Api.CommandData.PlayerCollisionEvents[Player] do
+                    Event:Disconnect()
+                end
+                Api.CommandData.PlayerCollisionEvents[Player] = {}
             end
-            CommonState.PlayerCollisionEvents[Player] = {}
-        end
 
-        --Make the character collidable.
-        if Player.Character then
-            for _,Part in pairs(Player.Character:GetDescendants()) do
-                if Part:IsA("BasePart") then
-                    self.PhysicsService:SetPartCollisionGroup(Part,"Default")
+            --Make the character collidable.
+            if Player.Character then
+                for _, Part in Player.Character:GetDescendants() do
+                    if Part:IsA("BasePart") then
+                        Part.CollisionGroup = "Default"
+                    end
                 end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

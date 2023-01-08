@@ -3,45 +3,38 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unfly","UsefulFunCommands","Removes flight from a set of players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unfly",
+    Category = "UsefulFunCommands",
+    Description = "Removes flight from a set of players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
             Description = "Players to unfly.",
         },
-    }
-    
-    --Create the remote event.
-    local UnflyPlayerEvent = Instance.new("RemoteEvent")
-    UnflyPlayerEvent.Name = "UnflyPlayer"
-    UnflyPlayerEvent.Parent = self.API.EventContainer
-    self.UnflyPlayerEvent = UnflyPlayerEvent
-end
+    },
+    ClientLoad = function(Api: Types.NexusAdminApiClient)
+        (IncludedCommandUtil:GetRemote("UnflyPlayer") :: RemoteEvent).OnClientEvent:Connect(function()
+            if Api.CommandData.CurrentFlight then
+                Api.CommandData.CurrentFlight:Destroy()
+            end
+        end)
+    end,
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        IncludedCommandUtil:CreateRemote("RemoteEvent", "UnflyPlayer")
+    end,
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-    
-    --Unfly the player.
-    for _,Player in pairs(Players) do
-        self.UnflyPlayerEvent:FireClient(Player)
-    end
-end
-
-
-
-return Command
+        --Fly the players.
+        for _, Player in Players do
+            (Util:GetRemote("UnflyPlayer") :: RemoteEvent):FireClient(Player)
+        end
+    end,
+}

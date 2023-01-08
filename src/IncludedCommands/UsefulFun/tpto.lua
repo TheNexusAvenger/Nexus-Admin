@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("tpto","UsefulFunCommands","Teleports a set of players to a specific location.")
-
-    self.Arguments = {
+return {
+    Keyword = "tpto",
+    Category = "UsefulFunCommands",
+    Description = "Teleports a set of players to a specific location.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,25 +23,17 @@ function Command:__new()
             Name = "TargetPosition",
             Description = "Position to teleport to.",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, TargetPosition: Vector3)
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,TargetPosition)
-    self.super:Run(CommandContext)
-
-    --Telelport the players.
-    local Radius = math.max(10,#Players)
-    local TargetLocation = CFrame.new(TargetPosition)
-    if TargetLocation then
-        for _,Player in pairs(Players) do
-            self:TeleportPlayer(Player,TargetLocation * CFrame.new(math.random(-Radius,Radius)/10,0,math.random(-Radius,Radius)/10))
+        --Telelport the players.
+        local Radius = math.max(10, #Players)
+        local TargetLocation = CFrame.new(TargetPosition)
+        if TargetLocation then
+            for _, Player in Players do
+                Util:TeleportPlayer(Player, TargetLocation * CFrame.new(math.random(-Radius, Radius) / 10, 0, math.random(-Radius, Radius) / 10))
+            end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

@@ -3,19 +3,16 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("tp","UsefulFunCommands","Teleports a set of players to another player.")
-
-    self.Arguments = {
+return {
+    Keyword = "tp",
+    Category = "UsefulFunCommands",
+    Description = "Teleports a set of players to another player.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,40 +23,32 @@ function Command:__new()
             Name = "TargetPlayer",
             Description = "Player to teleport to",
         },
-    }
-end
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, TargetPlayers: {Player})
+        local Util = IncludedCommandUtil.ForContext(CommandContext)
 
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,TargetPlayers)
-    self.super:Run(CommandContext)
-    
-    --Get the target location.
-    local TargetLocation
-    local TargetPlayer
-    for _,NewTargetPlayer in pairs(TargetPlayers) do
-        if NewTargetPlayer.Character then
-            local HumanoidRootPart = NewTargetPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if HumanoidRootPart then
-                TargetPlayer = NewTargetPlayer
-                TargetLocation = HumanoidRootPart.CFrame
-                break
+        --Get the target location.
+        local TargetLocation
+        local TargetPlayer
+        for _, NewTargetPlayer in TargetPlayers do
+            if NewTargetPlayer.Character then
+                local HumanoidRootPart = NewTargetPlayer.Character:FindFirstChild("HumanoidRootPart") :: BasePart
+                if HumanoidRootPart then
+                    TargetPlayer = NewTargetPlayer
+                    TargetLocation = HumanoidRootPart.CFrame
+                    break
+                end
             end
         end
-    end
 
-    --Telelport the players.
-    local Radius = math.max(10,#Players)
-    if TargetLocation then
-        for _,Player in pairs(Players) do
-            if Player ~= TargetPlayer then
-                self:TeleportPlayer(Player,TargetLocation * CFrame.new(math.random(-Radius,Radius)/10,0,math.random(-Radius,Radius)/10))
+        --Telelport the players.
+        local Radius = math.max(10, #Players)
+        if TargetLocation then
+            for _, Player in Players do
+                if Player ~= TargetPlayer then
+                    Util:TeleportPlayer(Player, TargetLocation * CFrame.new(math.random(-Radius, Radius) / 10, 0, math.random(-Radius, Radius) / 10))
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

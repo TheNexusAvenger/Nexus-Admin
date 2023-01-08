@@ -3,45 +3,30 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper("unlock","UsefulFunCommands","Unlocks the character of the given players.")
-
-    self.Arguments = {
+return {
+    Keyword = "unlock",
+    Category = "UsefulFunCommands",
+    Description = "Unlocks the character of the given players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to lock.",
+            Description = "Players to unlock.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players)
-    self.super:Run(CommandContext)
-
-    --Unlock the players.
-    for _,Player in pairs(Players) do
-        if Player.Character then
-            for _,Ins in pairs(Player.Character:GetDescendants()) do
-                if Ins:IsA("BasePart") then
-                    Ins.Locked = false
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+        for _, Player in Players do
+            if Player.Character then
+                for _,Ins in Player.Character:GetDescendants() do
+                    if Ins:IsA("BasePart") then
+                        Ins.Locked = false
+                    end
                 end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}

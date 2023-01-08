@@ -3,19 +3,15 @@ TheNexusAvenger
 
 Implementation of a command.
 --]]
+--!strict
 
-local BaseCommand = require(script.Parent.Parent:WaitForChild("BaseCommand"))
-local Command = BaseCommand:Extend()
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-
-
---[[
-Creates the command.
---]]
-function Command:__new()
-    self:InitializeSuper({"walkspeed","speed"},"UsefulFunCommands","Sets the walkspeeds of the given players.")
-
-    self.Arguments = {
+return {
+    Keyword = {"walkspeed", "speed"},
+    Category = "UsefulFunCommands",
+    Description = "Sets the walkspeeds of the given players.",
+    Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
@@ -26,27 +22,16 @@ function Command:__new()
             Name = "Walkspeed",
             Description = "Walkspeed to set.",
         },
-    }
-end
-
---[[
-Runs the command.
---]]
-function Command:Run(CommandContext,Players,WalkSpeed)
-    self.super:Run(CommandContext)
-    
-    --Set the walkspeed.
-    for _,Player in pairs(Players) do
-        local Character = Player.Character
-        if Character then
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-            if Humanoid then
-                Humanoid.WalkSpeed = WalkSpeed
+    },
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, WalkSpeed: number)
+        for _, Player in Players do
+            local Character = Player.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                if Humanoid then
+                    Humanoid.WalkSpeed = WalkSpeed
+                end
             end
         end
-    end
-end
-
-
-
-return Command
+    end,
+}
