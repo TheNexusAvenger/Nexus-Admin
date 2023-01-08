@@ -6,7 +6,7 @@ Adds message UI functionality to the API.
 --!strict
 
 local HINT_HEIGHT_RELATIVE = 0.035
-local NOTIFICATION_HEIGHT_RELATIVE = 0.025
+local NOTIFICATION_HEIGHT_RELATIVE = 0.0225
 local MAX_HINTS = 5
 
 local TextService = game:GetService("TextService")
