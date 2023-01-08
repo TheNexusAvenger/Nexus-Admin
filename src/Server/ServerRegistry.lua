@@ -17,7 +17,7 @@ setmetatable(ServerRegistry, Registry)
 --[[
 Creates the server registry.
 --]]
-function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Types.Configuration, Authorization: Types.Authorization, Messages: Types.MessagesServer, Logs: Types.Logs, Time: Types.Time, Filter: Types.Filter, NexusAdminRemotes: Folder): Types.RegistryServer
+function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Types.Configuration, Authorization: Types.Authorization, Messages: Types.MessagesServer, Logs: Types.Logs, Time: Types.Time, Filter: Types.FilterServer, NexusAdminRemotes: Folder): Types.RegistryServer
     local self = Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes) :: any
     setmetatable(self, ServerRegistry)
     self.ClientData = {}
