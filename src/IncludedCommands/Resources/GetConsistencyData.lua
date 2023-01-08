@@ -32,12 +32,18 @@ local HUMANOID_PROPERTIES_TO_CHECK = {
     "WalkSpeed",
 }
 
+export type InstanceTreeNode = {
+    Name: string,
+    ClassName: string,
+    Children: {InstanceTreeNode},
+}
+
 
 
 --[[
 Gets the descendants of an instance.
 --]]
-local function GetInstanceTree(ParentInstance: Instance): {[string]: any}
+local function GetInstanceTree(ParentInstance: Instance): {InstanceTreeNode}
     local Instances = {}
     for _, Child in ParentInstance:GetChildren() do
         table.insert(Instances, {
@@ -49,7 +55,7 @@ local function GetInstanceTree(ParentInstance: Instance): {[string]: any}
     return Instances
 end
 
-return function (Player)
+return function (Player: Player): {{Description: string, CompareMode: string, Data: any}}
     local Backpack = Player:FindFirstChild("Backpack")
     local StarterGear = Player:FindFirstChild("StarterGear")
     local Character = Player.Character

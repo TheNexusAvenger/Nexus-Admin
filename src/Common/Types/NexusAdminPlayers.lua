@@ -139,7 +139,7 @@ return function(API: Types.NexusAdminApi, TestPlayersService: Players, TestTeams
 
                 --Add the team players.
                 for _, Team in Teams do
-                    for _, Player in Team:GetPlayers() do
+                    for _, Player in (Team:GetPlayers() :: {any}) :: {Player} do
                         if AllowedPlayers[Player] then
                             table.insert(SelectedPlayers, Player)
                         end
