@@ -324,7 +324,7 @@ export type NexusAdminApi = {
     Filter: Filter,
     Messages: MessagesServer | MessagesClient,
     Registry: Registry,
-    LogsRegistry: LogsRegistryServer,
+    LogsRegistry: LogsRegistry,
     Executor: Executor,
     FeatureFlags: NexusFeatureFlagsSource,
     Time: Time,

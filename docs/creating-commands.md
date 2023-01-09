@@ -1,5 +1,4 @@
 # Creating Commands
-
 The intended method for registering commands is 
 using tables of data. This can be done using
 Nexus Admin's structure or Cmdr's structure.
@@ -51,7 +50,7 @@ local CommandData = {
             Description = "Message to use.",
 		},
 	},
-	Run = function(self,CommandContext,Players,Message)
+	Run = function(self, CommandContext, Players, Message)
 		print("Raw command: "..CommandContext.RawText)
 		print("Players: "..#Players)
 		print("Message: "..Message)
@@ -86,7 +85,7 @@ local NexusAdminAPI = require(game:GetService("ServerScriptService"):WaitForChil
 --Create the command data.
 local CommandData = {
 	Name = "test",
-	Aliases = {"test1","test2"},
+	Aliases = {"test1", "test2"},
 	Description = "My first test command!",
 	Group = "TestCommands",
 	Args = {
@@ -101,7 +100,7 @@ local CommandData = {
             Description = "Message to use.",
 		},
 	},
-	Run = function(self,CommandContext,Players,Message)
+	Run = function(self, CommandContext, Players, Message)
 		print("Raw command: "..CommandContext.RawText)
 		print("Players: "..#Players)
 		print("Message: "..Message)

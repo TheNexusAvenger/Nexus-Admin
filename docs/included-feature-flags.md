@@ -13,6 +13,11 @@ If true, the native hits GUI will be displayed when
 `Messages:DisplayHint()` is used. If false, no GUI
 is displayed intended for the developer to replace.
 
+## UseNativeNotificationGui (default: `true`)
+If true, the native hits GUI will be displayed when
+`Messages:DisplayNotification()` is used. If false, no GUI
+is displayed intended for the developer to replace.
+
 ## DisplayAdminLevelNotifications (default: `true`)
 If true, messages will be displayed when the player
 changes admin levels as well as on join. If false, no

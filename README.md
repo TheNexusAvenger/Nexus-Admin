@@ -11,16 +11,13 @@ additional features or commands are needed and the more involved setup
 is acceptable for a lighter weight system, Cmdr should be considered.
 
 ## Documentation
-Documentation for the framework and utilities can be found
-on the [GitHub pages](https://thenexusavenger.github.io/Nexus-Admin)
-for this project. The [docs folder](docs) can also be used since it has all
-of the markdown files.
+See the [docs](docs/) directory for documentation.
 
 ### Frequently Asked Questions
-Before creating a GitHub issue or using private communication methods
-for support, please view the frequently asked questions in the documentation
-above. Historically, all support requests could have been resolved by
-viewing the questions.
+Before creating a GitHub Issue or using private communication methods
+for support, please view the [frequently asked questions](docs/frequently-asked-questions.md).
+Historically, all support requests could have been resolved by viewing
+the questions.
 
 ## License
 Nexus Admin is available under the terms of the MIT 
