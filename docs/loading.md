@@ -7,7 +7,7 @@ loader can be set up.
 On the server, the following is required:
 ```lua
 --Require Nexus Admin (not the MainModule)
-local NexusAdmin = require(game.ServerScriptServicee.MainModule.NexusAdmin)
+local NexusAdmin = require(game.ServerScriptService.MainModule.NexusAdmin)
 
 --Initializes the server API (this is required).
 --The Configuration is a table defined in
