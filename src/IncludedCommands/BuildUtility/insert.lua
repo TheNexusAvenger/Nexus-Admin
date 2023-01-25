@@ -9,9 +9,9 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "ambient",
+    Keyword = "insert",
     Category = "BuildUtility",
-    Description = "Sets the ambient.",
+    Description = "Inserts a model with a given id at your location.",
     Arguments = {
         {
             Type = "numbers",
