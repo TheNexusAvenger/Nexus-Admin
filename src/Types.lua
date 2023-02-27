@@ -301,6 +301,7 @@ export type Replicator = {
 
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),
+    GetDateTimeString: (self: Time, Time: number?) -> (string),
 }
 
 --Nexus Admin API.

@@ -28,6 +28,30 @@ return {
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetApi()
         
+        --Log the feature flag change.
+        if Api.CommandData.FeatureFlagLogsDataStore then
+            local PreviousValues = {}
+            for _, FeatureFlag in FeatureFlags do
+                PreviousValues[FeatureFlag] = Api.FeatureFlags:GetFeatureFlag(FeatureFlag)
+            end
+            task.spawn(function()
+                Api.CommandData.FeatureFlagLogsDataStore:Update("FeatureFlagChangesLog", function(OldLogs)
+                    OldLogs = OldLogs or {}
+                    for _, FeatureFlag in FeatureFlags do
+                        table.insert(OldLogs, {
+                            Time = os.time(),
+                            UserId = CommandContext.Executor.UserId,
+                            UserName = CommandContext.Executor.Name,
+                            Name = FeatureFlag,
+                            PreviousValue = PreviousValues[FeatureFlag],
+                            NewValue = Value,
+                        })
+                    end
+                    return OldLogs
+                end)
+            end)
+        end
+
         --Change the feature flags.
         for _, FeatureFlag in FeatureFlags do
             Api.FeatureFlags:SetFeatureFlag(FeatureFlag, Value)

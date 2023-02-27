@@ -125,6 +125,8 @@ local Config = {
             bans = nil,
             usage = -1,
             featureflag = nil,
+            featureflags = nil,
+            featureflaglogs = nil,
         },
         BasicCommands = {
             vote = nil,
