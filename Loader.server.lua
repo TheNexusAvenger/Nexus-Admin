@@ -120,6 +120,7 @@ local Config = {
             localdebug = nil,
             snapshot = nil,
             checkconsistency = nil,
+            characterhistory = nil,
             logs = 0,
             admins = 0,
             bans = nil,
