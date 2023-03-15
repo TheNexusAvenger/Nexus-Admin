@@ -156,7 +156,7 @@ return {
                 return nil
             elseif Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("Administrative", "characterhistory")) then
                 local History = GetCharacterHistoryRemoteFunction:InvokeClient(TargetPlayer) :: {any}
-                local TeleportLocations = TeleportLogs[Player]:GetLogs()
+                local TeleportLocations = TeleportLogs[TargetPlayer]:GetLogs()
                 for _, Entry in History do
                     if Entry.Type ~= "ClientTeleport" then continue end
                     local IsClose = false
@@ -183,6 +183,7 @@ return {
         --Create the window.
         local CharacterHistoryScreenGui = Instance.new("ScreenGui")
         CharacterHistoryScreenGui.Name = "CharacterHistoryView"
+        CharacterHistoryScreenGui.ResetOnSpawn = false
         CharacterHistoryScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
         local CurrentDisplayCenter: BasePart? = nil
