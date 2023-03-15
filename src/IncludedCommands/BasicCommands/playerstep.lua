@@ -85,10 +85,12 @@ return {
             --Run the command.
             if not CommandsRanOn[Player] then
                 CommandsRanOn[Player] = true
-                local Message = Api.Executor:ExecuteCommandWithOrWithoutPrefix(PlayerCommand, Players.LocalPlayer, CommandContext:GetData())
-                if Message ~= "" then
-                    Util:SendMessage(Message)
-                end
+                task.spawn(function()
+                    local Message = Api.Executor:ExecuteCommandWithOrWithoutPrefix(PlayerCommand, Players.LocalPlayer, CommandContext:GetData())
+                    if Message ~= "" then
+                        Util:SendMessage(Message)
+                    end
+                end)
             end
         end
 
