@@ -122,7 +122,7 @@ local function CheckInstanceTree(ClientData, ServerData)
                 if i == 1 and NextInstance.ClassName ~= TargetInstance.ClassName then
                     table.insert(Lines, GetIndentedWarningLine(NextInstance.FullName.." classes don't match ("..NextInstance.ClassName.." ~= "..TargetInstance.ClassName..")"))
                 end
-                for _, Child in pairs(NextInstance.Children) do
+                for _, Child in NextInstance.Children do
                     Child.FullName = NextInstance.FullName.."."..Child.Name
                     local NameParts = {}
                     for _, NamePart in NextInstance.NameParts do
@@ -135,6 +135,29 @@ local function CheckInstanceTree(ClientData, ServerData)
             end
         end
     end
+
+    --Remove entries thatt show they are missing and exist on the client.
+    --This can happen duplicate instance names exist.
+    local LinesToRemove = {}
+    local Prefix1, Prefix2 = GetIndentedWarningLine(Scans[1].NotFoundPrefix).Text, GetIndentedWarningLine(Scans[2].NotFoundPrefix).Text
+    for i, Entry in Lines do
+        if string.sub(Entry.Text, 1, string.len(Prefix1)) == Prefix1 then
+            local TargetLine = Prefix2..string.sub(Entry.Text, string.len(Prefix1) + 1)
+            for j, OtherEntry in Lines do
+                if LinesToRemove[j] then continue end
+                if OtherEntry.Text ~= TargetLine then continue end
+                LinesToRemove[i] = true
+                LinesToRemove[j] = true
+                break
+            end
+        end
+    end
+    for i = #Lines, 1, - 1 do
+        if not LinesToRemove[i] then continue end
+        table.remove(Lines, i)
+    end
+
+    --Return the lines.
     return Lines
 end
 
