@@ -127,6 +127,12 @@ return function(API: Types.NexusAdminApi, TestPlayersService: Players, TestTeams
         Returns the value to use.
         --]]
         Parse = function(ArgumentData: {Text: string, Executor: Player}): {Player}
+            --Return if the text is empty.
+            --This prevents incomplete commands (such as with a "player1," instead of "player1") from invoking on everyone.
+            if ArgumentData.Text == "" then
+                return {}
+            end
+
             --Get the players.
             local Teams = GetTeams(ArgumentData.Text)
             local SelectedPlayers = {}

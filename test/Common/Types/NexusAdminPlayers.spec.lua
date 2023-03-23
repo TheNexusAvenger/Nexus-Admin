@@ -116,6 +116,7 @@ return function()
             end
 
             --Test the shorthands.
+            expectTableEqual(TestNexusAdminPlayers.Autocomplete(TestNexusAdminPlayers.Transform("", MockPlayers[1])), {"Player1", "Player2", "Player3"})
             expectTableEqual(TestNexusAdminPlayers.Autocomplete(TestNexusAdminPlayers.Transform(".", MockPlayers[1])), {"Player1"})
             expectTableEqual(TestNexusAdminPlayers.Autocomplete(TestNexusAdminPlayers.Transform("me", MockPlayers[1])), {"Player1"})
             expectTableEqual(TestNexusAdminPlayers.Autocomplete(TestNexusAdminPlayers.Transform("*", MockPlayers[1])), {"Player1", "Player2", "Player3", "Player4"})
@@ -143,6 +144,7 @@ return function()
             end
 
             --Test the shorthands.
+            expectTableEqual(TestNexusAdminPlayers.Parse(TestNexusAdminPlayers.Transform("", MockPlayers[1])), {})
             expectTableEqual(TestNexusAdminPlayers.Parse(TestNexusAdminPlayers.Transform(".", MockPlayers[1])), {MockPlayers[1]})
             expectTableEqual(TestNexusAdminPlayers.Parse(TestNexusAdminPlayers.Transform("me", MockPlayers[1])), {MockPlayers[1]})
             expectTableEqual(TestNexusAdminPlayers.Parse(TestNexusAdminPlayers.Transform("*", MockPlayers[1])), {MockPlayers[1], MockPlayers[2], MockPlayers[3], MockPlayers[4]})
