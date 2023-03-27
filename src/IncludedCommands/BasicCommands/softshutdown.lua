@@ -27,6 +27,8 @@ local function CreateSoftShutdownGui(Source: {Source: string, Name: string?}?): 
     --Create background to cover behind top bar.
     local BackgroundFrame = Instance.new("Frame")
     BackgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    BackgroundFrame.BorderColor3 = Color3.new(0, 0, 0)
+    BackgroundFrame.BorderSizePixel = 100
     BackgroundFrame.Position = UDim2.new(-0.5, 0, -0.5, 0)
     BackgroundFrame.Size = UDim2.new(2, 0, 2, 0)
     BackgroundFrame.ZIndex = 10
