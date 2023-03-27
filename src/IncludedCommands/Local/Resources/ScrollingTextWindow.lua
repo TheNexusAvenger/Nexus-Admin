@@ -186,12 +186,12 @@ function ScrollingTextWindow:UpdateAdornText()
         local LineEntry = Lines[Index]
         local TextLabel = TextLabels[i]
         if LineEntry then
-            for Key, _ in pairs(LineEntry) do
+            for Key, _ in LineEntry do
                 if not Defaults[Key] then
                     Defaults[Key] = TextLabel[Key]
                 end
             end
-            for Key, Value in pairs(Defaults) do
+            for Key, Value in Defaults do
                 TextLabel[Key] = LineEntry[Key] or Value
             end
         else
@@ -210,23 +210,23 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
 
     --Split the lines.
     local Lines = {}
-    for _,Line in pairs(BaseLines) do
+    for _, Line in BaseLines do
         if type(Line) == "string" then
             Line = {Text=Line}
         end
-        for _,SubLine in pairs(string.split(Line.Text or "","\n")) do
+        for _, SubLine in string.split(Line.Text or "", "\n") do
             local LineData = {}
-            for Key,Value in pairs(Line) do
+            for Key, Value in Line do
                 LineData[Key] = Value
             end
             LineData.Text = SubLine
-            table.insert(Lines,LineData)
+            table.insert(Lines, LineData)
         end
     end
 
     --Determine the max width of the lines.
     local MaxWidth = 0
-    for _, Line in pairs(Lines)  do
+    for _, Line in Lines  do
         local Text = Line.Text
         local Font = Line.Font or Enum.Font.SourceSans
         local LineLength = self.TextService:GetTextSize(Text, self.TextHeight, Font, Vector2.new(math.huge, self.TextHeight)).X
@@ -235,14 +235,8 @@ function ScrollingTextWindow:UpdateText(ForceRefresh)
     self.Lines = Lines
     self.MaxLineWidth = MaxWidth + 5
 
-    --Remove the unneeded lines.
-    for i = #self.CurrentTextLabels,#Lines + 1,-1 do
-        self.CurrentTextLabels[i]:Destroy()
-        table.remove(self.CurrentTextLabels,i)
-    end
-
     --Set the scrolling size.
-    self.ScrollingFrame.CanvasSize = UDim2.new(0,MaxWidth,0,#Lines * self.TextHeight)
+    self.ScrollingFrame.CanvasSize = UDim2.new(0, MaxWidth, 0, #Lines * self.TextHeight)
     self:UpdateAdornText()
 end
 
@@ -254,6 +248,7 @@ function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
     if self.RefreshButton then
         self.RefreshButton:Destroy()
     end
+    local CurrentMessages, LastSearchTerm, MaxWidth = nil, "", 0
 
     --[[
     Returns if a log entry is in the current search.
@@ -266,10 +261,45 @@ function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
         return string.find(string.lower(Text), string.lower(SearchTerm)) ~= nil
     end
 
-    --Set the GetTextLines function.
-    local CurrentMessages, LastSearchTerm = nil, ""
-    self.GetTextLines = function(_, SearchTerm)
+    --[[
+    Adds a message to store.
+    --]]
+    local function AddMessage(Message)
+        if not PassesSearch(Message, LastSearchTerm) then return end
+
+        --Split the lines.
+        local Messages = {}
+        if type(Message) == "string" then
+            Message = {Text = Message}
+        end
+        for _, SubLine in string.split(Message.Text or "", "\n") do
+            local LineData = {}
+            for Key, Value in Message do
+                LineData[Key] = Value
+            end
+            LineData.Text = SubLine
+            table.insert(Messages, LineData)
+        end
+
+        --Update the max line width.
+        for _, Line in Messages do
+            local Text = Line.Text
+            local Font = Line.Font or Enum.Font.SourceSans
+            local LineLength = self.TextService:GetTextSize(Text, self.TextHeight, Font, Vector2.new(math.huge, self.TextHeight)).X
+            MaxWidth = math.max(MaxWidth, LineLength)
+        end
+        self.MaxLineWidth = MaxWidth + 5
+
+        --Add the messages.
+        for _, Message in Messages do
+            table.insert(CurrentMessages, Inverted and #CurrentMessages + 1 or 1, Message)
+        end
+    end
+
+    --Set the UpdateText function.
+    self.UpdateText = function()
         --Invalidate the current messages if the search term changed.
+        local SearchTerm = self.SearchBar and self.SearchBar.Text or ""
         if SearchTerm ~= LastSearchTerm then
             CurrentMessages = nil
         end
@@ -278,23 +308,23 @@ function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
         --Build the current messages.
         if CurrentMessages == nil then
             CurrentMessages = {}
+            MaxWidth = 0
             local LogEntries = Logs:GetLogs()
             for i = (Inverted and #LogEntries or 1), (Inverted and 1 or #LogEntries), (Inverted and -1 or 1) do
-                local Message = LogEntries[i]
-                if not PassesSearch(Message, SearchTerm) then continue end
-                table.insert(CurrentMessages, Message)
+                AddMessage(LogEntries[i])
             end
+            self.Lines = CurrentMessages
         end
 
-        --Return the messages.
-        return CurrentMessages
+        --Set the scrolling size.
+        self.ScrollingFrame.CanvasSize = UDim2.new(0, MaxWidth, 0, #CurrentMessages * self.TextHeight)
+        self:UpdateAdornText()
     end
 
     --Connect logs being added.
     self.LogAddedConnection = Logs.LogAdded:Connect(function(LogEntry)
-        if not PassesSearch(LogEntry, LastSearchTerm) then return end
-        table.insert(CurrentMessages, Inverted and #CurrentMessages + 1 or 1, LogEntry)
-        self:UpdateText(true)
+        AddMessage(LogEntry)
+        self:UpdateText()
     end)
 end
 
