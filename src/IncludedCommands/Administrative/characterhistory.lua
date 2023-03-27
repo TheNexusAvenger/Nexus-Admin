@@ -118,6 +118,7 @@ return {
             local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart", 60) :: BasePart
             if not HumanoidRootPart then return end
             HumanoidRootPart:GetPropertyChangedSignal("CFrame"):Connect(function()
+                if not TeleportLogs[Player] then return end
                 TeleportLogs[Player]:Add(HumanoidRootPart.Position)
             end)
         end
