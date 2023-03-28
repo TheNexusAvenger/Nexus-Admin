@@ -310,7 +310,7 @@ function ScrollingTextWindow:DisplayLogs(Logs, Inverted)
             CurrentMessages = {}
             MaxWidth = 0
             local LogEntries = Logs:GetLogs()
-            for i = (Inverted and #LogEntries or 1), (Inverted and 1 or #LogEntries), (Inverted and -1 or 1) do
+            for i = #LogEntries, 1, -1 do
                 AddMessage(LogEntries[i])
             end
             self.Lines = CurrentMessages
