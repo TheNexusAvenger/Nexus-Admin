@@ -5,11 +5,15 @@ Adds executing messages from the chat.
 --]]
 --!strict
 
+local TextChatService = game:GetService("TextChatService")
+
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 return function(API: Types.NexusAdminApiClient, Player: Player): ()
-    --Connect the chatted event.
-    Player.Chatted:Connect(function(Message: string)
+    --[[
+    Executes a chat command.
+    --]]
+    local function ExecuteCommand(Message: string): ()
         if API.FeatureFlags:GetFeatureFlag("AllowChatCommandExecuting") then
             --Run the command.
             local RunMessage = API.Executor:ExecuteCommandWithPrefix(Message, Player, {ExecuteContext = "Chat"})
@@ -29,7 +33,7 @@ return function(API: Types.NexusAdminApiClient, Player: Player): ()
                 end
 
                 --Display the message if the prefix is valid.
-                for Prefix,_ in (API.Registry :: any).Prefixes do
+                for Prefix, _ in (API.Registry :: any).Prefixes do
                     if string.len(Command) >= string.len(Prefix) and string.sub(Command, 1, string.len(Prefix)) == Prefix then
                         API.Messages:DisplayHint(Command.." is not a valid command.")
                         break
@@ -37,5 +41,12 @@ return function(API: Types.NexusAdminApiClient, Player: Player): ()
                 end
             end
         end
+    end
+
+    --Connect the chatted event.
+    Player.Chatted:Connect(ExecuteCommand)
+    TextChatService.SendingMessage:Connect(function(Message: TextChatMessage)
+        if not Message.TextSource or Message.TextSource.UserId ~= Player.UserId then return end
+        ExecuteCommand(Message.Text)
     end)
 end
