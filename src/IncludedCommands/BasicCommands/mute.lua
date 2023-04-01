@@ -37,7 +37,7 @@ return {
         local MutePlayerEvent = Util:GetRemote("MutePlayer") :: RemoteEvent
         for _, Player in Players do
             if Api.Authorization:GetAdminLevel(Player) >= 0 then
-                Util:SendError("You can't crash admins.")
+                Util:SendError("You can't mute admins.")
             else
                 MutePlayerEvent:FireClient(Player)
             end
