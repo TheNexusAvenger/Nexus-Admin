@@ -29,6 +29,7 @@ return {
             local Character = Player.Character
             if Character then
                 local ForceField = Instance.new("ForceField")
+                ForceField.Name = "NexusAdminForceField"
                 if Invisible == true then
                     ForceField.Visible = false
                 end

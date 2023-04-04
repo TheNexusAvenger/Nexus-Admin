@@ -47,12 +47,14 @@ return {
                     
                     --Create the physics components.
                     local Gyro = Instance.new("BodyGyro")
+                    Gyro.Name = "NexusAdminFlyBodyGyro"
                     Gyro.MaxTorque = Vector3.new(0, 0, 0)
                     Gyro.D = 250
                     Gyro.P = 10000
                     Gyro.Parent = HumanoidRootPart
     
                     local Velocity = Instance.new("BodyVelocity")
+                    Velocity.Name = "NexusAdminFlyBodyVelocity"
                     Velocity.MaxForce = Vector3.new(0, 0, 0)
                     Velocity.Velocity = Vector3.new(0, 0, 0)
                     Velocity.Parent = HumanoidRootPart

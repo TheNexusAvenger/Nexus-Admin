@@ -24,6 +24,7 @@ return {
                 local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart") :: BasePart
                 if HumanoidRootPart then
                     local Explosion = Instance.new("Explosion")
+                    Explosion.Name = "NexusAdminExplosion"
                     Explosion.Position = HumanoidRootPart.Position
                     Explosion.Parent = game.Workspace
                 end
