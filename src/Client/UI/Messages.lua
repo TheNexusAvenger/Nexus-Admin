@@ -36,6 +36,7 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
                 local NewNexusAdminMessagesScreenGui = Instance.new("ScreenGui")
                 NewNexusAdminMessagesScreenGui.Name = "NexusAdminMessagesScreenGui"
                 NewNexusAdminMessagesScreenGui.Parent = Player:FindFirstChild("PlayerGui")
+                NewNexusAdminMessagesScreenGui.DisplayOrder = 50
                 NewNexusAdminMessagesScreenGui.ResetOnSpawn = false
                 NexusAdminMessagesScreenGui = NewNexusAdminMessagesScreenGui
             end
@@ -163,6 +164,7 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
                 NewNexusAdminHintsScreenGui.Name = "NexusAdminHintsScreenGui"
                 NewNexusAdminHintsScreenGui.Parent = Player:FindFirstChild("PlayerGui")
                 NewNexusAdminHintsScreenGui.ResetOnSpawn = false
+                NewNexusAdminHintsScreenGui.DisplayOrder = 50
                 NexusAdminHintsScreenGui = NewNexusAdminHintsScreenGui
             end
 
@@ -221,6 +223,7 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
                 NewNexusAdminNotificationsScreenGui.Name = "NexusAdminNotificationsScreenGui"
                 NewNexusAdminNotificationsScreenGui.Parent = Player:FindFirstChild("PlayerGui")
                 NewNexusAdminNotificationsScreenGui.ResetOnSpawn = false
+                NewNexusAdminNotificationsScreenGui.DisplayOrder = 50
                 NexusAdminNotificationsScreenGui = NewNexusAdminNotificationsScreenGui
             end
 
