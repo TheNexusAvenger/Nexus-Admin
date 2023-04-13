@@ -5,6 +5,8 @@ Implementation of a command.
 --]]
 --!strict
 
+local Workspace = game:GetService("Workspace")
+
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
@@ -26,7 +28,7 @@ return {
                     local Explosion = Instance.new("Explosion")
                     Explosion.Name = "NexusAdminExplosion"
                     Explosion.Position = HumanoidRootPart.Position
-                    Explosion.Parent = game.Workspace
+                    Explosion.Parent = Workspace
                 end
             end
         end

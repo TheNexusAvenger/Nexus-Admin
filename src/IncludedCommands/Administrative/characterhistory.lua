@@ -53,7 +53,7 @@ return {
 
                 --Add the entry.
                 local Entry = {
-                    Time = game.Workspace:GetServerTimeNow(),
+                    Time = Workspace:GetServerTimeNow(),
                     Type = Type,
                     Position = Position,
                     Humanoid = {
