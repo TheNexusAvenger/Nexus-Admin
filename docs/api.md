@@ -3,7 +3,7 @@
 Nexus Admin is intended to be loaded when the game
 starts. This means no types are shown in Studio.
 To get around this, it is recommended to have
-a copy of the [Types](https://github.com/TheNexusAvenger/Nexus-Admin/blob/typing-refactor/src/Types.lua)
+a copy of the [Types](https://github.com/TheNexusAvenger/Nexus-Admin/blob/master/src/Types.lua)
 script. There are no dependencies and can be
 stored anywhere in the game.
 
