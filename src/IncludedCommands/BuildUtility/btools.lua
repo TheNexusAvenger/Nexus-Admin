@@ -5,13 +5,12 @@ Implementation of a command.
 --]]
 --!strict
 
-local F3X = script.Parent.Parent:WaitForChild("Resources"):WaitForChild("F3X")
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
     Keyword = "btools",
     Category = "BuildUtility",
-    Description = "Gives the given players a set of the HopperBin tools and F3X Build tools.",
+    Description = "Gives the given players a set of the HopperBin tools.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
@@ -24,7 +23,6 @@ return {
         for _, Player in Players do
             local Backpack = Player:FindFirstChild("Backpack")
             if Backpack then
-                --Give the hopper bins.
                 local GrabHopperBin = Instance.new("HopperBin")
                 GrabHopperBin.Name = "Grab"
                 GrabHopperBin.BinType = Enum.BinType.Grab
@@ -39,9 +37,6 @@ return {
                 HammerHopperBin.Name = "Hammer"
                 HammerHopperBin.BinType = Enum.BinType.Hammer
                 HammerHopperBin.Parent = Backpack
-
-                --Give the F3X tools.
-                F3X:Clone().Parent = Backpack
             end
         end
     end,
