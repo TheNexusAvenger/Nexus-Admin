@@ -40,9 +40,9 @@ return {
                     for _, StatName in Stats do
                         StatName = string.lower(StatName)
                         if string.sub(string.lower(Stat.Name), 1, string.len(StatName)) == StatName then
-                            if type(Stat.Value) == "string" then
+                            if type((Stat :: StringValue).Value) == "string" then
                                 (Stat :: StringValue).Value = Value
-                            elseif type(Stat.Value) == "number" then
+                            elseif type((Stat :: NumberValue).Value) == "number" then
                                 (Stat :: NumberValue).Value = tonumber(Value) or (Stat :: NumberValue).Value
                             else
                                 Util:SendError("Unable to assign value to stat.")

@@ -23,7 +23,7 @@ return {
             local leaderstats = Player:FindFirstChild("leaderstats")
             if leaderstats then
                 for _,Stat in leaderstats:GetChildren() do
-                    if Stat:IsA("ValueBase") and type(Stat.Value) == "number" then
+                    if Stat:IsA("ValueBase") and type((Stat :: NumberValue).Value) == "number" then
                         (Stat :: NumberValue).Value = 0
                     end
                 end
