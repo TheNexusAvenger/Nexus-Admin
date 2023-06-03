@@ -118,6 +118,7 @@ local Config = {
             cmdbar = 0,
             debug = 0,
             localdebug = nil,
+            system = nil,
             snapshot = nil,
             checkconsistency = nil,
             characterhistory = nil,
