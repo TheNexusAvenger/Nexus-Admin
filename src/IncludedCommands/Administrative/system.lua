@@ -20,6 +20,19 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 
 --[[
+Attempts to determine the client type.
+--]]
+local function GetAddressLength(): number
+    local MemoryAddressLength = string.match(tostring({}), "x([%dabcdef]+)") :: string
+    while true do
+        local RemainingAddress = string.match(MemoryAddressLength, "^00000000([%dabcdef]+)")
+        if not RemainingAddress then break end
+        MemoryAddressLength = RemainingAddress :: string
+    end
+    return string.len(MemoryAddressLength) * 4
+end
+
+--[[
 Tries to get a value as a string.
 --]]
 local function TryGet(Call: () -> (any)): string
@@ -29,7 +42,6 @@ local function TryGet(Call: () -> (any)): string
     if Worked then
         return Return
     end
-    warn(Return)
     return "Unknown"
 end
 
@@ -60,7 +72,7 @@ return {
 
             --Add the initial client information.
             table.insert(Output, "Client version: "..TryGet(Version))
-            table.insert(Output, "Client type: "..TryGet(function() return string.len(string.match(tostring({}), "x([%dabcdef]+)") :: string) * 4 end).."-bit ("..tostring({})..")")
+            table.insert(Output, "Client type: "..TryGet(GetAddressLength).."-bit ("..tostring({})..")")
             table.insert(Output, "Client uptime: "..tostring(Workspace.DistributedGameTime).." seconds")
             table.insert(Output, "")
 
