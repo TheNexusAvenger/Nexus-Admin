@@ -21,9 +21,9 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     setmetatable(self, Configuration)
 
     --Store the values.
-    self.Version = "Version 2.7.1"
+    self.Version = "Version 2.7.2"
     self.VersionNumberId = 2.7
-    self.CmdrVersion = "Version 1.10.0"
+    self.CmdrVersion = "Version 1.12.0"
     self.RawConfiguration = ConfigurationTable
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
     self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash}
