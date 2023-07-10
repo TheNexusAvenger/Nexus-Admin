@@ -9,19 +9,11 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = {"cmds","commands","help"},
+    Keyword = {"cmds","commands"},
     Category = "Administrative",
-    Description = "Displays a list of all commands, or inspects one command.",
+    Description = "Displays a list of all commands.",
     Prefix = "!",
-    Arguments = {
-        {
-            Type = "command";
-            Name = "Command";
-            Description = "The command to view information on (command line only)";
-            Optional = true;
-        },
-    },
-    ClientRun = function(CommandContext: Types.CmdrCommandContext, Command: string)
+    ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetApi()
         local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any

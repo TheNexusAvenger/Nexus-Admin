@@ -177,7 +177,9 @@ function API:LoadIncludedCommands(): ()
 
     --Load the Cmdr utility commands.
     local CmdrUtilityCommands = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility")
-    for _, CommandScript in CmdrUtilityCommands:GetChildren() do
+    local CmdrCommandsToLoad = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility"):GetChildren()
+    table.insert(CmdrCommandsToLoad, script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("help"))
+    for _, CommandScript in CmdrCommandsToLoad do
         if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
             local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(CommandScript.Name.."Server")
             local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
