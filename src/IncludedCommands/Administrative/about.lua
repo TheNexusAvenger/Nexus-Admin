@@ -9,7 +9,7 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "usage",
+    Keyword = {"about", "usage"},
     Category = "Administrative",
     Description = "Displays the usage information of Nexus Admin.",
     Prefix = "!",
