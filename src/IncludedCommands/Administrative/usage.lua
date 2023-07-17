@@ -28,7 +28,7 @@ return {
                 Api.Configuration.Version,
                 "",
                 "View commands using !cmds or :cmds.",
-                "Use \\ to open the Cmdr command line.",
+                "Use "..(Api.Configuration.ActivationKeys[1] or Enum.KeyCode.F2).Name.." to open the Cmdr command line.",
                 "Prefixes are only needed for the chat.",
                 "",
                 "Cmdr information: https://eryn.io/Cmdr/",
