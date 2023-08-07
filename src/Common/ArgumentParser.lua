@@ -10,7 +10,7 @@ local ArgumentParser = {}
 
 local PlayerMap = {}
 local AllUniquePlayers = {}
-game.Players.PlayerAdded:Connect(function(Player)
+game:GetService("Players").PlayerAdded:Connect(function(Player)
     if PlayerMap[Player.Name] == nil then
         PlayerMap[Player.Name] = Player
         
@@ -161,9 +161,9 @@ function ArgumentParser:CreateParser(BaseString,ReferencePlayer)
 
     function Parser:GetNextPlayers(IncludeDisconnected)
         local NextElement = GetNextElement()
-        local BasePlayers = game.Players:GetPlayers()
+        local BasePlayers = game:GetService("Players"):GetPlayers()
         local AllPlayers = (IncludeDisconnected and AllUniquePlayers or BasePlayers)
-        local PlayersLeft = game.Players:GetPlayers()
+        local PlayersLeft = game:GetService("Players"):GetPlayers()
         local ReturnPlayers = {}
         
         local function AddPlayer(Player)
