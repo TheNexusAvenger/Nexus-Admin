@@ -7,7 +7,7 @@ Base class for a command registry.
 
 local RunService = game:GetService("RunService")
 
-local ArgumentParser = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("ArgumentParser"))
+local ArgumentParser = nil
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 local Registry = {}
@@ -130,13 +130,16 @@ Creates a run method for a given command.
 --]]
 function Registry:CreateRunMethod(CommandData: Types.NexusAdminCommandData): (Types.CmdrCommandContext, ... any) -> (string?)
     local CmdrData = self:GetReplicatableCmdrData(CommandData)
+    if not ArgumentParser and not CommandData.Run and (CommandData :: any).OnCommandInvoked then
+        warn("Command.OnCommandInvoked(Player,BaseMessage,Arguments/ArgumentParser) (used in "..(CmdrData.Name or "")..") is deprecated as of V.2.0.0. Command:Run(CommandContext) should be used instead.")
+        ArgumentParser = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("ArgumentParser"))
+    end
+
     return function(CommandContext: Types.CmdrCommandContext, ...): (string?)
         --Run the command.
         if CommandData.Run then
             return (CommandData :: any):Run(CommandContext,...)
         elseif (CommandData :: any).OnCommandInvoked then
-            warn("Command.OnCommandInvoked(Player,BaseMessage,Arguments/ArgumentParser) (used in "..(CmdrData.Name or "")..") is deprecated as of V.2.0.0. Command:Run(CommandContext) should be used instead.")
-            
             --Get the arguments string.
             local ArgumentsString = ""
             if string.find(CommandContext.RawText," ") then
