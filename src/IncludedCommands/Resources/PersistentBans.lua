@@ -40,6 +40,7 @@ function PersistentBans.new(Api: Types.NexusAdminApiServer): PersistentBans
         InitializationStarted = false,
         Initialized = false,
         Api = Api,
+        PlayerUpdateEvents = {},
     }
     setmetatable(self, PersistentBans)
 
@@ -79,6 +80,11 @@ function PersistentBans:Initialize(): ()
     end
     
     --Connect kicking players.
+    Players.PlayerRemoving:Connect(function(Player: Player)
+        if not self.PlayerUpdateEvents[Player] then return end
+        self.PlayerUpdateEvents[Player]:Disconnect()
+        self.PlayerUpdateEvents[Player] = nil
+    end)
     Players.PlayerAdded:Connect(function(Player: Player)
         self:ConnectPlayer(Player)
     end)
@@ -93,7 +99,7 @@ Connects a player.
 --]]
 function PersistentBans:ConnectPlayer(Player: Player): ()
     if not self.BansDataStore then return end
-    self.BansDataStore:OnUpdate(tostring(Player.UserId), function()
+    self.PlayerUpdateEvents[Player] = self.BansDataStore:OnUpdate(tostring(Player.UserId), function()
         self:KickPlayer(Player)
     end)
     self:KickPlayer(Player)

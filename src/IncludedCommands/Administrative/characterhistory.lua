@@ -109,15 +109,19 @@ return {
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         local TeleportLogs = {} :: {[Player]: Types.Logs}
         Api.CommandData.TeleportLogs = TeleportLogs
+        local CharacterEvents, PlayerEvents = {}, {}
 
         --[[
         Connects a character.
         --]]
         local function ConnectCharacter(Player: Player, Character: Model): ()
+            if CharacterEvents[Player] then
+                CharacterEvents[Player]:Disconnect()
+            end
             if not Character then return end
             local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart", 60) :: BasePart
             if not HumanoidRootPart then return end
-            HumanoidRootPart:GetPropertyChangedSignal("CFrame"):Connect(function()
+            CharacterEvents[Player] = HumanoidRootPart:GetPropertyChangedSignal("CFrame"):Connect(function()
                 if not TeleportLogs[Player] then return end
                 TeleportLogs[Player]:Add(HumanoidRootPart.Position)
             end)
@@ -128,7 +132,7 @@ return {
         --]]
         local function ConnectPlayer(Player: Player): ()
             TeleportLogs[Player] = Logs.new(CHARACTER_HISTORY_MAX_ENTRIES)
-            Player.CharacterAppearanceLoaded:Connect(function(Character)
+            PlayerEvents[Player] = Player.CharacterAppearanceLoaded:Connect(function(Character)
                 ConnectCharacter(Player, Character)
             end)
             ConnectCharacter(Player, Player.Character :: Model)
@@ -144,6 +148,14 @@ return {
         
         --Connect players leaving.
         Players.PlayerRemoving:Connect(function(Player)
+            if CharacterEvents[Player] then
+                CharacterEvents[Player]:Disconnect()
+                CharacterEvents[Player] = nil
+            end
+            if PlayerEvents[Player] then
+                PlayerEvents[Player]:Disconnect()
+                PlayerEvents[Player] = nil
+            end
             TeleportLogs[Player] = nil
         end)
 

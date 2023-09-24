@@ -18,15 +18,22 @@ return {
         --Create the logs.
         local KillLogs = Api.Logs.new()
         Api.LogsRegistry:RegisterLogs("KillLogs", KillLogs, Api.Configuration:GetCommandAdminLevel("BasicCommands", "killlogs"))
+        local CharacterAddedEvents = {}
+        local DiedEvents = {}
 
         --[[
         Connects the a character dieing.
         --]]
         local function CharacterAdded(Player: Player, Character: Model): ()
+            --Disconnect the previous event.
+            if DiedEvents[Player] then
+                DiedEvents[Player]:Disconnect()
+            end
+
             --Connect the humanoid death.
             local Humanoid = Character:WaitForChild("Humanoid") :: Humanoid
             local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart") :: BasePart
-            Humanoid.Died:Connect(function()
+            DiedEvents[Player] = Humanoid.Died:Connect(function()
                 --Get the information.
                 local CreatorTag = Humanoid:FindFirstChild("creator")
                 local KillingPlayer = CreatorTag and (CreatorTag :: ObjectValue).Value :: Player
@@ -57,7 +64,7 @@ return {
         Connects the characters being added for a player.
         --]]
         local function PlayerAdded(Player: Player): ()
-            Player.CharacterAdded:Connect(function(Character)
+            CharacterAddedEvents[Player] = Player.CharacterAdded:Connect(function(Character)
                 CharacterAdded(Player, Character)
             end)
             if Player.Character then
@@ -66,6 +73,16 @@ return {
         end
 
         --Connect the players.
+        Players.PlayerRemoving:Connect(function(Player)
+            if CharacterAddedEvents[Player] then
+                CharacterAddedEvents[Player]:Disconnect()
+                CharacterAddedEvents[Player] = nil
+            end
+            if DiedEvents[Player] then
+                DiedEvents[Player]:Disconnect()
+                DiedEvents[Player] = nil
+            end
+        end)
         Players.PlayerAdded:Connect(PlayerAdded)
         for _,Player in Players:GetPlayers() do
             task.spawn(function()

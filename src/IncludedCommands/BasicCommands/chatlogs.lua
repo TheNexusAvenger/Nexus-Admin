@@ -20,17 +20,23 @@ return {
         --Create the logs.
         local ChatLogs = Api.Logs.new()
         Api.LogsRegistry:RegisterLogs("ChatLogs", ChatLogs, Api.Configuration:GetCommandAdminLevel("BasicCommands", "chatlogs"))
+        local ChatEvents = {}
         
         --[[
         Connects the Chatted event for a player.
         --]]
         local function ConnectPlayerChatted(Player: Player)
-            Player.Chatted:Connect(function(Message: string)
+            ChatEvents[Player] = Player.Chatted:Connect(function(Message: string)
                 ChatLogs:Add(Player.Name.." ["..Api.Time:GetTimeString().."]: "..Api.Filter:FilterString(Message, Player))
             end)
         end
 
         --Connect the players.
+        Players.PlayerRemoving:Connect(function(Player)
+            if not ChatEvents[Player] then return end
+            ChatEvents[Player]:Disconnect()
+            ChatEvents[Player] = nil
+        end)
         Players.PlayerAdded:Connect(ConnectPlayerChatted)
         for _, Player in Players:GetPlayers() do
             ConnectPlayerChatted(Player)
