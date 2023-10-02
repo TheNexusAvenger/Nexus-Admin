@@ -58,13 +58,13 @@ function ClientRegistry:LoadCommand(CommandData: Types.NexusAdminCommandData): (
     end
 
     -- Force arguments lost during invocation to be included on the client. Extremely shallow.
-	if ExistingCommand then
-		for index,arg in ipairs(ExistingCommand.Args) do
-			if typeof(CmdrCommandData.Args[index]) ~= typeof(arg) then
-				table.insert(CmdrCommandData.Args,index,arg)
-			end
-		end
-	end
+    if ExistingCommand then
+        for i, Argument in ExistingCommand.Args do
+            if typeof(CmdrCommandData.Args[i]) ~= typeof(Argument) then
+                table.insert(CmdrCommandData.Args, i, Argument)
+            end
+        end
+    end
     
     self.Cmdr.Registry:RegisterCommandObject(CmdrCommandData)
 end

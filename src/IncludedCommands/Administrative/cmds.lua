@@ -44,15 +44,15 @@ return {
                         for _,Prefix in Prefixes do
                             local CommandString = Prefix..CmdrCommand.Name.." "
                             for _,Argument in CmdrCommand.Args do
-                                if typeof(Argument)=='function' then
-									CommandString = CommandString.."[Conditional] "
-								else
-	                                if Argument.Optional == true then
+                                if typeof(Argument) == "function" then
+                                    CommandString = CommandString.."[Conditional] "
+                                else
+                                    if Argument.Optional == true then
 	                                    CommandString = CommandString.."("..Argument.Name..") "
-	                                else
-	                                    CommandString = CommandString..Argument.Name.." "
-									end
-								end
+                                    else
+                                        CommandString = CommandString..Argument.Name.." "
+                                    end
+                                end
                             end
                             if not ExistingLines[CommandString] and string.find(string.lower(CommandString), string.lower(SearchTerm)) then
                                 table.insert(Commands,CommandString.."- "..CmdrCommand.Description)
