@@ -18,7 +18,7 @@ return {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to run the command one.",
+            Description = "Players to run the command on.",
         },
         {
             Type = "string",

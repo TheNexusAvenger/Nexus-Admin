@@ -48,7 +48,7 @@ return {
                                     CommandString = CommandString.."[Conditional] "
                                 else
                                     if Argument.Optional == true then
-	                                    CommandString = CommandString.."("..Argument.Name..") "
+                                        CommandString = CommandString.."("..Argument.Name..") "
                                     else
                                         CommandString = CommandString..Argument.Name.." "
                                     end
