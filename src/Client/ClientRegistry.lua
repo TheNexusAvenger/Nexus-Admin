@@ -56,6 +56,16 @@ function ClientRegistry:LoadCommand(CommandData: Types.NexusAdminCommandData): (
     elseif ExistingCommand then
         CmdrCommandData.ClientRun = ExistingCommand.ClientRun
     end
+
+    -- Force arguments lost during invocation to be included on the client. Extremely shallow.
+    if ExistingCommand then
+        for i, Argument in ExistingCommand.Args do
+            if typeof(CmdrCommandData.Args[i]) ~= typeof(Argument) then
+                table.insert(CmdrCommandData.Args, i, Argument)
+            end
+        end
+    end
+    
     self.Cmdr.Registry:RegisterCommandObject(CmdrCommandData)
 end
 

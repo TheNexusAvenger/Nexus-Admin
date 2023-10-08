@@ -44,10 +44,14 @@ return {
                         for _,Prefix in Prefixes do
                             local CommandString = Prefix..CmdrCommand.Name.." "
                             for _,Argument in CmdrCommand.Args do
-                                if Argument.Optional == true then
-                                    CommandString = CommandString.."("..Argument.Name..") "
+                                if typeof(Argument) == "function" then
+                                    CommandString = CommandString.."[Conditional] "
                                 else
-                                    CommandString = CommandString..Argument.Name.." "
+                                    if Argument.Optional == true then
+                                        CommandString = CommandString.."("..Argument.Name..") "
+                                    else
+                                        CommandString = CommandString..Argument.Name.." "
+                                    end
                                 end
                             end
                             if not ExistingLines[CommandString] and string.find(string.lower(CommandString), string.lower(SearchTerm)) then
