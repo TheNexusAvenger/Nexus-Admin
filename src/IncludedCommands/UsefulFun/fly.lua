@@ -241,8 +241,6 @@ return {
                             self.SideMultiplier = 0
                             self.FrontSpeed = 0
                             self.SideSpeed = 0
-                            ContextActionService:UnbindAction("mobileShiftDown")
-                            ContextActionService:UnbindAction("mobileShiftUp")
                             RunService:UnbindFromRenderStep("NexusAdminFlyStep")
 
                             --Reset the collision groups.
