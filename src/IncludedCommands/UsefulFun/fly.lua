@@ -16,8 +16,7 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 -- Create a link for every InputBegan and InputEnded
-local MultiPlatform = {
-
+local MULTIPLATFORM_KEYCODE_MAPPING= {
     -- Keyboard
     [Enum.KeyCode.W] = Enum.KeyCode.W,
     [Enum.KeyCode.A] = Enum.KeyCode.A,
