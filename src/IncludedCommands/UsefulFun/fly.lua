@@ -350,7 +350,7 @@ return {
                         end
                     end))
 
-                    table.insert(Flight.Events,Flight.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+                    table.insert(Flight.Events, Flight.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
                         -- Stop the flight movement when the Humanoid has no Movement Direction
                         local MoveDirection = Flight.Humanoid.MoveDirection
                         if MoveDirection.X < .5 and MoveDirection.X > -.5 and MoveDirection.Z < .5 and MoveDirection.Z > -.5 then
