@@ -15,6 +15,22 @@ local ContextActionService = game:GetService("ContextActionService")
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+-- Create a link for every InputBegan and InputEnded
+local MultiPlatform = {
+
+    -- Keyboard
+    [Enum.KeyCode.W] = Enum.KeyCode.W,
+    [Enum.KeyCode.A] = Enum.KeyCode.A,
+    [Enum.KeyCode.S] = Enum.KeyCode.S,
+    [Enum.KeyCode.D] = Enum.KeyCode.D,
+    [Enum.KeyCode.LeftShift] = Enum.KeyCode.LeftShift,
+    [Enum.KeyCode.RightShift] = Enum.KeyCode.RightShift,
+
+    -- Gamepad
+    [Enum.KeyCode.ButtonL3] = Enum.KeyCode.LeftShift,
+    [Enum.KeyCode.ButtonR3] = Enum.KeyCode.RightShift,
+}
+
 return {
     Keyword = "fly",
     Category = "UsefulFunCommands",
@@ -35,7 +51,7 @@ return {
     ClientLoad = function(Api: Types.NexusAdminApiClient)
         (IncludedCommandUtil:GetRemote("FlyPlayer") :: RemoteEvent).OnClientEvent:Connect(function(SpeedMultiplier)
             SpeedMultiplier = SpeedMultiplier or 1
-    
+
             local Character = Players.LocalPlayer.Character
             if Character then
                 local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
@@ -49,7 +65,7 @@ return {
                     if Api.CommandData.CurrentFlight then
                         Api.CommandData.CurrentFlight:Destroy()
                     end
-                    
+
                     --Create the physics components.
                     local Gyro = Instance.new("BodyGyro")
                     Gyro.Name = "NexusAdminFlyBodyGyro"
@@ -57,13 +73,13 @@ return {
                     Gyro.D = 250
                     Gyro.P = 10000
                     Gyro.Parent = HumanoidRootPart
-    
+
                     local Velocity = Instance.new("BodyVelocity")
                     Velocity.Name = "NexusAdminFlyBodyVelocity"
                     Velocity.MaxForce = Vector3.new(0, 0, 0)
                     Velocity.Velocity = Vector3.new(0, 0, 0)
                     Velocity.Parent = HumanoidRootPart
-    
+
                     --Create the object.
                     local Flight = {}
                     Flight.Events = {}
@@ -74,21 +90,6 @@ return {
                         [Enum.KeyCode.D] = false,
                         [Enum.KeyCode.LeftShift] = false,
                         [Enum.KeyCode.RightShift] = false,
-                    }
-                    -- Create a link for every InputBegan and InputEnded
-                    Flight.MultiPlatform = {
-
-                        -- Keyboard
-                        [Enum.KeyCode.W] = Enum.KeyCode.W,
-                        [Enum.KeyCode.A] = Enum.KeyCode.A,
-                        [Enum.KeyCode.S] = Enum.KeyCode.S,
-                        [Enum.KeyCode.D] = Enum.KeyCode.D,
-                        [Enum.KeyCode.LeftShift] = Enum.KeyCode.LeftShift,
-                        [Enum.KeyCode.RightShift] = Enum.KeyCode.RightShift,
-
-                        -- Gamepad
-                        [Enum.KeyCode.ButtonL3] = Enum.KeyCode.LeftShift,
-                        [Enum.KeyCode.ButtonR3] = Enum.KeyCode.RightShift,
                     }
                     Flight.Humanoid = Humanoid
                     Flight.HumanoidRootPart = HumanoidRootPart
@@ -104,25 +105,25 @@ return {
                     Flight.FrontMultiplier = 0
                     Flight.SideMultiplier = 0
                     Flight.ShiftDownMultiplier = 2.5 * SpeedMultiplier
-    
+
                     --[[
                     Updates the multipliers.
                     --]]
                     function Flight:UpdateMultipliers()
                         --Update the forward multiplier.
                         self.FrontMultiplier = (self.KeysDown[Enum.KeyCode.S] and 1 or 0) - (self.KeysDown[Enum.KeyCode.W] and 1 or 0)
-    
+
                         --Update the side multiplier.
                         self.SideMultiplier = (self.KeysDown[Enum.KeyCode.D] and 1 or 0) - (self.KeysDown[Enum.KeyCode.A] and 1 or 0)
                     end
-    
+
                     --[[
                     Increments the side speed.
                     --]]
                     function Flight:IncrementSpeed(SpeedName: string, Increment: number)
                         local OldSpeed = self[SpeedName] :: number
                         local NewSpeed = OldSpeed + Increment
-                        
+
                         --Set the speed. If the speed changes signs, set it to 0 to prevent overcompensating when slowing down.
                         if OldSpeed ~= 0 and ((OldSpeed > 0 and NewSpeed < 0) or (OldSpeed < 0 and NewSpeed > 0)) then
                             self[SpeedName] = 0
@@ -130,14 +131,14 @@ return {
                             self[SpeedName] = NewSpeed
                         end
                     end
-    
+
                     --[[
                     Starts the flight.
                     --]]
                     function Flight:Start()
                         if not self.Active then
                             self.Active = true
-    
+
                             --Enable the flight.
                             self.Gyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
                             self.Gyro.Parent = HumanoidRootPart
@@ -145,7 +146,7 @@ return {
                             self.Velocity.Parent = HumanoidRootPart
                             self.Humanoid.PlatformStand = true
                             self:UpdateMultipliers()
-    
+
                             --Set the collision groups if the feature is enabled.
                             if Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
                                 --Determine the new collision group.
@@ -155,7 +156,7 @@ return {
                                         break
                                     end
                                 end
-    
+
                                 --Set the collision groups if the flying collision group exists.
                                 for _,Part in Character:GetDescendants() do
                                     if Part:IsA("BasePart") and Part.CollisionGroup == self.InitialCollisionGroup then
@@ -163,19 +164,19 @@ return {
                                     end
                                 end
                             end
-    
+
                             --Connect the updates.
                             RunService:BindToRenderStep("NexusAdminFlyStep", 500, function(Delta)
                                 --Get the rotation.
                                 local Rotation = CFrame.new(-Workspace.CurrentCamera.CFrame.Position) * Workspace.CurrentCamera.CFrame
-                                
+
                                 --Determine the speeds and accelerations.
                                 local ShiftMultiplier = ((self.KeysDown[Enum.KeyCode.LeftShift] or self.KeysDown[Enum.KeyCode.RightShift]) and self.ShiftDownMultiplier or 1)
                                 local MaxSpeed = (self.MaxSpeed :: number) * ShiftMultiplier
                                 local MaxSideSpeed = (self.MaxSideSpeed :: number) * ShiftMultiplier
                                 local Acceleration = (self.Acceleration :: number) * ShiftMultiplier
                                 local Decceleration = (self.Decceleration :: number) * ShiftMultiplier
-    
+
                                 --Update the speeds.
                                 if self.FrontMultiplier == 1 then
                                     if self.FrontSpeed < 0 then
@@ -196,7 +197,7 @@ return {
                                         self:IncrementSpeed("FrontSpeed", Decceleration * Delta)
                                     end
                                 end
-                                
+
                                 if self.SideMultiplier == 1 then
                                     if self.SideSpeed < 0 then
                                         self:IncrementSpeed("SideSpeed", Acceleration * Delta)
@@ -216,21 +217,21 @@ return {
                                         self:IncrementSpeed("SideSpeed", Decceleration * Delta)
                                     end
                                 end
-                                
+
                                 --Set the physics properties.
                                 self.Gyro.CFrame = Rotation * CFrame.Angles(math.rad(math.clamp(self.FrontSpeed / 2, -90, 90)), 0, 0)
                                 self.Velocity.Velocity = (Rotation * CFrame.new(self.SideSpeed, 0, self.FrontSpeed)).p
                             end)
                         end
                     end
-    
+
                     --[[
                     Stops the flight.
                     --]]
                     function Flight:Stop()
                         if self.Active then
                             self.Active = false
-    
+
                             --Disable the flight.
                             self.Gyro.MaxTorque = Vector3.new(0, 0, 0)
                             self.Gyro.Parent = nil
@@ -242,7 +243,7 @@ return {
                             self.FrontSpeed = 0
                             self.SideSpeed = 0
                             RunService:UnbindFromRenderStep("NexusAdminFlyStep")
-    
+
                             --Reset the collision groups.
                             for _, Part in Character:GetDescendants() do
                                 if Part:IsA("BasePart") and Part.CollisionGroup == "NexusAdmin_FlyingPlayerCollisionGroup" then
@@ -251,18 +252,18 @@ return {
                             end
                         end
                     end
-    
+
                     --[[
                     Destroys the flight.
                     --]]
                     function Flight:Destroy()
                         --Stop the flight.
                         self:Stop()
-    
+
                         --Destory the physics objects.
                         self.Gyro:Destroy()
                         self.Velocity:Destroy()
-    
+
                         --Disconnect the events.
                         for _,Event in pairs(self.Events) do
                             Event:Disconnect()
@@ -270,7 +271,7 @@ return {
 
                         --Unbind the ContextActionService bind
                         ContextActionService:UnbindAction("ToggleFlight")
-    
+
                         --Unstore the flight.
                         if Api.CommandData.CurrentFlight == self then
                             Api.CommandData.CurrentFlight = nil
@@ -289,18 +290,18 @@ return {
                     end, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)
                     ContextActionService:SetTitle("ToggleFlight", "Toggle Flight")
                     ContextActionService:SetPosition("ToggleFlight", UDim2.new(0, 50, 0, 100))
-    
+
                     --Connect the events.
                     table.insert(Flight.Events, Humanoid.Died:Connect(function()
                         (Flight :: any):Destroy()
                     end))
                     table.insert(Flight.Events, UserInputService.InputBegan:Connect(function(Key, Processeed)
-                        if Processeed and Flight.MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.LeftShift and Flight.MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.RightShift then return end
-    
+                        if Processeed and MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.LeftShift and MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.RightShift then return end
+
                         --Handle the key.
-                        if Flight.MultiPlatform[Key.KeyCode] ~= nil then
+                        if MultiPlatform[Key.KeyCode] ~= nil then
                             --Update the key press.
-                            Flight.KeysDown[Flight.MultiPlatform[Key.KeyCode]] = true
+                            Flight.KeysDown[MultiPlatform[Key.KeyCode]] = true
                             Flight:UpdateMultipliers()
                         end
                     end))
@@ -343,9 +344,9 @@ return {
                         Flight:UpdateMultipliers()
                     end))
                     table.insert(Flight.Events, UserInputService.InputEnded:Connect(function(Key)
-                        if Flight.MultiPlatform[Key.KeyCode] ~= nil then
+                        if MultiPlatform[Key.KeyCode] ~= nil then
                             --Update the key press.
-                            Flight.KeysDown[Flight.MultiPlatform[Key.KeyCode]] = false
+                            Flight.KeysDown[MultiPlatform[Key.KeyCode]] = false
                             Flight:UpdateMultipliers()
                         end
                     end))
