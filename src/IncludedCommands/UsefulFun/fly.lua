@@ -269,7 +269,7 @@ return {
                         end
 
                         --Unbind the ContextActionService bind
-                        ContextActionService:UnbindAction("toggleFlight")
+                        ContextActionService:UnbindAction("ToggleFlight")
     
                         --Unstore the flight.
                         if Api.CommandData.CurrentFlight == self then
