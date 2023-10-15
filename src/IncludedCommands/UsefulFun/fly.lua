@@ -286,9 +286,9 @@ return {
                         else
                             (Flight :: any):Start()
                         end
-                    end,true,Enum.KeyCode.E,Enum.KeyCode.ButtonX)
-                    ContextActionService:SetTitle("toggleFlight","Toggle Flight")
-                    ContextActionService:SetPosition("toggleFlight",UDim2.new(0,50,0,100))
+                    end, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)
+                    ContextActionService:SetTitle("ToggleFlight", "Toggle Flight")
+                    ContextActionService:SetPosition("ToggleFlight", UDim2.new(0, 50, 0, 100))
     
                     --Connect the events.
                     table.insert(Flight.Events, Humanoid.Died:Connect(function()
