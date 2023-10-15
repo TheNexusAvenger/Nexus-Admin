@@ -305,7 +305,7 @@ return {
                         end
                     end))
                     table.insert(Flight.Events, UserInputService.InputChanged:Connect(function(Key)
-                        local X,Y = nil,nil
+                        local X, Y = nil, nil
                         if Key.KeyCode == Enum.KeyCode.Thumbstick1 then
                             X = Key.Position.X
                             Y = Key.Position.Y
