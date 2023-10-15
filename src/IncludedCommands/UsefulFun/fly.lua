@@ -18,7 +18,7 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 return {
     Keyword = "fly",
     Category = "UsefulFunCommands",
-    Description = "Gives a set of players the ability to fly. Use E on keyboard or "..UserInputService:GetStringForKeyCode(Enum.KeyCode.ButtonX):sub(7).." on controller to toggle on/off.",
+    Description = "Gives a set of players the ability to fly. Use E on keyboard or "..string.sub(UserInputService:GetStringForKeyCode(Enum.KeyCode.ButtonX), 7).." on controller to toggle on/off.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
