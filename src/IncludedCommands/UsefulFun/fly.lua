@@ -277,7 +277,7 @@ return {
                         end
                     end
 
-                    ContextActionService:BindAction("toggleFlight",function(actionName, UserInputState, InputObject)
+                    ContextActionService:BindAction("ToggleFlight", function(ActionName, UserInputState, InputObject)
                         -- Prevent multiple fires on 1 press
                         if UserInputState ~= Enum.UserInputState.End then return end
                         --Toggle the flight.
