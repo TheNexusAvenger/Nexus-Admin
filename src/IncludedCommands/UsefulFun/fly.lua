@@ -317,10 +317,10 @@ return {
                         end
 
                         if X and Y then
-                            if X <= -.5 then
+                            if X <= -0.5 then
                                 Flight.KeysDown[Enum.KeyCode.A] = true
                                 Flight.KeysDown[Enum.KeyCode.D] = false
-                            elseif X >= .5 then
+                            elseif X >= 0.5 then
                                 Flight.KeysDown[Enum.KeyCode.A] = false
                                 Flight.KeysDown[Enum.KeyCode.D] = true
                             else
@@ -328,10 +328,10 @@ return {
                                 Flight.KeysDown[Enum.KeyCode.D] = false
                             end
 
-                            if Y <= -.5 then
+                            if Y <= -0.5 then
                                 Flight.KeysDown[Enum.KeyCode.S] = true
                                 Flight.KeysDown[Enum.KeyCode.W] = false
-                            elseif Y >= .5 then
+                            elseif Y >= 0.5 then
                                 Flight.KeysDown[Enum.KeyCode.S] = false
                                 Flight.KeysDown[Enum.KeyCode.W] = true
                             else
