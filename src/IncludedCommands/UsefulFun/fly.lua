@@ -353,7 +353,7 @@ return {
                     table.insert(Flight.Events, Flight.Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
                         -- Stop the flight movement when the Humanoid has no Movement Direction
                         local MoveDirection = Flight.Humanoid.MoveDirection
-                        if MoveDirection.X < .5 and MoveDirection.X > -.5 and MoveDirection.Z < .5 and MoveDirection.Z > -.5 then
+                        if MoveDirection.X < 0.5 and MoveDirection.X > -0.5 and MoveDirection.Z < 0.5 and MoveDirection.Z > -0.5 then
                             Flight.KeysDown[Enum.KeyCode.W] = false
                             Flight.KeysDown[Enum.KeyCode.S] = false
                             Flight.KeysDown[Enum.KeyCode.A] = false
