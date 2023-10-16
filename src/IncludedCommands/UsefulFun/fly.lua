@@ -295,12 +295,12 @@ return {
                         (Flight :: any):Destroy()
                     end))
                     table.insert(Flight.Events, UserInputService.InputBegan:Connect(function(Key, Processeed)
-                        if Processeed and MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.LeftShift and MultiPlatform[Key.KeyCode] ~= Enum.KeyCode.RightShift then return end
+                        if Processeed and MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode] ~= Enum.KeyCode.LeftShift and MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode] ~= Enum.KeyCode.RightShift then return end
 
                         --Handle the key.
-                        if MultiPlatform[Key.KeyCode] ~= nil then
+                        if MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode] ~= nil then
                             --Update the key press.
-                            Flight.KeysDown[MultiPlatform[Key.KeyCode]] = true
+                            Flight.KeysDown[MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode]] = true
                             Flight:UpdateMultipliers()
                         end
                     end))
@@ -343,9 +343,9 @@ return {
                         Flight:UpdateMultipliers()
                     end))
                     table.insert(Flight.Events, UserInputService.InputEnded:Connect(function(Key)
-                        if MultiPlatform[Key.KeyCode] ~= nil then
+                        if MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode] ~= nil then
                             --Update the key press.
-                            Flight.KeysDown[MultiPlatform[Key.KeyCode]] = false
+                            Flight.KeysDown[MULTIPLATFORM_KEYCODE_MAPPING[Key.KeyCode]] = false
                             Flight:UpdateMultipliers()
                         end
                     end))
