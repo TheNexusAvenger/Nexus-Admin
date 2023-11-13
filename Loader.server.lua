@@ -231,6 +231,7 @@ local Config = {
             unfly = nil,
             collide = nil,
             uncollide = nil,
+            sudo = 5,
         },
         FunCommands = {
             removehats = nil,
