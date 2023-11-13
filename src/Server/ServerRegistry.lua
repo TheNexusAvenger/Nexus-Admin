@@ -52,7 +52,12 @@ function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Types.Configuration
 
         --Log the command asynchronously.
         task.spawn(function()
-            Logs:Add(CommandContext.Executor.Name.." ["..Time:GetTimeString().."]: "..Filter:FilterString(CommandContext.RawText,CommandContext.Executor))
+            local CommandData = (CommandContext:GetData() :: {Sudo: string?, [any]: any}) or {Sudo = nil}
+            local LogMessage = CommandContext.Executor.Name.." ["..Time:GetTimeString().."]: "..Filter:FilterString(CommandContext.RawText,CommandContext.Executor)
+            if CommandData.Sudo then
+                LogMessage = CommandData.Sudo.." sudo'ed - "..LogMessage
+            end
+            Logs:Add(LogMessage)
         end)
         return nil
     end)
