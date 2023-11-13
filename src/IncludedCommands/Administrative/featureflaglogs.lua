@@ -33,7 +33,13 @@ return {
                     local Logs = {}
                     for i = #LogEntries, 1, -1 do
                         local Log = LogEntries[i]
-                        table.insert(Logs, Api.Time:GetDateTimeString(Log.Time)..": "..Log.UserName.." changed "..Log.Name.." from "..tostring(Log.PreviousValue).." to "..tostring(Log.NewValue))
+                        local Line
+                        if Log.Sudo then
+                            Line = Api.Time:GetDateTimeString(Log.Time)..": "..Log.Sudo.." sudo'ed - "..Log.UserName.." changed "..Log.Name.." from "..tostring(Log.PreviousValue).." to "..tostring(Log.NewValue)
+                        else
+                            Line = Api.Time:GetDateTimeString(Log.Time)..": "..Log.UserName.." changed "..Log.Name.." from "..tostring(Log.PreviousValue).." to "..tostring(Log.NewValue)
+                        end
+                        table.insert(Logs, Line)
                     end
                     return Logs
                 else
