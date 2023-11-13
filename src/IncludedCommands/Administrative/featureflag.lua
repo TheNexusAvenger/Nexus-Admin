@@ -45,6 +45,7 @@ return {
                             Name = FeatureFlag,
                             PreviousValue = PreviousValues[FeatureFlag],
                             NewValue = Value,
+                            Sudo = (CommandContext:GetData() :: {Sudo:string?, [any]:any} or {Sudo=nil}).Sudo
                         })
                     end
                     return OldLogs
