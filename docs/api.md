@@ -220,7 +220,7 @@ Displays a full-screen message to the specified player.
 #### `Messages:DisplayNotification(TopText: string, Message: string, DisplayTime: number?): ()` *Client-Only*
 Displays a slide-in notification to the local player.
 
-#### `Messages:DisplayNotification(TopText: string, Message: string, DisplayTime: number?): ()` *Server-Only*
+#### `Messages:DisplayNotification(Player: Player, TopText: string, Message: string, DisplayTime: number?): ()` *Server-Only*
 Displays a slide-in notification to the specified player.
 
 ### `Types`

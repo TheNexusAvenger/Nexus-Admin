@@ -9,12 +9,12 @@ If true, the native messages GUI will be displayed when
 is displayed intended for the developer to replace.
 
 ## UseNativeHintGui (default: `true`)
-If true, the native hits GUI will be displayed when
+If true, the native hints GUI will be displayed when
 `Messages:DisplayHint()` is used. If false, no GUI
 is displayed intended for the developer to replace.
 
 ## UseNativeNotificationGui (default: `true`)
-If true, the native hits GUI will be displayed when
+If true, the native notification GUI will be displayed when
 `Messages:DisplayNotification()` is used. If false, no GUI
 is displayed intended for the developer to replace.
 
@@ -29,4 +29,16 @@ prefixes used. If false, chat executing will be ignored.
 
 ## AllowDroppingSwords (default: `true`)
 If true, players will be able to drop swords. 
+If false, they won't.
+
+## PreformSoftShutdownOnClose (default: `true`)
+If true, the server will automaticly preform a SoftShutdown on `game:BindToClose()`.
+If false, it will not.
+
+## UseBeamsWhenTracking (default: `true`)
+If true, beams will be drawn to each player's character when running `:track`.
+If false, no beams will be drawn.
+
+## AllowFlyingThroughMap (default: `true`)
+If true, players will be able to fly through the map when using `:fly`.
 If false, they won't.
