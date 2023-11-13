@@ -1,6 +1,5 @@
 --[[
 TheNexusAvenger
-
 Implementation of a command.
 --]]
 --!strict
@@ -28,17 +27,17 @@ return {
     },
     ClientLoad = function(Api : Types.NexusAdminApiClient)
         local SudoRemote = (IncludedCommandUtil:GetRemote("SudoRemote") :: RemoteEvent)
-        
+
         local Player = Players.LocalPlayer
-        
+
         SudoRemote.OnClientEvent:Connect(function(Command, SudoExecutorName)
             local Executor = Players:FindFirstChild(SudoExecutorName)
             if not Executor then return end
             local LocalPlayerLevel = Api.Authorization:YieldForAdminLevel(Player)
             local ExecutorLevel = Api.Authorization:YieldForAdminLevel(Executor)
-            
+
             if ExecutorLevel < LocalPlayerLevel and Executor ~= Player then return end
-            Api.Executor:ExecuteCommandWithOrWithoutPrefix(Command,Player)
+            Api.Executor:ExecuteCommandWithOrWithoutPrefix(Command,Player,{Sudo=SudoExecutorName})
         end)
     end,
     ServerLoad = function(Api : Types.NexusAdminApiServer)
@@ -47,13 +46,13 @@ return {
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players : {Player}, Command : string)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetApi() :: Types.NexusAdminApiServer
-        
+
         local SudoRemote = (Util:GetRemote("SudoRemote") :: RemoteEvent)
-        
+
         local ExecutorLevel = Api.Authorization:YieldForAdminLevel(CommandContext.Executor)
-        
+
         local PlayersSudoed = 0
-        
+
         for _, Player in pairs(Players) do
             local PlayerLevel = Api.Authorization:YieldForAdminLevel(Player)
             if ExecutorLevel >= PlayerLevel or Player == CommandContext.Executor then
@@ -61,7 +60,7 @@ return {
                 PlayersSudoed += 1
             end
         end
-        
+
         return "Sudo'ed "..tostring(PlayersSudoed).."/"..tostring(#Players).." players."
     end
 }
