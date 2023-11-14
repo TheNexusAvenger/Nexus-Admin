@@ -17,12 +17,12 @@ return {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to sudo.",
+            Description = "Players to sudo",
         },
         {
             Type = "string",
             Name = "Command",
-            Description = "Command to use.",
+            Description = "Command to use",
         },
     },
     ClientLoad = function(Api : Types.NexusAdminApiClient)
