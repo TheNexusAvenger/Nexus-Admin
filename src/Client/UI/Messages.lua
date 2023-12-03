@@ -11,6 +11,7 @@ local MAX_HINTS = 5
 
 local GuiService = game:GetService("GuiService")
 local TextService = game:GetService("TextService")
+local TweenService = game:GetService("TweenService")
 
 local NexusButton = script.Parent.Parent:WaitForChild("NexusButton")
 local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame")) :: any
@@ -18,6 +19,24 @@ local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChi
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 
+
+--[[
+Performs a tween.
+--]]
+local function Tween(Ins: Instance, Tween: TweenInfo, Properties: {[string]: any}, FinishCallback: (() ->())?): ()
+    task.spawn(function()
+        if GuiService.ReducedMotionEnabled then
+            for Name, Value in Properties do
+                (Ins :: any)[Name] = Value
+            end
+        else
+            TweenService:Create(Ins, Tween, Properties):Play()
+            task.wait(Tween.Time)
+        end
+        if not FinishCallback then return end
+        FinishCallback()
+    end)
+end
 
 --[[
 Adds native messages.
@@ -79,9 +98,13 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             end)
             
             --Tween the frame in and out.
-            TextLabel:TweenPosition(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.5, true, function()
+            Tween(TextLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+                Position = UDim2.new(0, 0, 0, 0),
+            }, function()
                 task.wait(DisplayTime)
-                TextLabel:TweenPosition(UDim2.new(0, 0, 1, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.5, true, function()
+                Tween(TextLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+                    Position = UDim2.new(0, 0, 1, 0),
+                }, function()
                     TextLabel:Destroy()
                     Event:Disconnect()
                 end)
@@ -102,7 +125,9 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
     --]]
     local function UpdateHintPositions()
         for i, HintData in HintsQueue do
-            HintData.Frame:TweenPosition(UDim2.new(0, 0, (i - 1) * HINT_HEIGHT_RELATIVE, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true)
+            Tween(HintData.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                Position = UDim2.new(0, 0, (i - 1) * HINT_HEIGHT_RELATIVE, 0)
+            })
         end
     end
 
@@ -122,7 +147,9 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
 
         --Remove the hint and update the other hint positions.
         table.remove(HintsQueue,Index)
-        HintData.Frame:TweenPosition(UDim2.new(1, 0, (Index - 1) * HINT_HEIGHT_RELATIVE, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true, function()
+        Tween(HintData.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+            Position = UDim2.new(1, 0, (Index - 1) * HINT_HEIGHT_RELATIVE, 0),
+        }, function()
             HintData.Frame:Destroy()
         end)
         UpdateHintPositions()
@@ -142,8 +169,12 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
         local OverflowHint = HintsQueue[MAX_HINTS + 1]
         if OverflowHint then
             HintsQueue[MAX_HINTS + 1] = nil
-            OverflowHint.Frame:TweenPosition(UDim2.new(0, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true, function()
-                OverflowHint.Frame:TweenPosition(UDim2.new(1, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true, function()
+            Tween(OverflowHint.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                Position = UDim2.new(0, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0),
+            }, function()
+                Tween(OverflowHint.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                    Position = UDim2.new(1, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0),
+                }, function()
                     OverflowHint.Frame:Destroy()
                 end)
             end)
@@ -206,7 +237,9 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
     local function UpdateNotificationPositions(): ()
         local CurrentHeightOffset = 0
         for _, Notification in CurrentNotifications do
-            Notification.Frame:TweenPosition(UDim2.new(1, -5, 0.95, -CurrentHeightOffset), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true)
+            Tween(Notification.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                Position = UDim2.new(1, -5, 0.95, -CurrentHeightOffset),
+            })
             CurrentHeightOffset += Notification.Height + 10
         end
     end
@@ -303,7 +336,9 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
                 if not Removed then return end
 
                 --Hide the notification.
-                NotificationFrame:TweenPosition(UDim2.new(1, NotificationWidth, 0, NotificationFrame.AbsolutePosition.Y + NotificationHeight), Enum.EasingDirection.InOut, Enum.EasingStyle.Quad, 0.25, true, function()
+                Tween(NotificationFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                    Position = UDim2.new(1, NotificationWidth, 0, NotificationFrame.AbsolutePosition.Y + NotificationHeight),
+                }, function()
                     NotificationFrame:Destroy()
                 end)
                 UpdateNotificationPositions()

@@ -9,6 +9,7 @@ local REFRESH_ICON = "rbxasset://textures/StudioToolbox/AssetConfig/restore@3x.p
 
 
 local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local NexusInstance = require(script.Parent.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusInstance"))
@@ -212,6 +213,85 @@ function Window:__new()
     self.Title = "Window Title"
     self:GetPropertyChangedSignal("OnRefresh"):Fire()
     self:GetPropertyChangedSignal("OnClose"):Fire()
+end
+
+--[[
+Moves the window to a position.
+--]]
+function Window:MoveTo(Side: Enum.NormalId?, PositionRelative: number?, OffsetRelative: number?): ()
+    --Determine the fixed position.
+    local IsTopOrBottom = (Side == Enum.NormalId.Top or Side == Enum.NormalId.Bottom)
+    local GuiInsetCorner1, GuiInsetCorner2 = GuiService:GetGuiInset()
+    local CameraViewport = self.Camera.ViewportSize - GuiInsetCorner1 - GuiInsetCorner2
+    local FixedPosition = (IsTopOrBottom and CameraViewport.X or CameraViewport.Y) * (PositionRelative or 0.2)
+    if OffsetRelative then
+        FixedPosition += -OffsetRelative * (IsTopOrBottom and self.WindowFrame.AbsoluteSize.X or self.WindowFrame.AbsoluteSize.Y)
+    end
+
+    --Determine the start position.
+    local Width = (IsTopOrBottom and self.WindowFrame.AbsoluteSize.Y or self.WindowFrame.AbsoluteSize.X)
+    local StartPosition = 0
+    if not Side or Side == Enum.NormalId.Left or Side == Enum.NormalId.Top then
+        StartPosition = -1.1 * Width
+    elseif Side == Enum.NormalId.Right or Side == Enum.NormalId.Bottom then
+        StartPosition = (IsTopOrBottom and CameraViewport.Y or CameraViewport.X) + (0.1 * Width)
+    end
+
+    --Move the window.
+    if IsTopOrBottom then
+        self.WindowFrame.Position = UDim2.new(0, FixedPosition, 0, StartPosition)
+    else
+        self.WindowFrame.Position = UDim2.new(0, StartPosition, 0, FixedPosition)
+    end
+end
+
+--[[
+Tweens the window to a position.
+--]]
+function Window:TweenTo(Side: Enum.NormalId?, PositionRelative: number?, FinishCallback: (() -> ())?, EasingDirection: Enum.EasingDirection?): ()
+    --Determine the fixed position.
+    local IsTopOrBottom = (Side == Enum.NormalId.Top or Side == Enum.NormalId.Bottom)
+    local FixedPosition = (IsTopOrBottom and self.WindowFrame.AbsolutePosition.X or self.WindowFrame.AbsolutePosition.Y)
+
+    --Determine the end position.
+    local GuiInsetCorner1, GuiInsetCorner2 = GuiService:GetGuiInset()
+    local CameraViewport = self.Camera.ViewportSize - GuiInsetCorner1 - GuiInsetCorner2
+    local Width = (IsTopOrBottom and self.WindowFrame.AbsoluteSize.Y or self.WindowFrame.AbsoluteSize.X)
+    local EndPosition = 0
+    if not Side or Side == Enum.NormalId.Left or Side == Enum.NormalId.Top then
+        EndPosition = (PositionRelative or 0.05) * (IsTopOrBottom and CameraViewport.Y or CameraViewport.X)
+    elseif Side == Enum.NormalId.Right or Side == Enum.NormalId.Bottom then
+        EndPosition = ((IsTopOrBottom and CameraViewport.Y or CameraViewport.X) * (1 - (PositionRelative or 0.05))) - Width
+    end
+
+    --Tween the window.
+    local TweenPosition = UDim2.new(0, EndPosition, 0, FixedPosition)
+    if IsTopOrBottom then
+        TweenPosition = UDim2.new(0, FixedPosition, 0, EndPosition)
+    end
+    if GuiService.ReducedMotionEnabled then
+        self.WindowFrame.Position = TweenPosition
+    else
+        TweenService:Create(self.WindowFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, EasingDirection or Enum.EasingDirection.Out), {
+            Position = TweenPosition,
+        }):Play()
+    end
+
+    --Call the finish callback.
+    if FinishCallback then
+        task.delay(0.5, FinishCallback)
+    end
+end
+
+--[[
+Tweens a window out of view.
+--]]
+function Window:TweenOut(Side: Enum.NormalId?, FinishCallback: (() -> ())?): ()
+    local GuiInsetCorner1, GuiInsetCorner2 = GuiService:GetGuiInset()
+    local CameraViewport = self.Camera.ViewportSize - GuiInsetCorner1 - GuiInsetCorner2
+    local IsTopOrBottom = (Side == Enum.NormalId.Top or Side == Enum.NormalId.Bottom)
+    local RelativeOffset = -1.1 * (IsTopOrBottom and (self.WindowFrame.AbsoluteSize.Y / CameraViewport.Y) or (self.WindowFrame.AbsoluteSize.X / CameraViewport.X))
+    self:TweenTo(Side, RelativeOffset, FinishCallback, Enum.EasingDirection.In)
 end
 
 --[[

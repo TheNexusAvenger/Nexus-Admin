@@ -95,7 +95,7 @@ return {
         end
 
         function Window:OnClose()
-            Window.WindowFrame:TweenPosition(UDim2.new(0, Window.WindowFrame.AbsolutePosition.X, 0, Camera.ViewportSize.Y), "Out", "Back", 0.5, false, function()
+            Window:TweenOut(Enum.NormalId.Bottom, function()
                 Window:Destroy()
             end)
         end
@@ -103,8 +103,8 @@ return {
         --Show the window.
         Window.WindowFrame.Parent = PlayerStepScreenGui
         Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.4, 0, CameraViewportSize.Y * 0.225)
-        Window.WindowFrame.Position = UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y)
-        Window.WindowFrame:TweenPosition(UDim2.new(0, (CameraViewportSize.X / 2) - (Window.WindowFrame.AbsoluteSize.X / 2), 0, CameraViewportSize.Y * 0.7), "Out", "Back", 0.5, false)
+        Window:MoveTo(Enum.NormalId.Bottom, 0.5, 0.5)
+        Window:TweenTo(Enum.NormalId.Bottom)
         Window:OnRefresh()
     end,
 }

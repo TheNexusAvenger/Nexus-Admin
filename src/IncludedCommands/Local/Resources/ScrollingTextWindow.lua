@@ -123,14 +123,11 @@ function ScrollingTextWindow:Show()
     ScreenGui.Parent = self.Players.LocalPlayer:FindFirstChild("PlayerGui")
     self.ScreenGui = ScreenGui
 
-    --Move the window off-screen.
-    local CameraViewport = self.Camera.ViewportSize
-    self.WindowFrame.Position = UDim2.new(0,CameraViewport.Y * -0.4,0,CameraViewport.Y * 0.2)
-
     --Update the window and show the window.
+    self:MoveTo(Enum.NormalId.Left)
     self.WindowFrame.Parent = ScreenGui
     self:OnRefresh()
-    self.WindowFrame:TweenPosition(UDim2.new(0,50,0,CameraViewport.Y * 0.2),"Out","Back",0.5,false)
+    self:TweenTo(Enum.NormalId.Left)
 end
 
 --[[
@@ -332,7 +329,7 @@ end
 Callback for the window closing.
 --]]
 function ScrollingTextWindow:OnClose()
-    self.WindowFrame:TweenPosition(UDim2.new(0,-self.WindowFrame.AbsoluteSize.X - 50,0,self.WindowFrame.AbsolutePosition.Y),"In","Back",0.5,false,function()
+    self:TweenOut(Enum.NormalId.Left, function()
         self:Destroy()
         self.ScreenGui:Destroy()
         if self.LogAddedConnection then

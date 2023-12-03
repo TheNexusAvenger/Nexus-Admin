@@ -176,7 +176,7 @@ function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
         end
 
         --Hide and destroy the window.
-        Window.WindowFrame:TweenPosition(UDim2.new(-0.3,0,0,Window.WindowFrame.Position.Y.Offset),"In","Back",0.25,false,function()
+        Window:TweenOut(Enum.NormalId.Left, function()
             Window:Destroy()
             ScreenGui:Destroy()
         end)
@@ -184,7 +184,8 @@ function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
 
     --Run the refresh function and show the window.
     RefreshFunction(ScrollingFrame)
-    Window.WindowFrame:TweenPosition(UDim2.new(0,50,0,Window.WindowFrame.Position.Y.Offset),"Out","Back",0.25,false)
+    Window:MoveTo(Enum.NormalId.Left)
+    Window:TweenTo(Enum.NormalId.Left)
 end
 
 function API.AddTooltipToFrame(Text,Frame)

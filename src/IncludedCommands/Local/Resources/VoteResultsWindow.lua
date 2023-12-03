@@ -168,22 +168,20 @@ function VoteResultsWindow:Show()
     ScreenGui.Parent = self.Players.LocalPlayer:FindFirstChild("PlayerGui")
     self.ScreenGui = ScreenGui
 
-    --Move the window off-screen.
-    local CameraViewport = self.Camera.ViewportSize
-    self.WindowFrame.Position = UDim2.new(0,(CameraViewport.X * 0.5) - (CameraViewport.Y * 0.375/2),0,CameraViewport.Y * -0.5)
-
     --Update the window and show the window.
+    local CameraViewport = self.Camera.ViewportSize
+    local WindowHeight = math.abs(self.ContentsAdorn.Size.Y.Offset - self.RequiredWindowHeight)
+    self.WindowFrame.Size = UDim2.new(0, CameraViewport.Y * 0.375, 0, WindowHeight)
+    self:MoveTo(Enum.NormalId.Top, 0.5, 0.5)
     self.WindowFrame.Parent = ScreenGui
-    local WindowHeight = self.ContentsAdorn.Size.Y.Offset - self.RequiredWindowHeight
-    self.WindowFrame.Size = UDim2.new(0,CameraViewport.Y * 0.375,0,WindowHeight)
-    self.WindowFrame:TweenPosition(UDim2.new(0,(CameraViewport.X * 0.5) - (CameraViewport.Y * 0.375/2),0,CameraViewport.Y * 0.5 - (WindowHeight/2)),"Out","Back",0.5,false)
+    self:TweenTo(Enum.NormalId.Top, 0.45)
 end
 
 --[[
 Closes the window.
 --]]
 function VoteResultsWindow:OnClose()
-    self.WindowFrame:TweenPosition(UDim2.new(0,self.WindowFrame.AbsolutePosition.X,0,-self.WindowFrame.AbsolutePosition.Y * 1.2),"In","Back",0.5,false,function()
+    self:TweenOut(Enum.NormalId.Top, function()
         self:Destroy()
         self.ScreenGui:Destroy()
     end)
