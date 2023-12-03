@@ -4,6 +4,7 @@ TheNexusAvenger
 Extension of the Window class to add resizing.
 --]]
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local Window = require(script.Parent:WaitForChild("Window"))
@@ -43,7 +44,7 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
 
     local ResizeCorner = ThemedFrame.new()
     ResizeCorner.BackgroundColor3 = Color3.new(1,1,1)
-    ResizeCorner.BackgroundTransparency = 0.5
+    ResizeCorner.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
     ResizeCorner.Size = UDim2.new(1,0,1,0)
     ResizeCorner.Theme = "CutBottomRightCorner"
     ResizeCorner.SliceScaleMultiplier = 2
@@ -77,6 +78,10 @@ function ResizableWindow:__new(MinWidth,MinHeight,MaxWidth,MaxHeight)
             LastPosition = nil
             IntendedSizeX,IntendedSizeY = nil,nil
         end
+    end))
+
+    table.insert(self.Events, GuiService:GetPropertyChangedSignal("PreferredTransparency"):Connect(function()
+        ResizeCorner.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
     end))
 end
 

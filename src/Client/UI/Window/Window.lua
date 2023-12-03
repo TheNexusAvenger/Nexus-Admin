@@ -8,6 +8,7 @@ local REFRESH_ICON = "rbxasset://textures/StudioToolbox/AssetConfig/restore@3x.p
 
 
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local NexusInstance = require(script.Parent.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusInstance"))
@@ -73,7 +74,7 @@ function Window:__new()
     --Create the backgrounds.
     local Background = ThemedFrame.new()
     Background.BackgroundColor3 = Color3.new(0,0,0)
-    Background.BackgroundTransparency = 0.75
+    Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
     Background.Size = UDim2.new(1,0,1,0)
     Background.Theme = "CutBottomRightCorner"
     Background.Parent = BackgroundAdorn
@@ -85,7 +86,7 @@ function Window:__new()
 
     local TopBarBackground = ThemedFrame.new()
     TopBarBackground.BackgroundColor3 = Color3.new(0,170/255,1)
-    TopBarBackground.BackgroundTransparency = 0.5
+    TopBarBackground.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
     TopBarBackground.Size = UDim2.new(1,0,1,0)
     TopBarBackground.Theme = "CutTopLeftCorner"
     TopBarBackground.SliceScaleMultiplier = 1.5
@@ -200,6 +201,11 @@ function Window:__new()
                 TitleText.Size = UDim2.new(1,-(TopBarHeightPixel * 1.4),1,-2 * (TopBarHeightPixel * 0.1))
             end
         end
+    end))
+
+    table.insert(self.Events, GuiService:GetPropertyChangedSignal("PreferredTransparency"):Connect(function()
+        Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
+        TopBarBackground.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
     end))
 
     --Set the defaults.

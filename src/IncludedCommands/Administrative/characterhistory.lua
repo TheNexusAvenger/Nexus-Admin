@@ -18,6 +18,7 @@ local TYPE_TO_COLOR = {
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
+local GuiService = game:GetService("GuiService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -294,7 +295,7 @@ return {
                     BillboardGui.Parent = InfoCenter
                     
                     local Background = Instance.new("Frame")
-                    Background.BackgroundTransparency = 0.5
+                    Background.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
                     Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     Background.BorderSizePixel = 0
                     Background.Size = UDim2.new(1, 0, 1, 0)

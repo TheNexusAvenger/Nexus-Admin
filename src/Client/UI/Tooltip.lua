@@ -6,6 +6,7 @@ Adds the native tooltip API.
 
 local TOOLTIP_SIZE_RELATIVE = 0.03
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 local TextService = game:GetService("TextService")
 
@@ -42,7 +43,7 @@ return function(API,Player)
         local Background = ThemedFrame.new()
         Background.Size = UDim2.new(1,0,1,0)
         Background.BackgroundColor3 = Color3.new(0,0,0)
-        Background.BackgroundTransparency = 0.75
+        Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
         Background.Parent = AdornFrame
 
         local TextLabel = Instance.new("TextLabel")
@@ -86,12 +87,14 @@ return function(API,Player)
             return true
         end
         
-        local Event1,Event2
+        local Events = {}
         local function Update(X,Y)
             --If the frame was unparented, disconnect the events.
             if not Frame.Parent then 
-                if Event1 then Event1:Disconnect() end 
-                if Event2 then Event2:Disconnect() end 
+                for _, Event in Events do
+                    Event:Disconnect()
+                end
+                Events = nil
                 AdornFrame:Destroy()
                 return 
             end
@@ -110,15 +113,20 @@ return function(API,Player)
         end
         
         --Connect the mouse moving.
-        Event1 = UserInputService.InputChanged:Connect(function(Key)
+        table.insert(Events, UserInputService.InputChanged:Connect(function(Key)
             if Key.UserInputType == Enum.UserInputType.MouseMovement then
                 Update(Key.Position.X,Key.Position.Y)
             end
-        end)
+        end))
         
         --Connect the mouse leaving the frame.
-        Event2 = Frame.MouseLeave:Connect(function(X,Y)
+        table.insert(Events, Frame.MouseLeave:Connect(function(X,Y)
             Update(true)
-        end)
+        end))
+
+        --Connect changing the background.
+        table.insert(Events, GuiService:GetPropertyChangedSignal("PreferredTransparency"):Connect(function()
+            Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
+        end))
     end
 end

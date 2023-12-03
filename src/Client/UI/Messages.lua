@@ -9,6 +9,7 @@ local HINT_HEIGHT_RELATIVE = 0.035
 local NOTIFICATION_HEIGHT_RELATIVE = 0.0225
 local MAX_HINTS = 5
 
+local GuiService = game:GetService("GuiService")
 local TextService = game:GetService("TextService")
 
 local NexusButton = script.Parent.Parent:WaitForChild("NexusButton")
@@ -170,7 +171,7 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
 
             --Create the hint frame.
             local HintFrame = Instance.new("TextLabel")
-            HintFrame.BackgroundTransparency = 0.5
+            HintFrame.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
             HintFrame.BorderSizePixel = 0
             HintFrame.BackgroundColor3 = Color3.new(0,0,0)
             HintFrame.Position = UDim2.new(0, 0, -HINT_HEIGHT_RELATIVE, 0)
@@ -242,7 +243,7 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
 
             local Background = ThemedFrame.new()
             Background.BackgroundColor3 = Color3.new(0, 0, 0)
-            Background.BackgroundTransparency = 0.5
+            Background.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
             Background.Size = UDim2.new(1, 0, 1, 0)
             Background.SliceScaleMultiplier = 0.3
             Background.Parent = NotificationFrame
