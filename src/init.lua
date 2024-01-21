@@ -57,10 +57,9 @@ function API:Load(ConfigurationTable)
     AdminItemContainer.Name = "NexusAdminItemContainer"
     AdminItemContainer.Parent = Workspace
 
-    --Copy the scripts to ReplicatedStorage.
+    --Prepare the scripts to ReplicatedStorage.
     local NexusAdminClient = script:WaitForChild("Client"):Clone()
     NexusAdminClient.Name = "NexusAdminClient"
-    NexusAdminClient.Parent = ReplicatedStorage
 
     NexusAdminClient:WaitForChild("Types"):Destroy()
     local TypesModule = script:WaitForChild("Types"):Clone()
@@ -150,6 +149,7 @@ function API:Load(ConfigurationTable)
     FeatureFlags:AddFeatureFlag("AllowChatCommandExecuting", true)
 
     --Mark the system as loaded.
+    NexusAdminClient.Parent = ReplicatedStorage
     Loaded = true
 end
 
