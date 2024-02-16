@@ -22,6 +22,9 @@ local Config = {
     --Default rank a new player would have.
     DefaultAdminLevel = -1,
 
+    --Default Admin Level for Server Lock (slock)
+    DefaultServerLockAdminLevel = 0,
+
     --This is for setting up other admins in your game. You don't need to add yourself as long as you are the owner
     --[[
     Set up:
