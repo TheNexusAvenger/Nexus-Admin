@@ -84,8 +84,11 @@ return {
                 Api.CommandData.ServerLock.AdminLevel = AdminLevel
             end
         else
+            if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < Api.Configuration.DefaultAdminLevel + 1 then
+                return "Cannot set ServerLock above your own AdminLevel."
+            end
             Api.CommandData.ServerLock.Locked = not Api.CommandData.ServerLock.Locked
-            Api.CommandData.ServerLock.AdminLevel = 0
+            Api.CommandData.ServerLock.AdminLevel = Api.Configuration.DefaultAdminLevel + 1
         end
 
         --Display a message.
