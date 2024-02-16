@@ -231,7 +231,6 @@ local Config = {
             unfly = nil,
             collide = nil,
             uncollide = nil,
-            rig = nil,
         },
         FunCommands = {
             removehats = nil,
