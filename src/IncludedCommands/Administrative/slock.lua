@@ -81,7 +81,7 @@ return {
                     end
                     Api.CommandData.ServerLocked = AdminLevel
                 else
-                    Api.CommandData.ServerLocked = Api.Configuration.DefaultServerLockLevel
+                    Api.CommandData.ServerLocked = Api.Configuration.DefaultServerLockAdminLevel
                 end
             else
                 Api.CommandData.ServerLocked = nil
@@ -90,7 +90,7 @@ return {
             if Api.CommandData.ServerLocked then
                 Api.CommandData.ServerLocked = nil
             else
-                Api.CommandData.ServerLocked = Api.Configuration.DefaultServerLockLevel
+                Api.CommandData.ServerLocked = Api.Configuration.DefaultServerLockAdminLevel
             end
         end
 
