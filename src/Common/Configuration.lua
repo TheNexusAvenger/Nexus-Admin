@@ -28,6 +28,7 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     self.CommandPrefix = ConfigurationTable.CommandPrefix or ":"
     self.ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash}
     self.DefaultAdminLevel = ConfigurationTable.DefaultAdminLevel or -1
+    self.DefaultServerLockAdminLevel = ConfigurationTable.DefaultServerLockAdminLevel or 0
     self.AdministrativeLevel = ConfigurationTable.AdministrativeLevel or 1
     self.BuildUtilityLevel = ConfigurationTable.BuildUtilityLevel or 1
     self.BasicCommandsLevel = ConfigurationTable.BasicCommandsLevel or 1
