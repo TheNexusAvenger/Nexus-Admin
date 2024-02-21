@@ -203,6 +203,7 @@ export type Configuration = {
     CommandPrefix: string,
     ActivationKeys: {Enum.KeyCode},
     DefaultAdminLevel: number,
+    DefaultServerLockAdminLevel: number,
     AdministrativeLevel: number,
     BuildUtilityLevel: number,
     BasicCommandsLevel: number,
