@@ -83,6 +83,9 @@ Keys used to open the command bar.
 Default admin level that will be given to players
 when the join.
 
+#### `Configuration.DefaultServerLockAdminLevel: number`
+Default admin level to use in "slock" when a AdminLevel is not provided.
+
 #### `Configuration.AdministrativeLevel: number`
 Default admin level required for "Administrative" commands.
 
