@@ -203,7 +203,6 @@ export type Configuration = {
     CommandPrefix: string,
     ActivationKeys: {Enum.KeyCode},
     DefaultAdminLevel: number,
-    DefaultServerLockAdminLevel: number,
     AdministrativeLevel: number,
     BuildUtilityLevel: number,
     BasicCommandsLevel: number,
@@ -214,6 +213,10 @@ export type Configuration = {
     AdminNames: {[number]: string},
     GroupAdminLevels: {[number]: {[number]: number}},
     BannedUsers: {[number]: string | boolean},
+    CommandConfigurations: {
+        DefaultServerLockAdminLevel: number,
+        [string]:any,
+    },
     CommandLevelOverrides: {[string]: {[string]: number}},
     FeatureFlagOverrides: {[string]: any},
     GetRaw: (self: Configuration) -> ({[string]: any}),
