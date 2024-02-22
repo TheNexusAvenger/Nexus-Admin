@@ -30,6 +30,8 @@ return {
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         Api.CommandData.MinimumAdminLevel = nil
+
+        --Connect kicking players that enter with an active server lock.
         Players.PlayerAdded:Connect(function(Player)
             if not Api.CommandData.MinimumAdminLevel then
                 return
@@ -39,11 +41,13 @@ return {
                 Player:Kick("Server was locked by an admin. Please try again later.")
                 for _, Admin in Players:GetPlayers() do
                     if Api.Authorization:GetAdminLevel(Admin) >= Api.CommandData.MinimumAdminLevel then
-                        Api.Messages:DisplayHint(Admin, Player.Name.." ("..Player.DisplayName..", "..tostring(Player.UserId)..") tried to enter the server. ("..tostring(PlayerLevel).."<"..tostring(Api.CommandData.MinimumAdminLevel)..")")
+                        Api.Messages:DisplayHint(Admin, Player.Name.." ("..Player.DisplayName..", "..tostring(Player.UserId)..") tried to enter the server. ("..tostring(PlayerLevel).." < "..tostring(Api.CommandData.MinimumAdminLevel)..")")
                     end
                 end
             end
         end)
+
+        --Connect disabling the server lock if the no one in the game is high enough.
         Players.PlayerRemoving:Connect(function()
             if not Api.CommandData.MinimumAdminLevel then
                 return
@@ -63,6 +67,11 @@ return {
                 Api.CommandData.MinimumAdminLevel = nil
             end
         end)
+
+        --Warn if the default admin level is above the command's admin level.
+        if Api.Configuration.CommandConfigurations.DefaultServerLockAdminLevel > Api.Configuration:GetCommandAdminLevel("Administrative", "slock") then
+            warn("CommandConfigurations.DefaultServerLockAdminLevel in the Nexus Admin configuration is set above the admin level of slock. Some admins will not be able to use slock without specifying a minimum admin level.")
+        end
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Active: boolean?, AdminLevel: number?)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
