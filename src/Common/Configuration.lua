@@ -57,7 +57,8 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     
     -- Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
-        self.CommandConfigurations[Name] = self.CommandConfigurations[Name] or Value
+        if self.CommandConfigurations[Name] ~= nil then continue end
+        self.CommandConfigurations[Name] = self.CommandConfigurations[Name]
     end
 
     --Correct the administrative commands (V.2.0.0 and newer).
