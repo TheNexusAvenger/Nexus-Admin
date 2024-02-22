@@ -14,7 +14,7 @@ Configuration.__index = Configuration
 local DEFAULT_COMMAND_CONFIGURATIONS = {
     --Default Admin Level for Server Lock (slock).
     DefaultServerLockAdminLevel = 0,
-}
+} :: {[string]: any}
 
 
 --[[
@@ -58,7 +58,7 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
         if self.CommandConfigurations[Name] ~= nil then continue end
-        self.CommandConfigurations[Name] = self.CommandConfigurations[Name]
+        self.CommandConfigurations[Name] = Value
     end
 
     --Correct the administrative commands (V.2.0.0 and newer).
