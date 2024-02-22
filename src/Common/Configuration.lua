@@ -55,7 +55,7 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     self.FeatureFlagOverrides = ConfigurationTable.FeatureFlagOverrides or {}
     self.CommandConfigurations = ConfigurationTable.CommandConfigurations or DEFAULT_COMMAND_CONFIGURATIONS
     
-    -- Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
+    --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
         if self.CommandConfigurations[Name] ~= nil then continue end
         self.CommandConfigurations[Name] = self.CommandConfigurations[Name]
