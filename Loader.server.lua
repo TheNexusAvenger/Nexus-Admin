@@ -34,7 +34,7 @@ local Config = {
     }
     --]]
     Admins = {
-        
+
     },
 
     --This is for setting up certain ranks in a group being able to use certain levels of commands.
@@ -61,7 +61,7 @@ local Config = {
     
     --]]
     GroupAdminLevels = {
-        
+
     },
 
     --Banned users is for preventing certain users from entering the game.
@@ -76,7 +76,7 @@ local Config = {
     }
     --]]
     BannedUsers = {
-        
+
     },
 
     --The names of the admin levels.
@@ -97,6 +97,14 @@ local Config = {
     UsefulFunCommandsLevel = 2,
     FunCommandsLevel = 3,
     PersistentCommandsLevel = 4,
+    
+    --Configurations for internal commands.
+    --If a value is nil, it will default to the command's default setting.
+    --If a value is not nil, the setting will override the default setting.
+    CommandConfigurations = {
+        --Default Admin Level for Server Lock (slock).
+        DefaultServerLockAdminLevel = 0,
+    },
 
     --Below is for overriding the defaults levels
     --If a value is nil, it will default to the default command level of the group

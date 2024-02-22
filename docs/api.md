@@ -123,6 +123,9 @@ Table for storing the banned users, with the keys being the user
 id and either a ban message for `true` if no ban message should
 be shown.
 
+#### `Configuration.CommandConfigurations : {[string]: any}`
+Table for storing configurations that effect commands specifically.
+
 #### `Configuration.CommandLevelOverrides: {[string]: {[string]: number}}`
 Table for storing overrides to command levels. `Configuration:GetCommandAdminLevel(Category, Command)`
 should be used for reading it.

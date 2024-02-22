@@ -11,6 +11,11 @@ local Configuration = {}
 Configuration.__index = Configuration
 
 
+local DEFAULT_COMMAND_CONFIGURATIONS = {
+    --Default Admin Level for Server Lock (slock).
+    DefaultServerLockAdminLevel = 0,
+}
+
 
 --[[
 Creates the configuration.
@@ -48,6 +53,13 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Types.Configura
     self.BannedUsers = ConfigurationTable.BannedUsers or {}
     self.CommandLevelOverrides = ConfigurationTable.CommandLevelOverrides or {}
     self.FeatureFlagOverrides = ConfigurationTable.FeatureFlagOverrides or {}
+    self.CommandConfigurations = ConfigurationTable.CommandConfigurations or DEFAULT_COMMAND_CONFIGURATIONS
+    
+    --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
+    for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
+        if self.CommandConfigurations[Name] ~= nil then continue end
+        self.CommandConfigurations[Name] = self.CommandConfigurations[Name]
+    end
 
     --Correct the administrative commands (V.2.0.0 and newer).
     if ConfigurationTable.CommandLevelOverrides and not ConfigurationTable.CommandLevelOverrides.Administrative then
@@ -111,7 +123,6 @@ function Configuration:GetCommandAdminLevel(Category: string, Command: string): 
         return CategoryDefault
     end
 end
-
 
 
 return (Configuration :: any) :: Types.Configuration
