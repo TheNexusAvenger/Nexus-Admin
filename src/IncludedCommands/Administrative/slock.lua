@@ -58,7 +58,7 @@ return {
                 end
             end
 
-            --If there is no player with a higher AdminLevel than the current ServerLock AdminLevel disable ServerLock.
+            --If there is no player with a higher AdminLevel than the current server lock admin level disable server lock.
             if HighestAdminLevel < Api.CommandData.MinimumAdminLevel then
                 Api.CommandData.MinimumAdminLevel = nil
             end
@@ -70,43 +70,31 @@ return {
         
         --Define the DefaultServerLockAdminLevel to avoid repetitive calls.
         local DefaultServerLockAdminLevel = Api.Configuration.CommandConfigurations.DefaultServerLockAdminLevel
-
         if Api.CommandData.MinimumAdminLevel and Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < Api.CommandData.MinimumAdminLevel then
-            return "Cannot change ServerLock above your own AdminLevel."
+            return "Cannot change server lock above your own admin level."
+        end
+
+        --Determine if the server lock should be enable or disabled.
+        if Active == nil then
+            Active = (Api.CommandData.MinimumAdminLevel == nil)
         end
 
         --Set the server lock.
-        if Active ~= nil then
-            if Active then
-                --Set the server lock AdminLevel.
-                if AdminLevel ~= nil then
-                    if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < AdminLevel then
-                        return "Cannot set ServerLock above your own AdminLevel. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).."<"..tostring(AdminLevel)..")"
-                    end
-                    Api.CommandData.MinimumAdminLevel = AdminLevel
-                else
-                    if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < DefaultServerLockAdminLevel then
-                        return "Cannot set ServerLock above your own AdminLevel. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).."<"..tostring(DefaultServerLockAdminLevel)..")"
-                    end
-                    Api.CommandData.MinimumAdminLevel = DefaultServerLockAdminLevel
-                end
-            else
-                Api.CommandData.MinimumAdminLevel = nil
+        if Active then
+            --Set the server lock AdminLevel.
+            local NewAdminLevel = AdminLevel or DefaultServerLockAdminLevel
+            if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < NewAdminLevel then
+                return "Cannot set server lock above your own admin level. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).." < "..tostring(NewAdminLevel)..")"
             end
+            Api.CommandData.MinimumAdminLevel = NewAdminLevel
         else
-            if Api.CommandData.MinimumAdminLevel then
-                Api.CommandData.MinimumAdminLevel = nil
-            else
-                if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < DefaultServerLockAdminLevel then
-                    return "Cannot set ServerLock above your own AdminLevel. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).."<"..tostring(DefaultServerLockAdminLevel)..")"
-                end
-                Api.CommandData.MinimumAdminLevel = DefaultServerLockAdminLevel
-            end
+            --Disable the server lock.
+            Api.CommandData.MinimumAdminLevel = nil
         end
 
         --Display a message.
         if Api.CommandData.MinimumAdminLevel then
-            return "Server has been locked to AdminLevel "..tostring(Api.CommandData.MinimumAdminLevel).."."
+            return "Server has been locked to admin level "..tostring(Api.CommandData.MinimumAdminLevel).."."
         else
             return "Server has been unlocked."
         end
