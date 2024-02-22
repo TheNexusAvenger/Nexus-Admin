@@ -83,9 +83,6 @@ Keys used to open the command bar.
 Default admin level that will be given to players
 when the join.
 
-#### `Configuration.DefaultServerLockAdminLevel: number`
-Default admin level to use in "slock" when a AdminLevel is not provided.
-
 #### `Configuration.AdministrativeLevel: number`
 Default admin level required for "Administrative" commands.
 
@@ -125,6 +122,9 @@ being the role id and the value being the admin level.
 Table for storing the banned users, with the keys being the user
 id and either a ban message for `true` if no ban message should
 be shown.
+
+#### `Configuration.CommandConfigurations : {[string]: any}`
+Table for storing configurations that effect commands specifically.
 
 #### `Configuration.CommandLevelOverrides: {[string]: {[string]: number}}`
 Table for storing overrides to command levels. `Configuration:GetCommandAdminLevel(Category, Command)`
