@@ -85,6 +85,9 @@ return {
                     end
                     Api.CommandData.MinimumAdminLevel = AdminLevel
                 else
+                    if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < DefaultServerLockAdminLevel then
+                        return "Cannot set ServerLock above your own AdminLevel. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).."<"..tostring(DefaultServerLockAdminLevel)..")"
+                    end
                     Api.CommandData.MinimumAdminLevel = DefaultServerLockAdminLevel
                 end
             else
