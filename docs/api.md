@@ -125,6 +125,9 @@ be shown.
 
 #### `Configuration.CommandConfigurations : {[string]: any}`
 Table for storing configurations that effect commands specifically.
+Options for the included commands:
+- `DefaultServerLockAdminLevel: number` - Default admin level to
+  restrict the server to with `slock`/`serverlock`.
 
 #### `Configuration.CommandLevelOverrides: {[string]: {[string]: number}}`
 Table for storing overrides to command levels. `Configuration:GetCommandAdminLevel(Category, Command)`
