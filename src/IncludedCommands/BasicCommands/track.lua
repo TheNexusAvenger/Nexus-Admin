@@ -43,22 +43,23 @@ return {
             function Tracker:TrackCharacter()
                 if not self.Active then return end
                 if Player.Character then
-                    local Head = Player.Character:WaitForChild("Head", 10^99) :: BasePart
+                    local Head = Player.Character:WaitForChild("Head", 10 ^ 99) :: BasePart
+                    if not self.Active then return end
 
                     --Create the BillboardGui.
                     local BillboardGui = Instance.new("BillboardGui")
                     BillboardGui.AlwaysOnTop = true
-                    BillboardGui.Size = UDim2.new(20,0,20,0)
+                    BillboardGui.Size = UDim2.new(20, 0, 20, 0)
                     BillboardGui.Adornee = Head
                     BillboardGui.Parent = Head
                     self.BillboardGui = BillboardGui
 
                     local Text = Instance.new("TextLabel")
                     Text.BackgroundTransparency = 1
-                    Text.Size = UDim2.new(1,0,0.5,0)
+                    Text.Size = UDim2.new(1, 0, 0.5, 0)
                     Text.TextSize = 24
-                    Text.TextColor3 = Color3.new(1,1,1)
-                    Text.TextStrokeColor3 = Color3.new(0,0,0)
+                    Text.TextColor3 = Color3.new(1, 1, 1)
+                    Text.TextStrokeColor3 = Color3.new(0, 0, 0)
                     Text.TextStrokeTransparency = 0
                     Text.Text = Player.Name.."\nv"
                     Text.Parent = BillboardGui
@@ -93,6 +94,7 @@ return {
                     if self.Beam then
                         self.Beam:Destroy()
                     end
+
                     local Beam = Instance.new("Beam")
                     Beam.LightEmission = 1
                     Beam.LightInfluence = 0
@@ -147,6 +149,7 @@ return {
             table.insert(Tracker.Events, CommandContext.Executor.CharacterAdded:Connect(function(Character)
                 --Wait for the beam source to be ready.
                 local SourceHumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+                if not Tracker.Active then return end
                 while true do
                     local SourceUpperTorso = Character:FindFirstChild("UpperTorso")
                     local SourceRootAttachment = (SourceUpperTorso and SourceUpperTorso:FindFirstChild("BodyFrontAttachment")) or SourceHumanoidRootPart:FindFirstChild("RootAttachment")
