@@ -18,7 +18,7 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 --[[
 Creates a GUI for the soft shutdown.
 --]]
-local function CreateSoftShutdownGui(Source: {Source: string, Name: string?}?): (ScreenGui, Frame)
+local function CreateSoftShutdownGui(Source: {Source: string, Name: string?, Reason: string?}?): (ScreenGui, Frame)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "SoftShutdownGui"
     ScreenGui.ResetOnSpawn = false
@@ -82,9 +82,13 @@ local function CreateSoftShutdownGui(Source: {Source: string, Name: string?}?): 
         --Determine the message.
         local SourceText = "Soft shutdown source is unknown"
         if Source.Source == "BindToClose" then
-            SourceText = "BindToClose was invoked by the server. Shutting down may have been requested remotely"
+            if Source.Reason then
+                SourceText = `BindToClose was invoked by the server ({Source.Reason})`
+            else
+                SourceText = "BindToClose was invoked by the server. Shutting down may have been requested remotely"
+            end
         elseif Source.Source == "Player" then
-            SourceText = "The soft shutdown command was invoked by "..tostring(Source.Name)
+            SourceText = `The soft shutdown command was invoked by {Source.Name}`
         end
 
         --Create the text.
@@ -216,10 +220,11 @@ return {
 
         --Connect the server closing.
         Api.FeatureFlags:AddFeatureFlag("PerformSoftShutdownOnClose", true)
-        game:BindToClose(function()
+        game:BindToClose(function(Reason)
             if Api.FeatureFlags:GetFeatureFlag("PerformSoftShutdownOnClose") then
                 SoftShutdown:PerformSoftShutdown({
-                    Source = "BindToClose"
+                    Source = "BindToClose",
+                    Reason = Reason and Reason.Name,
                 })
             end
         end)
