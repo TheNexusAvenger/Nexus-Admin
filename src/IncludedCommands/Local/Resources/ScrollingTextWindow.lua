@@ -21,7 +21,7 @@ function ScrollingTextWindow:__new(DontCreateSearch, UseTextBoxes)
     self:InitializeSuper()
 
     self.CurrentTextLabels = {}
-    self.TextHeight = self.Camera.ViewportSize.Y * 0.5 * 0.045
+    self.TextHeight = math.ceil(self.Camera.ViewportSize.Y * 0.5 * 0.045)
     self.UseTextBoxes = UseTextBoxes
     if self.UseTextBoxes == nil then
         self.UseTextBoxes = true
@@ -34,18 +34,13 @@ function ScrollingTextWindow:__new(DontCreateSearch, UseTextBoxes)
     ScrollingFrame.Parent = self.ContentsAdorn
     self.ScrollingFrame = ScrollingFrame
 
-    local ScrollingClipFrame = Instance.new("Frame")
-    ScrollingClipFrame.BackgroundTransparency = 1
-    ScrollingClipFrame.ClipsDescendants = true
-    ScrollingClipFrame.Parent = self.ContentsAdorn
-    self.ScrollingClipFrame = ScrollingClipFrame
-
     local ScrollingAdornFrame = Instance.new("Frame")
     ScrollingAdornFrame.BackgroundTransparency = 1
     ScrollingAdornFrame.Size = UDim2.new(1, 0, 0, self.TextHeight)
-    ScrollingAdornFrame.Parent = ScrollingClipFrame
+    ScrollingAdornFrame.Parent = ScrollingFrame
     self.ScrollingAdornFrame = ScrollingAdornFrame
     self.ScrollingAdornTextLabels = {}
+    self.ScrollingAdornStaleTextLabels = {}
 
     if DontCreateSearch then
         ScrollingFrame.Size = UDim2.new(1,-10,1,-10)
@@ -141,8 +136,6 @@ end
 Updates the text adorn size and position.
 --]]
 function ScrollingTextWindow:UpdateAdornSize()
-    self.ScrollingClipFrame.Position = self.ScrollingFrame.Position
-    self.ScrollingClipFrame.Size = UDim2.new(0, self.ScrollingFrame.AbsoluteWindowSize.X, 0, self.ScrollingFrame.AbsoluteWindowSize.Y)
     self.ScrollingAdornFrame.Size = UDim2.new(0, self.MaxLineWidth or 0, 0, self.TextHeight)
 end
 
@@ -153,11 +146,26 @@ function ScrollingTextWindow:UpdateAdornText()
     self:UpdateAdornSize()
 
     --Create the text labels.
-    local StartIndex = self.ScrollingFrame.CanvasPosition.Y / self.TextHeight
+    local Lines = self.Lines or {}
+    local StartIndex = math.floor(self.ScrollingFrame.CanvasPosition.Y / self.TextHeight)
     local RequiredLabels = math.ceil(self.ScrollingFrame.AbsoluteWindowSize.Y / self.TextHeight) + 1
     local TextLabels = self.ScrollingAdornTextLabels
-    for i = #TextLabels + 1, RequiredLabels do
-        local TextLabel = Instance.new(self.UseTextBoxes and "TextBox" or "TextLabel")
+    local TextLabelsToUpdate = {}
+    for i = math.max(1, StartIndex - 1), math.min(#Lines, StartIndex + RequiredLabels + 1) do
+        local ExistingTextLabel = TextLabels[i]
+        if ExistingTextLabel then
+            TextLabelsToUpdate[i] = ExistingTextLabel
+            continue
+        end
+
+        local TextLabel = nil
+        if #self.ScrollingAdornStaleTextLabels > 0 then
+            TextLabel = self.ScrollingAdornStaleTextLabels[#self.ScrollingAdornStaleTextLabels]
+            table.remove(self.ScrollingAdornStaleTextLabels, #self.ScrollingAdornStaleTextLabels)
+        else
+            TextLabel = Instance.new(self.UseTextBoxes and "TextBox" or "TextLabel")
+        end
+        TextLabel.Name = `Line{i}`
         TextLabel.BackgroundTransparency = 1
         TextLabel.Size = UDim2.new(1, 0, 1, 0)
         TextLabel.Position = UDim2.new(0, 0, i - 1, 0)
@@ -168,31 +176,31 @@ function ScrollingTextWindow:UpdateAdornText()
         TextLabel.TextSize = self.TextHeight
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.Parent = self.ScrollingAdornFrame
-        table.insert(TextLabels, TextLabel)
+        TextLabelsToUpdate[i] = TextLabel
+        TextLabels[i] = TextLabel
     end
-    for i = #TextLabels, RequiredLabels + 1, -1 do
-        TextLabels[i]:Destroy()
+
+    local TextLabelsToRemove = {}
+    for i, TextLabel in TextLabels do
+        if TextLabelsToUpdate[i] then continue end
+        TextLabelsToRemove[i] = TextLabels[i]
+    end
+    for i, TextLabel in TextLabelsToRemove do
         TextLabels[i] = nil
+        table.insert(self.ScrollingAdornStaleTextLabels, TextLabel)
     end
 
     --Uppdate the text labels.
-    local Lines = self.Lines or {}
     local Defaults = self.TextDefaults
-    for i = 1, RequiredLabels do
-        local Index = i + math.floor(StartIndex)
-        local LineEntry = Lines[Index]
-        local TextLabel = TextLabels[i]
-        if LineEntry then
-            for Key, _ in LineEntry do
-                if not Defaults[Key] then
-                    Defaults[Key] = TextLabel[Key]
-                end
+    for i, TextLabel in TextLabelsToUpdate do
+        local LineEntry = Lines[i]
+        for Key, _ in LineEntry do
+            if not Defaults[Key] then
+                Defaults[Key] = TextLabel[Key]
             end
-            for Key, Value in Defaults do
-                TextLabel[Key] = LineEntry[Key] or Value
-            end
-        else
-            TextLabel.Text = ""
+        end
+        for Key, Value in Defaults do
+            TextLabel[Key] = LineEntry[Key] or Value
         end
     end
     self.ScrollingAdornFrame.Position = UDim2.new(0, -self.ScrollingFrame.CanvasPosition.X, 0, -self.TextHeight * (StartIndex % 1))
