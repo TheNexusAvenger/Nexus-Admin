@@ -74,6 +74,9 @@ function API:Load(ConfigurationTable)
     local NexusButton = script:WaitForChild("NexusButton"):Clone()
     NexusButton.Parent = NexusAdminClient
 
+    local NexusVirtualList = script:WaitForChild("NexusVirtualList"):Clone()
+    NexusVirtualList.Parent = NexusAdminClient
+
     local LocalIncludedCommands = script:WaitForChild("IncludedCommands"):WaitForChild("Local"):Clone()
     LocalIncludedCommands.Name = "IncludedCommands"
     LocalIncludedCommands.Parent = NexusAdminClient

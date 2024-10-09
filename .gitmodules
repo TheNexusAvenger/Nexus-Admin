@@ -13,3 +13,6 @@
 [submodule "module/Cmdr"]
 	path = module/Cmdr
 	url = https://github.com/evaera/Cmdr.git
+[submodule "module/Nexus-Virtual-List"]
+	path = module/Nexus-Virtual-List
+	url = https://github.com/TheNexusAvenger/Nexus-Virtual-List

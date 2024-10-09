@@ -13,6 +13,9 @@
             "NexusFeatureFlags": {
                 "$path": "./module/Nexus-Feature-Flags/"
             },
+            "NexusVirtualList": {
+                "$path": "./module/Nexus-Virtual-List/"
+            },
             "Cmdr": {
                 "$path": "./module/Cmdr/"
             }
