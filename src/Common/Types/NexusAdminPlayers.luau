@@ -1,9 +1,5 @@
---[[
-TheNexusAvenger
-
-Custom players type closer to the old
-format. Also adds keywords like admins and nonadmins.
---]]
+--Custom players type closer to the old
+--format. Also adds keywords like admins and nonadmins.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -113,7 +109,7 @@ return function(API: Types.NexusAdminApi, TestPlayersService: Players, TestTeams
             if Teams then
                 local TeamStrings = {}
                 for _, Team in Teams do
-                    table.insert(TeamStrings,"%"..Team.Name)
+                    table.insert(TeamStrings, `%{Team.Name}`)
                 end
                 return TeamStrings
             end

@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the Executor class.
---]]
+--Tests the Executor class.
 --!strict
 
 local Executor = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Executor"))

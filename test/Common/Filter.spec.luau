@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the Filter class.
---]]
+--Tests the Filter class.
 --!strict
 
 local Filter = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Filter"))

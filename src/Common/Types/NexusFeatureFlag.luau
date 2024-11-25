@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Type representing a registered feature flag.
---]]
+--Type representing a registered feature flag.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))

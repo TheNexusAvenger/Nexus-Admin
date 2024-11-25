@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the NexusAdminPlayers type.
---]]
+--Tests the NexusAdminPlayers type.
 --!strict
 
 local NexusAdminPlayers = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Types"):WaitForChild("NexusAdminPlayers"))

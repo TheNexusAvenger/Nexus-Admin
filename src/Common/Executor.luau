@@ -1,34 +1,36 @@
---[[
-TheNexusAvenger
-
-Executes commands using Cmdr.
---]]
+--Executes commands using Cmdr.
 --!strict
 
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
+local Registry = require(script.Parent:WaitForChild("Registry"))
 
 local Executor = {}
 Executor.__index = Executor
+
+export type Executor = {
+    Cmdr: Types.Cmdr,
+    Registry: Registry.Registry,
+} & typeof(setmetatable({}, Executor))
 
 
 
 --[[
 Creates a executor instance.
 --]]
-function Executor.new(Cmdr: Types.Cmdr, Registry: Types.Registry): (Types.Executor)
-    return (setmetatable({
+function Executor.new(Cmdr: Types.Cmdr, Registry: Registry.Registry): Executor
+    return setmetatable({
         Cmdr = Cmdr,
         Registry = Registry,
-    }, Executor) :: any) :: Types.Executor
+    }, Executor) :: Executor
 end
 
 --[[
 Unescapes a command.
 --]]
-function Executor:Unescape(Command: string): (string)
+function Executor.Unescape(self: Executor, Command: string): (string)
     --Trim the whitespace.
-    Command = string.match(Command, "^%s*(.*)")
-    Command = string.match(Command, "(.-)%s*$")
+    Command = string.match(Command, "^%s*(.*)") :: string
+    Command = string.match(Command, "(.-)%s*$") :: string
 
     --Build the new command based on the escaping.
     local NewCommand = ""
@@ -38,16 +40,16 @@ function Executor:Unescape(Command: string): (string)
         local Character = string.sub(Command, i, i)
         if Character == "\\" then
             if Escaping then
-                NewCommand = NewCommand.."\\"
+                NewCommand = `{NewCommand}\\`
             end
             Escaping = not Escaping
         elseif Character == "\"" then
             if Escaping then
-                NewCommand = NewCommand.."\""
+                NewCommand = `{NewCommand}\"`
             end
             Escaping = false
         else
-            NewCommand = NewCommand..Character
+            NewCommand = `{NewCommand}{Character}`
             Escaping = false
         end
     end
@@ -60,15 +62,15 @@ end
 Executes a command. Authorization checks are performs
 in the command if it was registered through Nexus Admin.
 --]]
-function Executor:ExecuteCommand(Command: string, ReferencePlayer: Player?, Data: any?): string
-    return self.Cmdr.Dispatcher:EvaluateAndRun(self:Unescape(Command), ReferencePlayer, {Data = Data})
+function Executor.ExecuteCommand(self: Executor, Command: string, ReferencePlayer: Player?, Data: any?): string
+    return self.Cmdr.Dispatcher:EvaluateAndRun(self:Unescape(Command), ReferencePlayer, {Data = Data} :: any)
 end
 
 --[[
 Executes a command with prefixes. Authorization checks are performs
 in the command if it was registered through Nexus Admin.
 --]]
-function Executor:ExecuteCommandWithPrefix(Command: string, ReferencePlayer: Player?, Data: any?): string
+function Executor.ExecuteCommandWithPrefix(self: Executor, Command: string, ReferencePlayer: Player?, Data: any?): string
     --Get the command.
     local BaseCommand = Command
     if string.find(Command," ") then
@@ -91,7 +93,7 @@ Executes a command that may or may not have a prefix. Authorization
 checks are performs in the command if it was registered through
 Nexus Admin.
 --]]
-function Executor:ExecuteCommandWithOrWithoutPrefix(Command: string, ReferencePlayer: Player?, Data: any?): string
+function Executor.ExecuteCommandWithOrWithoutPrefix(self: Executor, Command: string, ReferencePlayer: Player?, Data: any?): string
     local Message = self:ExecuteCommand(Command, ReferencePlayer, Data)
     if string.find(Message, "Use the help command to see all available commands.") then
         Message = self:ExecuteCommandWithPrefix(Command, ReferencePlayer, Data)
@@ -104,7 +106,7 @@ end
 Splits a set of commands by a separator for use with other commands,
 like with the batch command.
 --]]
-function Executor:SplitCommands(Command: string, Separator: string): ({string})
+function Executor.SplitCommands(self: Executor, Command: string, Separator: string): ({string})
     --Get the indvidual commands.
     local Commands = {}
     local InQuotes = false
@@ -114,24 +116,24 @@ function Executor:SplitCommands(Command: string, Separator: string): ({string})
         --Process the character.
         local Character = string.sub(Command, i, i)
         if Character == "\\" then
-            CurrentCommand = CurrentCommand..Character
+            CurrentCommand = `{CurrentCommand}{Character}`
             Escaping = not Escaping
         elseif Character == "\"" then
             if not Escaping then
                 InQuotes = not InQuotes
             end
-            CurrentCommand = CurrentCommand..Character
+            CurrentCommand = `{CurrentCommand}{Character}`
             Escaping = false
         elseif Character == Separator then
             if not InQuotes then
                 table.insert(Commands,CurrentCommand)
                 CurrentCommand = ""
             else
-                CurrentCommand = CurrentCommand..Character
+                CurrentCommand = `{CurrentCommand}{Character}`
             end
             Escaping = false
         else
-            CurrentCommand = CurrentCommand..Character
+            CurrentCommand = `{CurrentCommand}{Character}`
             Escaping = false
         end
     end
@@ -148,4 +150,4 @@ end
 
 
 
-return (Executor :: any) :: Types.Executor
+return Executor

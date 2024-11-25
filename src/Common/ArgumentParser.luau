@@ -1,10 +1,5 @@
---[[
-TheNexusAvenger
-
-Legacy code for parsing arguments. The code has been fitted
-to use the new API locations, but does not have full unit
-tests.
---]]
+--Legacy code for parsing arguments. The code has been fitted to use the
+--new API locations, but does not have full unit tests.
 
 local ArgumentParser = {}
 

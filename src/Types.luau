@@ -1,43 +1,22 @@
---[[
-TheNexusAvenger
-
-Types for Nexus Admin.
-Since Nexus Admin is meant to be loaded at runtime, this file can be used independently to have types.
---]]
+--Types for Nexus Admin.
+--Since Nexus Admin is meant to be loaded at runtime, this file can be used independently to have types.
+--!strict
 
 --Nexus Instance
-export type NexusObject = {
-    class: {[string]: any},
-    object: NexusObject,
-    super: NexusObject,
-    ClassName: string,
-    [string]: any,
-
-    new: () -> (NexusObject),
-    Extend: (self: NexusObject) -> (NexusObject),
-    SetClassName: (self: NexusObject, ClassName: string) -> (NexusObject),
-
-    InitializeSuper: (...any) -> (),
-    IsA: (self: NexusObject, ClassName: string) -> (boolean),
+export type TypedEventConnection<T...> = {
+    Connected: boolean,
+    Fire: (TypedEventConnection<T...>, T...) -> (),
+    Disconnect: (self: TypedEventConnection<T...>) -> (),
+    Destroy: (self: TypedEventConnection<T...>) -> (),
 }
 
-export type NexusConnection<T...> = {
-    new: (Event: NexusEvent<T...>, ConnectionFunction: (T...) -> ()) -> (NexusConnection<T...>),
-    Extend: (self: NexusConnection<T...>) -> (NexusConnection<T...>),
-
-    Connected: boolean,
-    Fire: (NexusEvent<T...>, T...) -> (),
-    Disconnect: () -> (),
-} & NexusObject
-
-export type NexusEvent<T...> = {
-    new: () -> (NexusEvent<T...>),
-    Extend: (self: NexusEvent<T...>) -> (NexusEvent<T...>),
-
-    Connect: (self: NexusEvent<T...>, Callback: (T...) -> ()) -> (NexusConnection<T...>),
-    Fire: (self: NexusEvent<T...>, T...) -> (),
-    Disconnect: (self: NexusEvent<T...>) -> (),
-} & NexusObject
+export type TypedEvent<T...> = {
+    Connect: (self: TypedEvent<T...>, Callback: (T...) -> ()) -> (TypedEventConnection<T...>),
+    Once: (self: TypedEvent<T...>, Callback: (T...) -> ()) -> (TypedEventConnection<T...>),
+    Fire: (self: TypedEvent<T...>, T...) -> (),
+    Wait: (self: TypedEvent<T...>) -> (T...),
+    Destroy: (self: TypedEvent<T...>) -> (),
+}
 
 --Cmdr
 export type CmdrArgumentContext = {
@@ -110,6 +89,7 @@ export type CmdrCommandDefinition = {
 }
 
 export type CmdrRegistry = {
+    Commands: {[string]: CmdrCommandDefinition},
     RegisterTypesIn: (self: CmdrRegistry, Container: Instance) -> (),
     RegisterType: (self: CmdrRegistry, Name: string, TypeDefinition: CmdrTypeDefinition) -> (),
     RegisterTypePrefix: (self: CmdrRegistry, Name: string, Union: string) -> (),
@@ -186,7 +166,7 @@ export type NexusAdminCommandData = {
 export type Authorization = {
     new: (Configuration: Configuration) -> (Authorization),
 
-    AdminLevelChanged: NexusEvent<Player>,
+    AdminLevelChanged: TypedEvent<Player>,
     GetAdminLevel: (self: Authorization, Player: Player) -> number,
     IsPlayerAuthorized: (self: Authorization, Player: Player, AdminLevel: number) -> boolean,
     YieldForAdminLevel: (self: Authorization, Player: Player) -> (number),
@@ -250,7 +230,7 @@ export type Logs = {
     new: (MaxLogs: number?) -> (Logs),
 
     MaxLogs: number,
-    LogAdded: NexusEvent<any>,
+    LogAdded: TypedEvent<any>,
     GetLogs: (self: Logs) -> ({any}),
     Add: (self: Logs, Log: any) -> (),
     Destroy: (self: Logs) -> (),

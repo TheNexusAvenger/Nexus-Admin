@@ -1,35 +1,46 @@
---[[
-TheNexusAvenger
-
-Base class for a command registry.
---]]
+--Base class for a command registry.
 --!strict
 
 local RunService = game:GetService("RunService")
 
 local ArgumentParser = nil
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
+local Authorization = require(script.Parent:WaitForChild("Authorization"))
+local Configuration = require(script.Parent:WaitForChild("Configuration"))
 
 local Registry = {}
 Registry.__index = Registry
+
+export type Registry = {
+    Prefixes: {[string]: boolean},
+    PrefixCommands: {[string]: string},
+    CommandsByGroup: {[string]: {Types.NexusAdminCommandData}},
+    Authorization: Authorization.Authorization,
+    Configuration: Configuration.Configuration,
+    Messages: Types.MessagesServer | Types.MessagesClient,
+    Cmdr: Types.Cmdr,
+    RunService: RunService,
+    HttpService: HttpService,
+    EnumTypesFolder: Folder,
+} & typeof(setmetatable({}, Registry))
 
 
 
 --[[
 Creates the server registry.
 --]]
-function Registry.new(Authorization: Types.Authorization, Configuration: Types.Configuration, Messages: Types.MessagesServer | Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
-    local self = {}
-    self.Prefixes = {}
-    self.PrefixCommands = {}
-    self.CommandsByGroup = {}
-    self.Authorization = Authorization
-    self.Configuration = Configuration
-    self.Messages = Messages
-    self.Cmdr = Cmdr
-    self.RunService = game:GetService("RunService")
-    self.HttpService = game:GetService("HttpService")
-    setmetatable(self, Registry)
+function Registry.new(Authorization: Authorization.Authorization, Configuration: Configuration.Configuration, Messages: Types.MessagesServer | Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Registry
+    local self = setmetatable({
+        Prefixes = {},
+        PrefixCommands = {},
+        CommandsByGroup = {},
+        Authorization = Authorization,
+        Configuration = Configuration,
+        Messages = Messages,
+        Cmdr = Cmdr,
+        RunService = game:GetService("RunService"),
+        HttpService = game:GetService("HttpService"),   
+    }, Registry) :: Registry
 
     --Set up storing enum types.
     if self.RunService:IsServer() then
@@ -49,14 +60,14 @@ function Registry.new(Authorization: Types.Authorization, Configuration: Types.C
     end
 
     --Return the object.
-    return (self :: any) :: Types.Registry
+    return self
 end
 
 --[[
 Returns a replicatable Cmdr data table from
 Nexus Admin command data.
 --]]
-function Registry:GetReplicatableCmdrData(CommandData: Types.NexusAdminCommandData): Types.NexusAdminCommandData
+function Registry.GetReplicatableCmdrData(self: Registry, CommandData: Types.NexusAdminCommandData): Types.NexusAdminCommandData
     local Data = {
         Name = CommandData.Name,
         Group = CommandData.Group or CommandData.Category or CommandData.CommandGroup or "Ungrouped Commands",
@@ -91,7 +102,7 @@ Performs the BeforeRun verifications
 of a CommandContext. Returns a result if
 the command can't be run.
 --]]
-function Registry:PerformBeforeRun(CommandContext: Types.CmdrCommandContext): (string?)
+function Registry.PerformBeforeRun(self: Registry, CommandContext: Types.CmdrCommandContext): (string?)
     --Get the command data.
     if not self.CommandsByGroup[CommandContext.Group] then
         return
@@ -100,9 +111,9 @@ function Registry:PerformBeforeRun(CommandContext: Types.CmdrCommandContext): (s
     for _, NewCommandData in self.CommandsByGroup[CommandContext.Group] do
         local Names = NewCommandData.Name or NewCommandData.Keyword or ""
         if typeof(NewCommandData.Name or NewCommandData.Keyword) == "string" then
-            Names = {Names}
+            Names = {Names} :: any
         end
-        for _, Name in Names do
+        for _, Name in Names :: {string} do
             if string.lower(Name) == string.lower(CommandContext.Name) then
                 CommandData = NewCommandData
                 break
@@ -128,17 +139,17 @@ end
 --[[
 Creates a run method for a given command.
 --]]
-function Registry:CreateRunMethod(CommandData: Types.NexusAdminCommandData): (Types.CmdrCommandContext, ... any) -> (string?)
+function Registry.CreateRunMethod(self: Registry, CommandData: Types.NexusAdminCommandData): (Types.CmdrCommandContext, ... any) -> (string?)
     local CmdrData = self:GetReplicatableCmdrData(CommandData)
     if not ArgumentParser and not CommandData.Run and (CommandData :: any).OnCommandInvoked then
-        warn("Command.OnCommandInvoked(Player,BaseMessage,Arguments/ArgumentParser) (used in "..(CmdrData.Name or "")..") is deprecated as of V.2.0.0. Command:Run(CommandContext) should be used instead.")
+        warn(`Command.OnCommandInvoked(Player,BaseMessage,Arguments/ArgumentParser) (used in {CmdrData.Name or ""}) is deprecated as of V.2.0.0. Command:Run(CommandContext) should be used instead.`)
         ArgumentParser = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("ArgumentParser"))
     end
 
     return function(CommandContext: Types.CmdrCommandContext, ...): (string?)
         --Run the command.
         if CommandData.Run then
-            return (CommandData :: any):Run(CommandContext,...)
+            return (CommandData :: any):Run(CommandContext, ...)
         elseif (CommandData :: any).OnCommandInvoked then
             --Get the arguments string.
             local ArgumentsString = ""
@@ -149,7 +160,7 @@ function Registry:CreateRunMethod(CommandData: Types.NexusAdminCommandData): (Ty
 
             --Call the function.
             if CommandData.Arguments then
-                warn("Command.OnCommandInvoked with Arguments (used in "..(CmdrData.Name or "")..") is deprecated as of V.1.1.0. Command:Run(CommandContext) should be used instead.")
+                warn(`Command.OnCommandInvoked with Arguments (used in {CmdrData.Name or ""}) is deprecated as of V.1.1.0. Command:Run(CommandContext) should be used instead.`)
                 return (CommandData :: any).OnCommandInvoked(CommandContext.Executor,CommandContext.RawText,unpack(ArgumentParser:StringToArguments(ArgumentsString,CommandData.Arguments,CommandContext.Executor,(CommandData :: any).IgnoreFilter)))
             else
                 return (CommandData :: any).OnCommandInvoked(CommandContext.Executor,CommandContext.RawText,ArgumentParser:CreateParser(ArgumentsString,CommandContext.Executor))
@@ -162,7 +173,7 @@ end
 --[[
 Loads a command.
 --]]
-function Registry:LoadCommand(CommandData: Types.NexusAdminCommandData)
+function Registry.LoadCommand(self: Registry, CommandData: Types.NexusAdminCommandData)
     local Data = self:GetReplicatableCmdrData(CommandData)
 
     --Add the prefix commands.
@@ -176,24 +187,25 @@ function Registry:LoadCommand(CommandData: Types.NexusAdminCommandData)
         --Add the prefixes.
         for _, Prefix in Prefixes :: {string} do
             self.Prefixes[string.lower(Prefix)] = true
-            self.PrefixCommands[string.lower(Prefix..Data.Name)] = string.lower(Data.Name)
+            self.PrefixCommands[string.lower(`{Prefix}{Data.Name}`)] = string.lower(Data.Name)
             for _, Alias in Data.Aliases do
-                self.PrefixCommands[string.lower(Prefix..Alias)] = string.lower(Alias)
+                self.PrefixCommands[string.lower(`{Prefix}{Alias}`)] = string.lower(Alias)
             end
         end
     end
 
     --Add the command data.
-    if not self.CommandsByGroup[Data.Group] then
-        self.CommandsByGroup[Data.Group] = {}
+    local Group = Data.Group :: string
+    if not self.CommandsByGroup[Group] then
+        self.CommandsByGroup[Group] = {}
     end
-    table.insert(self.CommandsByGroup[Data.Group], CommandData)
+    table.insert(self.CommandsByGroup[Group], CommandData)
 end
 
 --[[
 Registers an included command.
 --]]
-function Registry:RegisterIncludedCommand(ModuleScript: ModuleScript, Api: Types.NexusAdminApiServer | Types.NexusAdminApi, LocalCommandContainer: Folder?): ()
+function Registry.RegisterIncludedCommand(self: Registry, ModuleScript: ModuleScript, Api: Types.NexusAdminApiServer | Types.NexusAdminApi, LocalCommandContainer: Folder?): ()
     --Load the command using the legacy system.
     --TODO: Remove when migrated.
     local CommandData = require(ModuleScript) :: any
@@ -264,7 +276,7 @@ end
 --[[
 Internally sets up a StringValue as an enum type.
 --]]
-function Registry:SetUpEnumValue(ChildValue: StringValue): ()
+function Registry.SetUpEnumValue(self: Registry, ChildValue: StringValue): ()
     --Create the fuzzy finder.
     local FuzzyFinder = self.Cmdr.Util.MakeFuzzyFinder(self.HttpService:JSONDecode(ChildValue.Value))
     ChildValue.Changed:Connect(function()
@@ -286,7 +298,7 @@ function Registry:SetUpEnumValue(ChildValue: StringValue): ()
             return Values[1]
         end,
     } :: any)
-    self.Cmdr.Registry:RegisterType(ChildValue.Name.."s", {
+    self.Cmdr.Registry:RegisterType(`{ChildValue.Name}s`, {
         Listable = true,
         Transform = function(Text, Executor)
             return FuzzyFinder(Text)
@@ -307,8 +319,8 @@ end
 Adds an enum type (list of string options).
 Can be re-called to change the options.
 --]]
-function Registry:AddEnumType(Name: string, Options: {string}): ()
-    local ExistingValue: StringValue = self.EnumTypesFolder:FindFirstChild(Name)
+function Registry.AddEnumType(self: Registry, Name: string, Options: {string}): ()
+    local ExistingValue = self.EnumTypesFolder:FindFirstChild(Name) :: StringValue
     local OptionsJson = self.HttpService:JSONEncode(Options)
     if ExistingValue then
         ExistingValue.Value = OptionsJson
@@ -322,4 +334,4 @@ end
 
 
 
-return (Registry :: any) :: Types.Registry
+return Registry

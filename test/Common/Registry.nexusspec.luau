@@ -1,9 +1,5 @@
---[[
-TheNexusAvenger
-
-Tests the Registry class.
---]]
---TODO: Convert to 
+--Tests the Registry class.
+--TODO: Convert to TestEZ.
 
 local NexusUnitTesting = require("NexusUnitTesting")
 local RegistryUnitTest = NexusUnitTesting.UnitTest:Extend()

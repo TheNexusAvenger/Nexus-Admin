@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the Configuration class.
---]]
+--Tests the Configuration class.
 --!strict
 
 local Configuration = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Configuration"))
