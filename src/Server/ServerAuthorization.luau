@@ -1,27 +1,32 @@
---[[
-TheNexusAvenger
-
-Handles users being authorized.
---]]
+--Handles users being authorized.
+--!strict
 
 local Players = game:GetService("Players")
 local GroupService = game:GetService("GroupService")
 
 local Authorization = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Authorization"))
-local Types = require(script.Parent.Parent:WaitForChild("Types"))
+local Configuration = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Configuration"))
 
 local ServerAuthorization = {}
 ServerAuthorization.__index = ServerAuthorization
 setmetatable(ServerAuthorization, Authorization)
+
+export type ServerAuthorization = {
+    GroupService: GroupService,
+    GameId: number,
+    CreatorId: number,
+    GroupGameCreator: number?,
+    GetAdminLevels: RemoteFunction,
+    AdminLevelChangedRemote: RemoteEvent,
+} & typeof(setmetatable({}, ServerAuthorization)) & Authorization.Authorization
 
 
 
 --[[
 Creates a server authorization instance.
 --]]
-function ServerAuthorization.new(Configuration: Types.Configuration, NexusAdminRemotes: Folder): Types.Authorization
-    local self = Authorization.new(Configuration)
-    setmetatable(self, ServerAuthorization)
+function ServerAuthorization.new(Configuration: Configuration.Configuration, NexusAdminRemotes: Folder): ServerAuthorization
+    local self = setmetatable(Authorization.new(Configuration), ServerAuthorization) :: ServerAuthorization
     self.GroupService = GroupService
     self.GameId = game.GameId
     self.CreatorId = game.CreatorId
@@ -31,7 +36,7 @@ function ServerAuthorization.new(Configuration: Types.Configuration, NexusAdminR
         xpcall(function()
             self.GroupGameCreator = self.GroupService:GetGroupInfoAsync(self.CreatorId).Owner.Id
         end, function(ErrorMessage)
-            warn("Fetching group owner failed because "..tostring(ErrorMessage))
+            warn(`Fetching group owner failed because {ErrorMessage}`)
         end)
     end
 
@@ -56,13 +61,13 @@ function ServerAuthorization.new(Configuration: Types.Configuration, NexusAdminR
     end
 
     --Return the object.
-    return (self :: any) :: Types.Authorization
+    return self
 end
 
 --[[
 Initializes the existing players and connects new players.
 --]]
-function ServerAuthorization:InitializePlayers(): ()
+function ServerAuthorization.InitializePlayers(self: ServerAuthorization): ()
     --Connect new players.
     Players.PlayerAdded:Connect(function(Player: Player): ()
         self:InitializePlayer(Player)
@@ -79,7 +84,7 @@ end
 --[[
 Initializes a player.
 --]]
-function ServerAuthorization:InitializePlayer(Player: Player): ()
+function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player: Player): ()
     --Set the admin level based on the default or given admin level.
     local UserId = tostring(Player.UserId)
     local AdminLevel = self.AdminLevels[UserId] or self.Configuration.DefaultAdminLevel
@@ -105,7 +110,7 @@ function ServerAuthorization:InitializePlayer(Player: Player): ()
             end
         end
     end, function(ErrorMessage)
-        warn("Getting group info failed because "..ErrorMessage)
+        warn(`Getting group info failed because {ErrorMessage}`)
     end)
 
     --Set the admin level to highest one if the user is the owner or in Studio.
@@ -130,7 +135,7 @@ end
 --[[
 Sets the admin level for a player.
 --]]
-function ServerAuthorization:SetAdminLevel(Player: Player, AdminLevel: number): ()
+function ServerAuthorization.SetAdminLevel(self: ServerAuthorization, Player: Player, AdminLevel: number): ()
     Authorization.SetAdminLevel(self, Player, AdminLevel)
     self.AdminLevelChangedRemote:FireAllClients(Player, self.AdminLevels[tostring(Player.UserId)])
 end

@@ -97,6 +97,7 @@ export type CmdrRegistry = {
     GetType: (self: CmdrRegistry, Name: string) -> (CmdrTypeDefinition?),
     GetTypeName: (self: CmdrRegistry, Name: string) -> (string),
     RegisterHooksIn: (self: CmdrRegistry, Container: Instance) -> (),
+    RegisterCommandObject: (self: CmdrRegistry, Command: CmdrCommandDefinition) -> (),
     RegisterCommandsIn: (self: CmdrRegistry, Container: Instance, Filter: ((Command: CmdrCommandDefinition) -> (boolean))?) -> (),
     RegisterCommand: (self: CmdrRegistry, CommandScript: ModuleScript, CommandServerScript: ModuleScript?, Filter: ((Command: CmdrCommandDefinition) -> (boolean))?) -> (),
     RegisterDefaultCommands: (self: CmdrRegistry, {string} | (Command: CmdrCommandDefinition) -> (boolean)) -> (),

@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Manages logs that are streamed to clients on the server.
---]]
+--Manages logs that are streamed to clients on the server.
 --!strict
 
 local Players = game:GetService("Players")
@@ -17,15 +13,19 @@ type LogDataEntry = {
     ListeningPlayers: {Player},
     Logs: Types.Logs,
 }
+export type ServerLogsRegistry = {
+    GetLogEntriesFunction: RemoteFunction,
+    LogAddedEvent: RemoteEvent,
+    Logs: {[string]: LogDataEntry},
+} & typeof(setmetatable({}, ServerLogsRegistry))
 
 
 
 --[[
 Creates a server logs registry instance.
 --]]
-function ServerLogsRegistry.new(Authorization: Types.Authorization, NexusAdminRemotes: Folder): Types.LogsRegistryServer
-    local self = {}
-    setmetatable(self, ServerLogsRegistry)
+function ServerLogsRegistry.new(Authorization: Types.Authorization, NexusAdminRemotes: Folder): ServerLogsRegistry
+    local self = setmetatable({}, ServerLogsRegistry) :: ServerLogsRegistry
 
     --Create the remote objects.
     local LogsRegistryEvents = Instance.new("Folder")
@@ -43,7 +43,7 @@ function ServerLogsRegistry.new(Authorization: Types.Authorization, NexusAdminRe
     self.LogAddedEvent = LogAddedEvent
 
     --Connect getting logs.
-    self.Logs = {} :: {[string]: LogDataEntry}
+    self.Logs = {}
     GetLogEntriesFunction.OnServerInvoke = function(Player: Player, LogName: string): ({any} | string, number?)
         --Get the log.
         local LogData = self.Logs[LogName]
@@ -84,16 +84,16 @@ function ServerLogsRegistry.new(Authorization: Types.Authorization, NexusAdminRe
     end)
 
     --Return the object.
-    return (self :: any) :: Types.LogsRegistryServer
+    return self
 end
 
 --[[
 Registers a log that can be streamed.
 --]]
-function ServerLogsRegistry:RegisterLogs(LogName: string, Logs: Types.Logs, MinimumAdminLevel: number): ()
+function ServerLogsRegistry.RegisterLogs(self: ServerLogsRegistry, LogName: string, Logs: Types.Logs, MinimumAdminLevel: number): ()
     --Store the log.
     if self.Logs[LogName] then
-        error("Log already registered: "..tostring(LogName))
+        error(`Log already registered: {LogName}`)
     end
     self.Logs[LogName] = {
         Logs = Logs,
@@ -112,9 +112,9 @@ end
 --[[
 Gets a registered log.
 --]]
-function ServerLogsRegistry:GetLogs(LogName: string): Types.Logs
+function ServerLogsRegistry.GetLogs(self: ServerLogsRegistry, LogName: string): Types.Logs
     if not self.Logs[LogName] then
-        error("Unable to get registered log \""..tostring(LogName).."\": Log not found.")
+        error(`Unable to get registered log "{LogName}": Log not found.`)
     end
     return self.Logs[LogName].Logs
 end

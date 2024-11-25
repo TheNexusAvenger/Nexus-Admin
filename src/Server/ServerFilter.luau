@@ -1,37 +1,31 @@
---[[
-TheNexusAvenger
-
-Filters strings to comply with Roblox's filtering rules.
---]]
+--Filters strings to comply with Roblox's filtering rules.
+--!strict
 
 local CANT_SEE_CHAT_MESSAGE = "(Your chat settings prevent you from seeing messages)"
 
 local Filter = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Filter"))
-local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 local ServerFilter = {}
 ServerFilter.__index = ServerFilter
 setmetatable(ServerFilter, Filter)
+
+export type ServerFilter = typeof(setmetatable({}, ServerFilter)) & Filter.Filter
 
 
 
 --[[
 Creates a filter instance.
 --]]
-function ServerFilter.new(): Types.FilterServer
-    local self = Filter.new()
-    self.TextService = game:GetService("TextService")
-    self.Chat = game:GetService("Chat")
-    setmetatable(self, ServerFilter)
-    return (self :: any) :: Types.FilterServer
+function ServerFilter.new(): ServerFilter
+    return setmetatable(Filter.new(), ServerFilter) :: ServerFilter
 end
 
 --[[
 Filters a string for a user.
 --]]
-function ServerFilter:FilterString(String: string, PlayerFrom: Player, PlayerTo: Player?): string
+function ServerFilter.FilterString(self: ServerFilter, String: string, PlayerFrom: Player, PlayerTo: Player?): string
     --Return the string if it is an empty string.
-    if not string.match(String,"([%w%p])") then return String end
+    if not string.match(String, "([%w%p])") then return String end
 
     --Filter the string.
     local Worked, Return = pcall(function()
@@ -50,8 +44,8 @@ function ServerFilter:FilterString(String: string, PlayerFrom: Player, PlayerTo:
     if Worked and Return then
         return Return
     else
-        warn("Filter string failed for \""..tostring(String).."\"  because "..tostring(Return).."")
-        return string.gsub(String,"[^%s]","#")
+        warn(`Filter string failed for "{String}" because {Return}`)
+        return string.gsub(String, "[^%s]", "#")
     end
 end
 
@@ -59,7 +53,7 @@ end
 Filters a string for a set of users.
 Returns a map of the players to their filtered string.
 --]]
-function ServerFilter:FilterStringForPlayers(String: string, PlayerFrom: Player, PlayersTo: {Player}): {[Player]: string}
+function ServerFilter.FilterStringForPlayers(self: ServerFilter, String: string, PlayerFrom: Player, PlayersTo: {Player}): {[Player]: string}
     --Return the string if it is an empty string.
     local FilteredResults = {}
     if not string.match(String,"([%w%p])") then
@@ -81,12 +75,12 @@ function ServerFilter:FilterStringForPlayers(String: string, PlayerFrom: Player,
                 end
             end)
             if not Worked then
-                warn("Filter string for player "..tostring(Player).." failed for \""..tostring(String).."\"  because "..tostring(Return).."")
+                warn(`Filter string for player {Player} failed for "{String}"  because {Return}`)
             end
         end
     end)
     if not Worked then
-        warn("Filter string failed for \""..tostring(String).."\"  because "..tostring(Return).."")
+        warn(`Filter string failed for "{String}"  because {Return}`)
     end
 
     --Add the missing filtered strings.
@@ -106,4 +100,4 @@ end
 
 
 
-return (ServerFilter :: any) :: Types.FilterServer
+return ServerFilter

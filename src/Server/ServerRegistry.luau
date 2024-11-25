@@ -1,10 +1,8 @@
---[[
-TheNexusAvenger
-
-Registers commands on the server.
---]]
+--Registers commands on the server.
 --!strict
 
+local Authorization = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Authorization"))
+local Configuration = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Configuration"))
 local Registry = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Registry"))
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
@@ -12,14 +10,19 @@ local ServerRegistry = {}
 ServerRegistry.__index = ServerRegistry
 setmetatable(ServerRegistry, Registry)
 
+export type ServerRegistry = {
+    ClientData: {Types.NexusAdminCommandData},
+    GetRegisteredCommands: RemoteFunction,
+    CommandRegistered: RemoteEvent,
+} & typeof(setmetatable({}, ServerRegistry)) & Registry.Registry
+
 
 
 --[[
 Creates the server registry.
 --]]
-function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Types.Configuration, Authorization: Types.Authorization, Messages: Types.MessagesServer, Logs: Types.Logs, Time: Types.Time, Filter: Types.FilterServer, NexusAdminRemotes: Folder): Types.RegistryServer
-    local self = Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes) :: any
-    setmetatable(self, ServerRegistry)
+function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Configuration.Configuration, Authorization: Authorization.Authorization, Messages: Types.MessagesServer, Logs: Types.Logs, Time: Types.Time, Filter: Types.FilterServer, NexusAdminRemotes: Folder): ServerRegistry
+    local self = setmetatable(Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes), ServerRegistry) :: ServerRegistry
     self.ClientData = {}
 
     --Create the remote objects.
@@ -58,13 +61,13 @@ function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Types.Configuration
     end)
 
     --Return the object.
-    return (self :: any) :: Types.RegistryServer
+    return self
 end
 
 --[[
 Loads a command.
 --]]
-function ServerRegistry:LoadCommand(CommandData: Types.NexusAdminCommandData): ()
+function ServerRegistry.LoadCommand(self: ServerRegistry, CommandData: Types.NexusAdminCommandData): ()
     Registry.LoadCommand(self :: any, CommandData)
 
     --Add and send the command data.
@@ -85,4 +88,4 @@ end
 
 
 
-return (ServerRegistry :: any) :: Types.RegistryServer
+return ServerRegistry

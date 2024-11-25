@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the ServerAuthorization class.
---]]
+--Tests the ServerAuthorization class.
 --!strict
 
 local ServerAuthorization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Server"):WaitForChild("ServerAuthorization"))
