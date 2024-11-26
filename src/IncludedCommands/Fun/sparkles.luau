@@ -1,32 +1,27 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "fire",
+    Keyword = "sparkles",
     Category = "FunCommands",
-    Description = "Adds a fire to a set of players.",
+    Description = "Adds a sparkles to a set of players.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to give fire to.",
+            Description = "Players to sparkles smoke to.",
         },
     },
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
-        --Add the fire.
         for _, Player in Players do
             if Player.Character then
                 local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
                 if HumanoidRootPart then
-                    local Fire = Instance.new("Fire")
-                    Fire.Name = "NexusAdminFire"
-                    Fire.Parent = HumanoidRootPart
+                    local Sparkles = Instance.new("Sparkles")
+                    Sparkles.Name = "NexusAdminSparkles"
+                    Sparkles.Parent = HumanoidRootPart
                 end
             end
         end

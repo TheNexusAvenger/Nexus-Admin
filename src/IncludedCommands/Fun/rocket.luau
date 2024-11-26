@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -32,7 +28,7 @@ return {
                     
                     local Mesh = Instance.new("SpecialMesh")
                     Mesh.MeshType = Enum.MeshType.FileMesh
-                    Mesh.MeshId = "http://www.roblox.com/asset/?id=2251534"
+                    Mesh.MeshId = "rbxassetid://2251534"
                     Mesh.Scale = Vector3.new(0.5, 0.5, 0.5)
                     Mesh.Parent = NexusAdminRocket
                     

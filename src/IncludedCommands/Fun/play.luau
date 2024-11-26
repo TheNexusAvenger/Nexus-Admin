@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Workspace = game:GetService("Workspace")
@@ -38,23 +34,23 @@ return {
             return MarketplaceService:GetProductInfo(AudioId)
         end)
         if not Worked or not ProductData then
-            Util:SendError("Error loading audio "..tostring(AudioId)..".")
+            Util:SendError(`Error loading audio {AudioId}.`)
             return
         end
 
         --Display a message for playing the audio.
         if ProductData.AssetTypeId ~= 3 then 
-            Util:SendError(tostring(ProductData.Name.."("..tostring(AudioId)..") is not an audio."))
+            Util:SendError(tostring(`{ProductData.Name}({AudioId}) is not an audio.`))
             return
         end
         for _,Player in Players:GetPlayers() do
-            Api.Messages:DisplayHint(Player, Api.Filter:EscapeRichText("Now playing \""..tostring(ProductData.Name).."\" ("..AudioId..")."))
+            Api.Messages:DisplayHint(Player, Api.Filter:EscapeRichText(`Now playing "{ProductData.Name}" ({AudioId}).`))
         end
 
         --Play the audio.
         local GlobalAudio = Api.CommandData.GlobalAudioSound
         GlobalAudio:Stop()
-        GlobalAudio.SoundId = "rbxassetid://"..tostring(AudioId)
+        GlobalAudio.SoundId = `rbxassetid://{AudioId}`
         GlobalAudio.Parent = Workspace
         GlobalAudio:Play()
     end,

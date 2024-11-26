@@ -1,21 +1,17 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "unspin",
+    Keyword = "unsmoke",
     Category = "FunCommands",
-    Description = "Unspins a set of players.",
+    Description = "Removes all smoke from a set of players.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to unspin.",
+            Description = "Players to remove smoke from.",
         },
     },
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
@@ -23,9 +19,10 @@ return {
             if Player.Character then
                 local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
                 if HumanoidRootPart then
-                    local BodyAngularVelocity = HumanoidRootPart:FindFirstChild("NexusAdminSpinEffect")
-                    if BodyAngularVelocity then
-                        BodyAngularVelocity:Destroy()
+                    for _, Smoke in HumanoidRootPart:GetChildren() do
+                        if Smoke.Name == "NexusAdminSmoke" then
+                            Smoke:Destroy()
+                        end
                     end
                 end
             end

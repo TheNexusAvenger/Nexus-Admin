@@ -1,29 +1,25 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "visible",
+    Keyword = "removehats",
     Category = "FunCommands",
-    Description = "Makes a set of players visible.",
+    Description = "Removes the hats of a set of players.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to make visible.",
+            Description = "Players to remove the hats of.",
         },
     },
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         for _, Player in Players do
             if Player.Character then
-                for _, Ins in Player.Character:GetDescendants() do
-                    if (Ins:IsA("BasePart") or Ins:IsA("Decal")) and Ins.Transparency > 1 then
-                        (Ins :: BasePart).Transparency = Ins.Transparency - 1.1
+                for _, Hat in Player.Character:GetChildren() do
+                    if Hat:IsA("Accoutrement") or Hat:IsA("Accessory") then
+                        Hat:Destroy()
                     end
                 end
             end

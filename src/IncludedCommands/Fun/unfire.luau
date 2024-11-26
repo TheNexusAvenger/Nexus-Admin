@@ -1,20 +1,17 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
+--!strict
 
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "unsparkles",
+    Keyword = "unfire",
     Category = "FunCommands",
-    Description = "Removes all sparkles from a set of players.",
+    Description = "Removes all fire from a set of players.",
     Arguments = {
         {
             Type = "nexusAdminPlayers",
             Name = "Players",
-            Description = "Players to remove sparkles from.",
+            Description = "Players to remove fire from.",
         },
     },
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
@@ -22,9 +19,9 @@ return {
             if Player.Character then
                 local HumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
                 if HumanoidRootPart then
-                    for _, Sparkles in HumanoidRootPart:GetChildren() do
-                        if Sparkles.Name == "NexusAdminSparkles" then
-                            Sparkles:Destroy()
+                    for _, Fire in HumanoidRootPart:GetChildren() do
+                        if Fire.Name == "NexusAdminFire" then
+                            Fire:Destroy()
                         end
                     end
                 end
