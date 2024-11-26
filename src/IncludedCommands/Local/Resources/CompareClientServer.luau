@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Helper function for comparing consistency data between the client and server.
---]]
+--Helper function for comparing consistency data between the client and server.
+--!strict
 
 local INDENT = "    "
 local IGNORED_INSTANCES = {
@@ -26,7 +23,7 @@ local IGNORED_INSTANCES = {
         },
         ClassName = "Sound",
     },
-}
+} :: {{Names: {[string]: boolean}, ClassName: string}}
 
 
 
@@ -35,7 +32,7 @@ Creates a warning line with an indent.
 --]]
 local function GetIndentedWarningLine(Text)
     return {
-        Text = INDENT..Text,
+        Text = `{INDENT}{Text}`,
         TextColor3 = Color3.fromRGB(255, 255, 0),
     }
 end
@@ -48,7 +45,7 @@ local function CheckKeyValue(ClientData, ServerData)
     for PropertyName, ServerValue in ServerData do
         local ClientValue = ClientData[PropertyName]
         if ClientValue ~= ServerValue then
-            table.insert(Lines, GetIndentedWarningLine(PropertyName.." is inconsistent. (Client: "..tostring(ClientValue)..", Server: "..tostring(ServerValue)..")"))
+            table.insert(Lines, GetIndentedWarningLine(`{PropertyName} is inconsistent. (Client: {ClientValue}, Server: {ServerValue})`))
         end
     end
     return Lines
@@ -82,7 +79,7 @@ local function CheckInstanceTree(ClientData, ServerData)
 
         --Iterate over the queue.
         while #RemainingInstances > 0 do
-            local NextInstance = table.remove(RemainingInstances, 1)
+            local NextInstance = table.remove(RemainingInstances, 1) :: any
 
             --Ignore the instance if it should be ignored.
             local IgnoreInstance = false
@@ -102,13 +99,13 @@ local function CheckInstanceTree(ClientData, ServerData)
             for i, Name in NextInstance.NameParts do
                 local NewParent = nil
                 for _, TargetChild in CurrentParent.Children or CurrentParent do
-                    if TargetChild.Name == Name then
+                    if (TargetChild :: any).Name == Name then
                         NewParent = TargetChild
                         break
                     end
                 end
                 if NewParent then
-                    CurrentParent = NewParent
+                    CurrentParent = NewParent :: any
                     if i == #NextInstance.NameParts then
                         TargetInstance = NewParent
                     end
@@ -117,13 +114,13 @@ local function CheckInstanceTree(ClientData, ServerData)
 
             --Either the instance does not exist or enqueue the children.
             if not TargetInstance then
-                table.insert(Lines, GetIndentedWarningLine(Scan.NotFoundPrefix..NextInstance.FullName.." ("..NextInstance.ClassName..")"))
+                table.insert(Lines, GetIndentedWarningLine(`{Scan.NotFoundPrefix}{NextInstance.FullName} ({NextInstance.ClassName})`))
             else
-                if i == 1 and NextInstance.ClassName ~= TargetInstance.ClassName then
-                    table.insert(Lines, GetIndentedWarningLine(NextInstance.FullName.." classes don't match ("..NextInstance.ClassName.." ~= "..TargetInstance.ClassName..")"))
+                if i == 1 and NextInstance.ClassName ~= (TargetInstance :: any).ClassName then
+                    table.insert(Lines, GetIndentedWarningLine(`{NextInstance.FullName} classes don't match ({NextInstance.ClassName} ~= {(TargetInstance :: any).ClassName})`))
                 end
                 for _, Child in NextInstance.Children do
-                    Child.FullName = NextInstance.FullName.."."..Child.Name
+                    Child.FullName = `{NextInstance.FullName}.{Child.Name}`
                     local NameParts = {}
                     for _, NamePart in NextInstance.NameParts do
                         table.insert(NameParts, NamePart)
@@ -142,7 +139,7 @@ local function CheckInstanceTree(ClientData, ServerData)
     local Prefix1, Prefix2 = GetIndentedWarningLine(Scans[1].NotFoundPrefix).Text, GetIndentedWarningLine(Scans[2].NotFoundPrefix).Text
     for i, Entry in Lines do
         if string.sub(Entry.Text, 1, string.len(Prefix1)) == Prefix1 then
-            local TargetLine = Prefix2..string.sub(Entry.Text, string.len(Prefix1) + 1)
+            local TargetLine = `{Prefix2}{string.sub(Entry.Text, string.len(Prefix1) + 1)}`
             for j, OtherEntry in Lines do
                 if LinesToRemove[j] then continue end
                 if OtherEntry.Text ~= TargetLine then continue end
@@ -193,10 +190,10 @@ return function (ClientData, ServerData)
                     table.insert(Lines, Line)
                 end
                 if #ComparisonLines == 0 then
-                    table.insert(Lines, INDENT.."Client and server are consistent.")
+                    table.insert(Lines, `{INDENT}Client and server are consistent.`)
                 end
             else
-                table.insert(Lines, GetIndentedWarningLine("Unknown compare mode "..tostring(ServerEntry.CompareMode).."."))
+                table.insert(Lines, GetIndentedWarningLine(`Unknown compare mode {ServerEntry.CompareMode}.`))
             end
         end
 

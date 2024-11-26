@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Serializers for DataTypes.
---]]
+--Serializers for DataTypes.
+--!strict
 
 return {
     ["Axes"] = function(Data: Axes)
@@ -26,7 +23,7 @@ return {
     end,
     ["ColorSequence"] = function(Data: ColorSequence)
         local SerializedPoints = {}
-        for _, Keypoint: ColorSequenceKeypoint in pairs(Data.Keypoints) do
+        for _, Keypoint: ColorSequenceKeypoint in Data.Keypoints do
             table.insert(SerializedPoints, {Keypoint.Time, Keypoint.Value.R, Keypoint.Value.G, Keypoint.Value.B})
         end
         return SerializedPoints
@@ -61,7 +58,7 @@ return {
     end,
     ["NumberSequence"] = function(Data: NumberSequence)
         local SerializedPoints = {}
-        for _, Keypoint: NumberSequenceKeypoint in pairs(Data.Keypoints) do
+        for _, Keypoint: NumberSequenceKeypoint in Data.Keypoints do
             table.insert(SerializedPoints, {Keypoint.Time, Keypoint.Value, Keypoint.Envelope})
         end
         return SerializedPoints

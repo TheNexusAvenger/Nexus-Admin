@@ -1,14 +1,11 @@
---[[
-TheNexusAvenger
-
-Deserializers for DataTypes.
---]]
+--Deserializers for DataTypes.
+--!strict
 
 return {
     ["Axes"] = function(Data)
         local AxesEnums = {}
-        for _, EnunName in pairs(Data) do
-            table.insert(AxesEnums, Enum.Axis[EnunName])
+        for _, EnunName in Data do
+            table.insert(AxesEnums, (Enum.Axis :: any)[EnunName])
         end
         return Axes.new(unpack(AxesEnums))
     end,
@@ -20,7 +17,7 @@ return {
     end,
     ["ColorSequence"] = function(Data)
         local Keypoints = {}
-        for _, KeypointData in pairs(Data) do
+        for _, KeypointData in Data do
             table.insert(Keypoints, ColorSequenceKeypoint.new(KeypointData[1], Color3.new(KeypointData[2], KeypointData[3], KeypointData[4])))
         end
         return ColorSequence.new(Keypoints)
@@ -30,8 +27,8 @@ return {
     end,
     ["Faces"] = function(Data)
         local FaceEnums = {}
-        for _, EnunName in pairs(Data) do
-            table.insert(FaceEnums, Enum.NormalId[EnunName])
+        for _, EnunName in Data do
+            table.insert(FaceEnums, (Enum.NormalId :: any)[EnunName])
         end
         return Faces.new(unpack(FaceEnums))
     end,
@@ -40,7 +37,7 @@ return {
     end,
     ["NumberSequence"] = function(Data)
         local Keypoints = {}
-        for _, KeypointData in pairs(Data) do
+        for _, KeypointData in Data do
             table.insert(Keypoints, NumberSequenceKeypoint.new(KeypointData[1], KeypointData[2], KeypointData[3]))
         end
         return NumberSequence.new(Keypoints)
