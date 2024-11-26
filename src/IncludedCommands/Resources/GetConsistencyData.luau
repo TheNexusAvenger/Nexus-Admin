@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Helper function for getting the data for checking for cosistency.
---]]
+--Helper function for getting the data for checking for cosistency.
+--!strict
 
 local HUMANOID_PROPERTIES_TO_CHECK = {
     "AutoJumpEnabled",
@@ -64,7 +61,7 @@ return function (Player: Player): {{Description: string, CompareMode: string, Da
     if Humanoid then
         HumanoidProperties = {}
         for _, PropertyName in HUMANOID_PROPERTIES_TO_CHECK do
-            HumanoidProperties[PropertyName] = Humanoid[PropertyName]
+            HumanoidProperties[PropertyName] = (Humanoid :: any)[PropertyName]
         end
     end
     return {

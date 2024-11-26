@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Manages the tool enum.
---]]
+--Manages the tool enum.
 --!strict
 
 local TOOL_CONTAINERS = {
@@ -16,13 +12,17 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 local ToolListEnum = {}
 ToolListEnum.ToolsLookup = {}
-ToolListEnum.ToolChangedEvents = {}
+ToolListEnum.ToolChangedEvents = {} :: {RBXScriptConnection}
+
+export type ToolListEnum = {
+    NexusAdminRegistry: Types.Registry,
+} & typeof(ToolListEnum)
 
 
 --[[
 Updates the tools lookup map and enum.
 --]]
-function ToolListEnum:UpdateEnum(): ()
+function ToolListEnum.UpdateEnum(self: ToolListEnum): ()
     --Disconnect the changed events.
     for _, Event in self.ToolChangedEvents do
         Event:Disconnect()
@@ -68,7 +68,7 @@ end
 --[[
 Returns the tools for the given names.
 --]]
-function ToolListEnum:GetTools(ToolNames: {string}): {Tool}
+function ToolListEnum.GetTools(self: ToolListEnum, ToolNames: {string}): {Tool}
     local ToolSet = {}
     local ToolSetLookup = {}
     for _, ToolName in ToolNames do
@@ -85,7 +85,7 @@ end
 --[[
 Sets up the enum with Nexus Admin.
 --]]
-function ToolListEnum:SetUp(NexusAdminRegistry: Types.Registry): ()
+function ToolListEnum.SetUp(self: ToolListEnum, NexusAdminRegistry: Types.Registry): ()
     if self.NexusAdminRegistry then return end
     self.NexusAdminRegistry = NexusAdminRegistry
 

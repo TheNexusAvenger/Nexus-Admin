@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Stores the state for persistent bans.
---]]
+--Stores the state for persistent bans.
 --!strict
 
 local Players = game:GetService("Players")
@@ -17,17 +13,12 @@ PersistentBans.__index = PersistentBans
 local StaticInstance = nil
 
 export type PersistentBans = {
-    new: (Api: Types.NexusAdminApiServer) -> (PersistentBans),
-    GetInstance: (Api: Types.NexusAdminApiServer) -> (PersistentBans),
-
     Initialized: boolean,
     InitializationStarted: boolean,
-    Initialize: (self: PersistentBans) -> (),
-    WasInitialized: (self: PersistentBans) -> (boolean),
-    ResolveUserIds: (self: PersistentBans, Name: string) -> ({number}),
-    BanId: (self: PersistentBans, UserId: number, Message: string?) -> (),
-    UnbanId: (self: PersistentBans, UserId: number) -> (),
-}
+    Api: Types.NexusAdminApiServer,
+    PlayerUpdateEvents: {[Player]: RBXScriptConnection},
+    BansDataStore: any,
+} & typeof(setmetatable({}, PersistentBans))
 
 
 
@@ -35,17 +26,12 @@ export type PersistentBans = {
 Creates a persistent bans object.
 --]]
 function PersistentBans.new(Api: Types.NexusAdminApiServer): PersistentBans
-    --Create the object.
-    local self = {
+    return setmetatable({
         InitializationStarted = false,
         Initialized = false,
         Api = Api,
         PlayerUpdateEvents = {},
-    }
-    setmetatable(self, PersistentBans)
-
-    --Return the object.
-    return (self :: any) :: PersistentBans
+    }, PersistentBans) :: PersistentBans
 end
 
 --[[
@@ -65,7 +51,7 @@ end
 --[[
 Initializes the bans.
 --]]
-function PersistentBans:Initialize(): ()
+function PersistentBans.Initialize(self: PersistentBans): ()
     if self.InitializationStarted then return end
     self.InitializationStarted = true
 
@@ -74,7 +60,7 @@ function PersistentBans:Initialize(): ()
         self.BansDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "PercistentBans")
     end)
     if not Worked then
-        warn("Failed to get persistent bans because "..tostring(ErrorMessage))
+        warn(`Failed to get persistent bans because {ErrorMessage}`)
         self.Initialized = true
         return
     end
@@ -97,7 +83,7 @@ end
 --[[
 Connects a player.
 --]]
-function PersistentBans:ConnectPlayer(Player: Player): ()
+function PersistentBans.ConnectPlayer(self: PersistentBans, Player: Player): ()
     if not self.BansDataStore then return end
     self.PlayerUpdateEvents[Player] = self.BansDataStore:OnUpdate(tostring(Player.UserId), function()
         self:KickPlayer(Player)
@@ -108,7 +94,7 @@ end
 --[[
 Kicks a player if they are banned.
 --]]
-function PersistentBans:KickPlayer(Player: Player): ()
+function PersistentBans.KickPlayer(self: PersistentBans, Player: Player): ()
     if not self.BansDataStore then return end
     task.spawn(function()
         --Return if the player is an admin.
@@ -130,14 +116,14 @@ end
 --[[
 Returns if the bans initialized correctly.
 --]]
-function PersistentBans:WasInitialized(): boolean
+function PersistentBans.WasInitialized(self: PersistentBans): boolean
     return self.BansDataStore ~= nil
 end
 
 --[[
 Attempts to resolve the user ids for the given name.
 --]]
-function PersistentBans:ResolveUserIds(Name: string): {number}
+function PersistentBans.ResolveUserIds(self: PersistentBans, Name: string): {number}
     --Add the ids from the players.
     local Ids = {}
     for _,Player in Players:GetPlayers() do
@@ -152,7 +138,7 @@ function PersistentBans:ResolveUserIds(Name: string): {number}
             table.insert(Ids, tonumber(Name))
         else
             pcall(function()
-                table.insert(Ids, self.Players:GetUserIdFromNameAsync(Name))
+                table.insert(Ids, Players:GetUserIdFromNameAsync(Name))
             end)
         end
     end
@@ -164,7 +150,7 @@ end
 --[[
 Bans a user id.
 --]]
-function PersistentBans:BanId(UserId: number, Message: string?): ()
+function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string?): ()
     if not self.BansDataStore then return end
     self.BansDataStore:Set(tostring(UserId), Message or true)
 end
@@ -172,11 +158,11 @@ end
 --[[
 Unbans a user id.
 --]]
-function PersistentBans:UnbanId(UserId)
+function PersistentBans.UnbanId(self: PersistentBans, UserId)
     if not self.BansDataStore then return end
     self.BansDataStore:Set(tostring(UserId), nil)
 end
 
 
 
-return (PersistentBans :: any) :: PersistentBans
+return PersistentBans
