@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Lighting = game:GetService("Lighting")
@@ -11,16 +7,20 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "shadows",
+    Keyword = "fixlighting",
     Category = "BuildUtility",
-    Description = "Toggles the shadows",
+    Description = "Reverts the lighting changed by the admin.",
+    ServerLoad = function(Api: Types.NexusAdminApiServer)
+        Api.CommandData.LightingProperties = {}
+    end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetApi()
 
-        if Api.CommandData.LightingProperties and not Api.CommandData.LightingProperties.GlobalShadows then
-            Api.CommandData.LightingProperties.GlobalShadows = Lighting.GlobalShadows
+        --Revert the settings.
+        for Key,Value in Api.CommandData.LightingProperties do
+            Lighting[Key] = Value
         end
-        Lighting.GlobalShadows = not Lighting.GlobalShadows
+        Api.CommandData.LightingProperties = {}
     end,
 }

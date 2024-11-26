@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Workspace = game:GetService("Workspace")
