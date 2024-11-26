@@ -185,15 +185,21 @@ end
 Updates the top bar.
 --]]
 function ApiWindow.UpdateTopBar(self: ApiWindow): ()
+    --Move the refresh button.
     local TopBarHeightPixel = self.Instances.TopBarAdorn.Size.Y.Offset
     if self.Instances.RefreshButton then
         if self.Instances.CloseButton then
             self.Instances.RefreshButton.Position = UDim2.new(1, -TopBarHeightPixel * 1.8, 0, TopBarHeightPixel * 0.075)
-            self.Instances.TitleText.Size = UDim2.new(1, -(TopBarHeightPixel * 2.4), 1, -2 * (TopBarHeightPixel * 0.1))
         else
             self.Instances.RefreshButton.Position = UDim2.new(1, -TopBarHeightPixel * 0.9, 0, TopBarHeightPixel * 0.075)
-            self.Instances.TitleText.Size = UDim2.new(1, -(TopBarHeightPixel * 1.4), 1, -2 * (TopBarHeightPixel * 0.1))
         end
+    end
+
+    --Update the title text width.
+    if self.Instances.RefreshButton and self.Instances.CloseButton then
+        self.Instances.TitleText.Size = UDim2.new(1, -(TopBarHeightPixel * 2.4), 1, -2 * (TopBarHeightPixel * 0.1))
+    elseif self.Instances.RefreshButton or self.Instances.CloseButton then
+        self.Instances.TitleText.Size = UDim2.new(1, -(TopBarHeightPixel * 1.4), 1, -2 * (TopBarHeightPixel * 0.1))
     else
         self.Instances.TitleText.Size = UDim2.new(1, -(TopBarHeightPixel * 0.4), 1, -2 * (TopBarHeightPixel * 0.1))
     end
