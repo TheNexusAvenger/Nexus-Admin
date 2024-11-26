@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -37,7 +33,7 @@ return {
         end
 
         --Set the admin levels.
-        for _,Player in pairs(Players) do
+        for _,Player in Players do
             if Player ~= CommandContext.Executor then
                 if Api.Authorization:GetAdminLevel(Player) < ExecutorAdminLevel then
                     Api.Authorization:SetAdminLevel(Player,AdminLevel)

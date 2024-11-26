@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -42,20 +38,20 @@ return {
 
                         --Add the command.
                         for _,Prefix in Prefixes do
-                            local CommandString = Prefix..CmdrCommand.Name.." "
+                            local CommandString = `{Prefix}{CmdrCommand.Name} `
                             for _,Argument in CmdrCommand.Args do
                                 if typeof(Argument) == "function" then
-                                    CommandString = CommandString.."[Conditional] "
+                                    CommandString ..= "[Conditional] "
                                 else
                                     if Argument.Optional == true then
-                                        CommandString = CommandString.."("..Argument.Name..") "
+                                        CommandString ..= `({Argument.Name}) `
                                     else
-                                        CommandString = CommandString..Argument.Name.." "
+                                        CommandString ..= `{Argument.Name} `
                                     end
                                 end
                             end
                             if not ExistingLines[CommandString] and string.find(string.lower(CommandString), string.lower(SearchTerm)) then
-                                table.insert(Commands,CommandString.."- "..CmdrCommand.Description)
+                                table.insert(Commands, `{CommandString}- {CmdrCommand.Description}`)
                                 ExistingLines[CommandString] = true
                             end
                         end

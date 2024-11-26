@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Players = game:GetService("Players")
@@ -64,7 +60,7 @@ return {
             task.spawn(function()
                 local Output = nil
                 local Window = ScrollingTextWindow.new()
-                Window.Title = "Consistency Check - "..Player.DisplayName.." ("..Player.Name..")"
+                Window.Title = `Consistency Check - {Player.DisplayName} ({Player.Name})`
                 Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
                     --Get the output.
                     if not Output or ForceRefresh then

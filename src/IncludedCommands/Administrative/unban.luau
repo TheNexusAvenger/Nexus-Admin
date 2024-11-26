@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -36,7 +32,7 @@ return {
                     if string.find(Data[2], PlayerString) then
                         table.insert(UserIdsToRemove, UserId)
                     else
-                        Util:SendError("\""..tostring(PlayerString).."\" doesn't match a banned user.")
+                        Util:SendError(`"{PlayerString}" doesn't match a banned user.`)
                     end
                 end
             end

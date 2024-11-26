@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -37,6 +33,6 @@ return {
 
         --Register the Cmdr alias.
         (CommandContext.Cmdr.Registry :: any):RegisterCommandObject((CommandContext.Cmdr.Util :: any).MakeAliasCommand(Name,Command), true)
-        return "Created alias "..tostring(Name)
+        return `Created alias {Name}`
     end
 }

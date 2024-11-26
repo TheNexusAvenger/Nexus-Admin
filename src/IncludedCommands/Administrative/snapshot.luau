@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Workspace = game:GetService("Workspace")
@@ -108,7 +104,7 @@ return {
         end
 
         local SnapshotFolder = Instance.new("Folder")
-        SnapshotFolder.Name = "Snapshot_"..tostring(Player)
+        SnapshotFolder.Name = `Snapshot_{Player}`
         SnapshotFolder.Parent = SnapshotRootFolder
 
         local SnapshotBackground = Instance.new("ScreenGui")
@@ -137,7 +133,7 @@ return {
         local CameraViewportSize = Camera.ViewportSize
         local GetClientViewRemoteFunction = Api.EventContainer:WaitForChild("GetClientViewRemoteFunction") :: RemoteFunction
         local Window = ResizableWindow.new()
-        Window.Title = "Snapshot - "..Player.DisplayName.." ("..Player.Name..")"
+        Window.Title = `Snapshot - {Player.DisplayName} ({Player.Name})`
 
         local ScreenSizeText = Instance.new("TextLabel")
         ScreenSizeText.BackgroundTransparency = 1
@@ -162,7 +158,7 @@ return {
             end
 
             --Update the screen text.
-            ScreenSizeText.Text = "Screen size X: "..tostring(ScreenData.ScreenSizeX).."\nScreen size Y: "..tostring(ScreenData.ScreenSizeY)
+            ScreenSizeText.Text = `Screen size X: {ScreenData.ScreenSizeX}\nScreen size Y: {ScreenData.ScreenSizeY}`
 
             --Show the ScreenGuis.
             SnapshotScreenGuisFolder:ClearAllChildren()

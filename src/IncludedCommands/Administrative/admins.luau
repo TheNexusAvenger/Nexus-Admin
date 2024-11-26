@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Players = game:GetService("Players")
@@ -53,13 +49,13 @@ return {
             --Create and return the lines.
             local Lines = {} :: {string | {[string]: any}}
             for _, LevelData in AdminLevelsData do
-                table.insert(Lines, {Text = LevelData.Name.." ("..tostring(LevelData.Level)..")", Font = Enum.Font.SourceSansBold})
+                table.insert(Lines, {Text = `{LevelData.Name} ({LevelData.Level})`, Font = Enum.Font.SourceSansBold})
                 if #LevelData.Players == 0 then
                     table.insert(Lines, {Text = "(No one)", Font = Enum.Font.SourceSansItalic})
                 else
                     table.sort(LevelData.Players, function(a: Player, b: Player) return string.lower(a.Name) < string.lower(b.Name) end)
                     for _,Player in LevelData.Players do
-                        table.insert(Lines, Player.Name.." ("..tostring(Player.UserId)..")")
+                        table.insert(Lines, `{Player.Name} ({Player.UserId})`)
                     end
                 end
                 table.insert(Lines, "")

@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local CLOSE_THRESHOLD = 0.1
@@ -206,7 +202,7 @@ return {
         local CameraViewportSize = Camera.ViewportSize
         local GetClientViewRemoteFunction = Api.EventContainer:WaitForChild("GetCharacterHistory") :: RemoteFunction
         local Window = ResizableWindow.new()
-        Window.Title = "History - "..Player.DisplayName.." ("..Player.Name..")"
+        Window.Title = `History - {Player.DisplayName} ({Player.Name})`
 
         local ScreenSizeText = Instance.new("TextLabel")
         ScreenSizeText.BackgroundTransparency = 1
@@ -281,10 +277,10 @@ return {
                     InfoCenter.Parent = CharacterHistoryScreenGui
                     CurrentInfoCenter = InfoCenter
 
-                    local Messsage = Entry.Type.."\n"..string.format("%.3f, %.3f, %.3f", Entry.Position.X, Entry.Position.Y, Entry.Position.Z)
+                    local Messsage = `{Entry.Type}\n{string.format("%.3f, %.3f, %.3f", Entry.Position.X, Entry.Position.Y, Entry.Position.Z)}`
                     local HumanoidEntries = 0
                     for Property, Value in Entry.Humanoid do
-                        Messsage = Messsage.."\n"..Property..": "..tostring(Value)
+                        Messsage ..= `\n{Property}: {Value}`
                         HumanoidEntries += 1
                     end
                     
@@ -330,7 +326,7 @@ return {
                 local Length = (LastEntry.Position - Entry.Position).Magnitude
                 local Line = Instance.new("CylinderHandleAdornment")
                 Line.Transparency = 0.25
-                Line.Name = tostring(i - 1).."-"..tostring(i)
+                Line.Name = `{i - 1}-{i}`
                 Line.ZIndex = 0
                 Line.AlwaysOnTop = true
                 Line.Color3 = TYPE_TO_COLOR[Entry.Type]
@@ -344,7 +340,7 @@ return {
             --Update the screen text.
             local Text =  "Total entries: "..tostring(#CharacterHistory)
             for Type, Value in TypeCounts do
-                Text = Text.."\n"..Type..": "..tostring(Value)
+                Text ..= `\n{Type}: {Value}`
             end
             ScreenSizeText.Text = Text
         end

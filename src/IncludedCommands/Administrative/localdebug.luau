@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local LogService = game:GetService("LogService")
@@ -69,7 +65,7 @@ return {
             task.spawn(function()
                 local Output = nil
                 local Window = ScrollingTextWindow.new(nil, false)
-                Window.Title = "Client Output - "..Player.DisplayName.." ("..Player.Name..")"
+                Window.Title = `Client Output - {Player.DisplayName} ({Player.Name})`
                 Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
                     --Get the output.
                     if not Output or ForceRefresh then

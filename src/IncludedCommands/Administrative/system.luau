@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local INDENT = "    "
@@ -71,31 +67,31 @@ return {
             local Output = {}
 
             --Add the initial client information.
-            table.insert(Output, "Client version: "..TryGet(Version))
-            table.insert(Output, "Client type: "..TryGet(GetAddressLength).."-bit ("..tostring({})..")")
-            table.insert(Output, "Client uptime: "..tostring(Workspace.DistributedGameTime).." seconds")
+            table.insert(Output, `Client version: {TryGet(Version)}`)
+            table.insert(Output, `Client type: {TryGet(GetAddressLength)}-bit ({tostring({})})`)
+            table.insert(Output, `Client uptime: {Workspace.DistributedGameTime} seconds`)
             table.insert(Output, "")
 
             --Add the localization information.
             table.insert(Output, "Localization:")
-            table.insert(Output, INDENT.."RobloxLocaleId: "..TryGet(function() return Localizationservice.RobloxLocaleId end))
-            table.insert(Output, INDENT.."SystemLocaleId: "..TryGet(function() return Localizationservice.SystemLocaleId end))
+            table.insert(Output, `{INDENT}RobloxLocaleId: {TryGet(function() return Localizationservice.RobloxLocaleId end)}`)
+            table.insert(Output, `{INDENT}SystemLocaleId: {TryGet(function() return Localizationservice.SystemLocaleId end)}`)
             table.insert(Output, "")
 
             --Add the input information.
             table.insert(Output, "Hardware:")
             for _, PropertyName in {"KeyboardEnabled", "MouseEnabled", "TouchEnabled", "GamepadEnabled", "VREnabled", "AccelerometerEnabled", "GyroscopeEnabled"} do
-                table.insert(Output, INDENT..PropertyName..": "..TryGet(function() return UserInputService[PropertyName] end))
+                table.insert(Output, `{INDENT}{PropertyName}: {TryGet(function() return UserInputService[PropertyName] end)}`)
                 if PropertyName == "GamepadEnabled" then
                     for _, EnumItem in Enum.UserInputType:GetEnumItems() do
                         local EnumItemName = EnumToString(EnumItem)
                         if not string.find(EnumItemName, "Gamepad") then continue end
-                        table.insert(Output, INDENT..INDENT..EnumItemName..": "..TryGet(function() return UserInputService:GetGamepadConnected(EnumItem) end))
+                        table.insert(Output, `{INDENT}{INDENT}{EnumItemName}: {TryGet(function() return UserInputService:GetGamepadConnected(EnumItem) end)}`)
                     end
                 elseif PropertyName == "VREnabled" then
                     for _, EnumItem in Enum.UserCFrame:GetEnumItems() do
                         local EnumItemName = EnumToString(EnumItem)
-                        table.insert(Output, INDENT..INDENT..EnumItemName..": "..TryGet(function() return VRServie:GetUserCFrameEnabled(EnumItem) end))
+                        table.insert(Output, `{INDENT}{INDENT}{EnumItemName}: {TryGet(function() return VRServie:GetUserCFrameEnabled(EnumItem) end)}`)
                     end
                 end
             end
@@ -104,7 +100,7 @@ return {
             --Add the runtime information.
             table.insert(Output, "Runtime:")
             for _, MethodName in {"IsClient", "IsServer", "IsStudio", "IsEdit", "IsRunMode"} do
-                table.insert(Output, INDENT..MethodName..": "..TryGet(function() return RunService[MethodName](RunService) end))
+                table.insert(Output, `{INDENT}{MethodName}: {TryGet(function() return RunService[MethodName](RunService) end)}`)
             end
 
             --Return the output.
@@ -128,16 +124,16 @@ return {
                     table.insert(Output, "Policy:")
                     for Key, Value in Policy do
                         if typeof(Value) == "table" then
-                            table.insert(Output, INDENT..tostring(Key)..":")
+                            table.insert(Output, `{INDENT}{Key}:`)
                             for SubKey, SubValue in Value do
-                                table.insert(Output, INDENT..INDENT..tostring(SubKey)..": "..tostring(SubValue))
+                                table.insert(Output, `{INDENT}{INDENT}{SubKey}: {SubValue}`)
                             end
                         else
-                            table.insert(Output, INDENT..tostring(Key)..": "..tostring(Value))
+                            table.insert(Output, `{INDENT}{Key}: {Value}`)
                         end
                     end
                 end, function(ErrorMessage: string)
-                    warn("Failed to fetch policy for "..tostring(TargetPlayer.UserId).." because "..tostring(ErrorMessage))
+                    warn(`Failed to fetch policy for {TargetPlayer.UserId} because {ErrorMessage}`)
                 end)
                 return Output
             else
@@ -155,7 +151,7 @@ return {
             task.spawn(function()
                 local Output = nil
                 local Window = ScrollingTextWindow.new(nil, false)
-                Window.Title = "System - "..Player.DisplayName.." ("..Player.Name..")"
+                Window.Title = `System - {Player.DisplayName} ({Player.Name})`
                 Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
                     --Get the output.
                     if not Output or ForceRefresh then

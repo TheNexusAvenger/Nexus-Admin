@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,7 +15,7 @@ return {
         xpcall(function()
             Api.CommandData.FeatureFlagLogsDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "FeatureFlagLogs")
         end, function(ErrorMessage)
-            warn("Failed to get feature flag logs because "..tostring(ErrorMessage))
+            warn(`Failed to get feature flag logs because {ErrorMessage}`)
         end)
 
         local GetFeatureFlagLogsFunction = Instance.new("RemoteFunction")
@@ -33,7 +29,7 @@ return {
                     local Logs = {}
                     for i = #LogEntries, 1, -1 do
                         local Log = LogEntries[i]
-                        table.insert(Logs, Api.Time:GetDateTimeString(Log.Time)..": "..Log.UserName.." changed "..Log.Name.." from "..tostring(Log.PreviousValue).." to "..tostring(Log.NewValue))
+                        table.insert(Logs, `{Api.Time:GetDateTimeString(Log.Time)}: {Log.UserName} changed {Log.Name} from {Log.PreviousValue} to {Log.NewValue}`)
                     end
                     return Logs
                 else

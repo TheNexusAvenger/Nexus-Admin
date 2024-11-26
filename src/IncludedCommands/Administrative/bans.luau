@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
+--!strict
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -20,7 +17,7 @@ return {
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("Administrative", "bans")) then
                 local BannedNames = {}
                 for BannedId, BannedPlayerData in Api.CommandData.BannedUserIds do
-                    table.insert(BannedNames, BannedPlayerData[3].." ("..tostring(BannedId)..")")
+                    table.insert(BannedNames, `{BannedPlayerData[3]} ({BannedId})`)
                 end
                 table.sort(BannedNames, function(a, b) return string.lower(a) < string.lower(b) end)
                 return BannedNames
@@ -41,7 +38,7 @@ return {
         Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
             --Get the bans.
             if not Bans or ForceRefresh then
-                Bans = Api.EventContainer:WaitForChild("GetBans"):InvokeServer()
+                Bans = (Api.EventContainer:WaitForChild("GetBans") :: RemoteFunction):InvokeServer()
             end
 
             --Filter and return the bans.

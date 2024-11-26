@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
+--!strict
 
 local Players = game:GetService("Players")
 
@@ -28,7 +25,7 @@ return {
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         --Connect kicking players on entry.
-        Players.PlayerAdded:Connect(function(Player)
+        Players.PlayerAdded:Connect(function(Player: Player)
             local BanData = Api.CommandData.BannedUserIds[Player.UserId]
             if BanData then
                 if BanData[1] == true then
@@ -54,7 +51,7 @@ return {
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Message: string?)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
+        local Api = Util:GetServerApi()
 
         --Ban the players.
         local ExecutorAdminLevel = Api.Authorization:GetAdminLevel(CommandContext.Executor)

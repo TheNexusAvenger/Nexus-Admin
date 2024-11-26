@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Implementation of a command.
---]]
+--Implementation of a command.
 --!strict
 
 local Players = game:GetService("Players")
@@ -41,7 +37,7 @@ return {
                 Player:Kick("Server was locked by an admin. Please try again later.")
                 for _, Admin in Players:GetPlayers() do
                     if Api.Authorization:GetAdminLevel(Admin) >= Api.CommandData.MinimumAdminLevel then
-                        Api.Messages:DisplayHint(Admin, Player.Name.." ("..Player.DisplayName..", "..tostring(Player.UserId)..") tried to enter the server. ("..tostring(PlayerLevel).." < "..tostring(Api.CommandData.MinimumAdminLevel)..")")
+                        Api.Messages:DisplayHint(Admin, `{Player.Name} ({Player.DisplayName}, {Player.UserId}) tried to enter the server. ({PlayerLevel} < {Api.CommandData.MinimumAdminLevel})`)
                     end
                 end
             end
@@ -93,7 +89,7 @@ return {
             --Set the server lock AdminLevel.
             local NewAdminLevel = AdminLevel or DefaultServerLockAdminLevel
             if Api.Authorization:YieldForAdminLevel(CommandContext.Executor) < NewAdminLevel then
-                return "Cannot set server lock above your own admin level. ("..tostring(Api.Authorization:GetAdminLevel(CommandContext.Executor)).." < "..tostring(NewAdminLevel)..")"
+                return `Cannot set server lock above your own admin level. ({Api.Authorization:GetAdminLevel(CommandContext.Executor)} < {NewAdminLevel})`
             end
             Api.CommandData.MinimumAdminLevel = NewAdminLevel
         else
@@ -103,7 +99,7 @@ return {
 
         --Display a message.
         if Api.CommandData.MinimumAdminLevel then
-            return "Server has been locked to admin level "..tostring(Api.CommandData.MinimumAdminLevel).."."
+            return `Server has been locked to admin level {Api.CommandData.MinimumAdminLevel}.`
         else
             return "Server has been unlocked."
         end
