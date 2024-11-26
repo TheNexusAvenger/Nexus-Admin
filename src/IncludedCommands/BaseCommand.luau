@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Base class for a command.
---]]
+--Base class for a command.
 
 local NexusObject = require(script.Parent.Parent:WaitForChild("NexusInstance"):WaitForChild("NexusObject"))
 local IncludedCommandUtil = require(script.Parent:WaitForChild("IncludedCommandUtil"))
@@ -22,7 +18,7 @@ BaseCommand.RunService = game:GetService("RunService")
 BaseCommand.TeleportService = game:GetService("TeleportService")
 BaseCommand.UserInputService = game:GetService("UserInputService")
 BaseCommand.TweenService = game:GetService("TweenService")
-warn("BaseCommand is deprecated and will be removed in a future release of Nexus Admin.")
+warn("BaseCommand is deprecated and will be removed in V.2.9.0 Nexus Admin.")
 
 
 
