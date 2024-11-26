@@ -38,10 +38,22 @@ return {
                     if Player == CommandContext.Executor then
                         Camera.CameraType = Enum.CameraType.Custom
                     else
+                        --Set the camera.
                         Camera.CameraType = Enum.CameraType.Track
-                        Api.CommandData.ViewCharacterAddedEvent = Player.CharacterAdded:Connect(function(Character)
+                        local ViewCharacterAddedEvent = Player.CharacterAdded:Connect(function(Character)
                             Camera.CameraSubject = Character:WaitForChild("Humanoid")
                         end)
+                        Api.CommandData.ViewCharacterAddedEvent = ViewCharacterAddedEvent
+
+                        --Request streaming around the user.
+                        if Workspace.StreamingEnabled then
+                            task.spawn(function()
+                                while Api.CommandData.ViewCharacterAddedEvent == ViewCharacterAddedEvent do
+                                    (CommandContext.Executor :: Player):RequestStreamAroundAsync(Camera.CFrame.Position)
+                                    task.wait(5)
+                                end
+                            end)
+                        end
                     end
                 end
             end
