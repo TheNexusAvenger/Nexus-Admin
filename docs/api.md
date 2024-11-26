@@ -267,9 +267,6 @@ for more.
 #### `Replicator:GiveScriptToPlayer(Player: Player, Script: BaseScript): ()`
 Gives a script to a specified player.
 
-#### `Replicator:GiveStarterScript(Script: BaseScript): ()`
-Gives a script to all players and new players.
-
 ### `Time`
 #### `Time:GetTimeString(Time: number?): string`
 Returns the current or specified time to a formatted string.

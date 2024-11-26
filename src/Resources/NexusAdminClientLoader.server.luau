@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Loads Nexus Admin on the client.
---]]
+--Loads Nexus Admin on the client.
 --!strict
 
 local Players = game:GetService("Players")

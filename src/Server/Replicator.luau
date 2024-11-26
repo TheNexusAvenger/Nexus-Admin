@@ -38,7 +38,7 @@ end
 Gives a script to all players.
 --]]
 function Replicator.GiveStarterScript(self: Replicator, Script: BaseScript): ()
-    warn(`Replicator::GiveStarterScript is deprecated in favor of Script.RunContext.`)
+    warn(`Replicator::GiveStarterScript is deprecated as of V.2.8.0 in favor of Script.RunContext.`)
     --Add the script to the starter player script.
     Script:Clone().Parent = StarterPlayerScripts
 

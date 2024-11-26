@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Server API for Nexus Admin.
---]]
+--Server API for Nexus Admin.
 --!strict
 
 local CMDR_OVERRIDE_ADMIN_LEVELS = {
@@ -11,12 +7,15 @@ local CMDR_OVERRIDE_ADMIN_LEVELS = {
     varSet = 0,
 }
 
-
-
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(script:WaitForChild("Types"))
+
+local Loaded = false
+local API = {}
+
+export type NexusAdminApi = typeof(API) & Types.NexusAdminApiServer
 
 
 
@@ -40,14 +39,10 @@ end
 
 
 
---Create the base API.
-local Loaded = false
-local API = {}
-
 --[[
 Loads Nexus Admin.
 --]]
-function API:Load(ConfigurationTable)
+function API:Load(ConfigurationTable: {[string]: any}): ()
     --Create the containers.
     local EventContainer = Instance.new("Folder")
     EventContainer.Name = "NexusAdminEvents"
@@ -91,7 +86,7 @@ function API:Load(ConfigurationTable)
     local Cmdr = require(script:WaitForChild("Cmdr"))
     local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConfigurationTable)
     local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration, EventContainer);
-    (Authorization :: {InitializePlayers: (self: Types.Authorization) -> ()} & Types.Authorization):InitializePlayers()
+    (Authorization):InitializePlayers()
     local Messages = require(script:WaitForChild("Server"):WaitForChild("ServerMessages")).new(EventContainer)
     local FeatureFlagsModule = script:WaitForChild("NexusFeatureFlags")
     FeatureFlagsModule.Parent = NexusAdminClient
@@ -100,8 +95,8 @@ function API:Load(ConfigurationTable)
     local Filter = require(script:WaitForChild("Server"):WaitForChild("ServerFilter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
     local Logs = require(script:WaitForChild("Common"):WaitForChild("Logs")).new()
-    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr, Configuration, Authorization, Messages, Logs, Time, Filter, EventContainer)
-    local LogsRegistry = require(script:WaitForChild("Server"):WaitForChild("ServerLogsRegistry")).new(Authorization, EventContainer)
+    local Registry = require(script:WaitForChild("Server"):WaitForChild("ServerRegistry")).new(Cmdr, Configuration, Authorization, Messages :: any, Logs :: any, Time, Filter :: any, EventContainer)
+    local LogsRegistry = require(script:WaitForChild("Server"):WaitForChild("ServerLogsRegistry")).new(Authorization :: any, EventContainer)
     local Executor = require(script:WaitForChild("Common"):WaitForChild("Executor")).new(Cmdr, Registry)
 
     --Create the configuration fetching.
@@ -159,7 +154,7 @@ end
 --[[
 Loads the including commands.
 --]]
-function API:LoadIncludedCommands(): ()
+function API.LoadIncludedCommands(self: NexusAdminApi): ()
     --Load the Nexus Admin commands.
     local IncludedCommands = ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands")
     local Categories = {"Administrative", "BasicCommands", "BuildUtility", "Cmdr", "UsefulFun", "Fun", "Persistent"}
@@ -168,13 +163,13 @@ function API:LoadIncludedCommands(): ()
         local Folder = script:WaitForChild("IncludedCommands"):WaitForChild(Category)
         for _, Module in Folder:GetChildren() do
             if not Module:IsA("ModuleScript") then return end
-            self.Registry:RegisterIncludedCommand(Module, self, IncludedCommands)
+            self.Registry:RegisterIncludedCommand(Module, self :: Types.NexusAdminApiServer, IncludedCommands)
         end
 
         --Connect adding new scripts.
         Folder.ChildAdded:Connect(function(Module: Instance): ()
             if not Module:IsA("ModuleScript") then return end
-            self.Registry:RegisterIncludedCommand(Module, self, IncludedCommands)
+            self.Registry:RegisterIncludedCommand(Module, self :: Types.NexusAdminApiServer, IncludedCommands)
         end)
     end
 
@@ -212,14 +207,14 @@ end
 --[[
 Loads the client loader to all clients.
 --]]
-function API:LoadClientLoader(): ()
-    self.Replicator:GiveStarterScript(script:WaitForChild("Resources"):WaitForChild("NexusAdminClientLoader"))
+function API.LoadClientLoader(self: NexusAdminApi): ()
+    script:WaitForChild("Resources"):WaitForChild("NexusAdminClientLoader").Parent = ReplicatedStorage:WaitForChild("NexusAdminClient")
 end
 
 --[[
 Returns if Nexus Admin is loaded.
 --]]
-function API:GetAdminLoaded(): boolean
+function API.GetAdminLoaded(self: NexusAdminApi): boolean
     return Loaded
 end
 
@@ -305,9 +300,9 @@ setmetatable(API, {
         --Throw an error if the result doesn't exist.
         if Result == nil then
             if Loaded then
-                error("\""..Index.."\" is not a valid member of Nexus Admin.")
+                error(`"{Index}" is not a valid member of Nexus Admin.`)
             else
-                error("Nexus Admin has not been loaded. Call NexusAdmin:Load(ConfigurationTable) before indexing \""..Index.."\".")
+                error(`Nexus Admin has not been loaded. Call NexusAdmin:Load(ConfigurationTable) before indexing {Index}.`)
             end
         end
 
