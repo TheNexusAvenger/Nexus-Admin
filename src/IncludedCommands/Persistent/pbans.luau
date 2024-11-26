@@ -86,69 +86,51 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Bans = nil
-        local Lines: {string}? = nil
-        local UsernameLoadedConnection: RBXScriptConnection? = nil
-        local Window = ScrollingTextWindow.new()
-        local OriginalOnClose = ScrollingTextWindow.OnClose
-        Window.Title = "Persistent Bans"
-        Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Persistent Bans")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+
+        local function UpdateText()
+            TextList:SetLines({"Loading..."})
+            
             --Get the bans.
-            if not Bans or ForceRefresh then
-                local NewBans, NewUsernameCache = (Util:GetRemote("GetPersistentBans") :: RemoteFunction):InvokeServer()
-                for UserId, Username in NewUsernameCache do
-                    if not UsernameCache[UserId] then
-                        UsernameCache[UserId] = Username
-                    end
+            local Bans, NewUsernameCache = (Util:GetRemote("GetPersistentBans") :: RemoteFunction):InvokeServer()
+            for UserId, Username in NewUsernameCache do
+                if not UsernameCache[UserId] then
+                    UsernameCache[UserId] = Username
                 end
-                Bans = NewBans
-                Lines = nil
             end
 
             --Format the lines.
             --Username fetching is done on the client in case the server didn't load it in time.
-            if not Lines then
-                if typeof(Bans) == "string" then
-                    Lines = {Bans}
-                else
-                    local NewLines = {}
-                    for UserId, Message in Bans do
-                        if Message == true then
-                            table.insert(NewLines, `{GetCachedUsername(UserId)} ({UserId})`)
-                        else
-                            table.insert(NewLines, `{GetCachedUsername(UserId)} ({UserId}) - {Message}`)
-                        end
+            local Lines = {}
+            if typeof(Bans) == "string" then
+                Lines = {Bans}
+            else
+                local NewLines = {}
+                for UserId, Message in Bans do
+                    if Message == true then
+                        table.insert(NewLines, `{GetCachedUsername(UserId)} ({UserId})`)
+                    else
+                        table.insert(NewLines, `{GetCachedUsername(UserId)} ({UserId}) - {Message}`)
                     end
-                    table.sort(NewLines, function(a, b) return string.lower(a) < string.lower(b) end)
-                    Lines = NewLines
                 end
+                table.sort(NewLines, function(a, b) return string.lower(a) < string.lower(b) end)
+                Lines = NewLines
             end
-
-            --Filter and return the bans.
-            local FilteredBans = {}
-            for _, Message in Lines :: {string} do
-                if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                    table.insert(FilteredBans, Message)
-                end
-            end
-            return FilteredBans
+            TextList:SetLines(Lines)
         end
-        Window.OnClose = function(...)
-            if UsernameLoadedConnection then
-                UsernameLoadedConnection:Disconnect()
-                UsernameLoadedConnection = nil
-            end
-            OriginalOnClose(...)
-        end
-        Window:Show()
 
-        --Conneced cached usernames loading.
-        UsernameLoadedConnection = UsernameLoaded.Event:Connect(function()
-            Lines = nil
-            Window:UpdateText()
+        local UsernameLoadedConnection = UsernameLoaded.Event:Connect(UpdateText)
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing(function()
+            UsernameLoadedConnection:Disconnect()
         end)
+        Window:EnableResizing()
+        Window:Show()
     end,
 }

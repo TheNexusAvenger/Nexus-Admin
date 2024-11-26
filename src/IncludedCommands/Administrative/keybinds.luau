@@ -11,26 +11,27 @@ return {
     Prefix = "!",
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Keybinds"
-        Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
-            --Filter and return the keybinds.
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Bans")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+
+        local function UpdateText()
             local Keybinds = {}
             for Key, Commands in Api.CommandData.Keybinds do
                 for _, Command in Commands do
-                    local KeyString = string.match(tostring(Key), ".-%..-%.(.+)") or tostring(Key)
-                    local Message = `{KeyString}: {Command}`
-                    if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                        table.insert(Keybinds,Message)
-                    end
+                    table.insert(Keybinds, `{(Key :: Enum.KeyCode).Name}: {Command}`)
                 end
             end
-            return Keybinds
+            TextList:SetLines(Keybinds)
         end
+
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

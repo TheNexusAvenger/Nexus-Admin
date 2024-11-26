@@ -11,15 +11,15 @@ return {
     Prefix = "!",
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
+        
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Commands")
+        local TextList = Window:AddTextList()
 
-        --Display the text window.
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Commands"
-        Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
+        local function FilterCommands(SearchTerm: string, _: {{[string]: any}})
             --Get the commands.
-            local Commands = {} :: {string | {[string]: any}}
+            local Commands = {} :: {{[string]: any}}
             local ExistingLines = {}
             local AdminLevel = Api.Authorization:GetAdminLevel(CommandContext.Executor)
             for GroupName, GroupCommands in (Api.Registry :: any).CommandsByGroup do
@@ -51,20 +51,30 @@ return {
                                 end
                             end
                             if not ExistingLines[CommandString] and string.find(string.lower(CommandString), string.lower(SearchTerm)) then
-                                table.insert(Commands, `{CommandString}- {CmdrCommand.Description}`)
+                                table.insert(Commands, {Text = `{CommandString}- {CmdrCommand.Description}`})
                                 ExistingLines[CommandString] = true
                             end
                         end
                     end
                 end
 
-                table.insert(Commands, "")
+                table.insert(Commands, {Text = ""})
             end
 
             --Return the commands.
             table.remove(Commands, #Commands)
             return Commands
         end
+
+        local function UpdateText()
+            TextList:SetLines(FilterCommands("", {}))
+        end
+
+        TextList:EnableSearching(FilterCommands)
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

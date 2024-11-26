@@ -17,56 +17,52 @@ return {
     },
     ClientRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Inventories = nil
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Inventories"
-        Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Inventories")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+
+        local function UpdateText()
             --Get the inventories.
-            if not Inventories or ForceRefresh then
-                Inventories = {}
-                for _,Player in Players do
-                    local Inventory = `{Player.Name}:`
-                    
-                    --Add the backpack tools.
-                    local Backpack = Player:FindFirstChildOfClass("Backpack")
-                    if Backpack then
-                        for _, Tool in Backpack:GetChildren() do
-                            if Tool:IsA("BackpackItem") then
-                                Inventory = `{Inventory}\n    {Tool.Name}`
-                            end
+            local Inventories = {}
+            for _,Player in Players do
+                local Inventory = `{Player.Name}:`
+                
+                --Add the backpack tools.
+                local Backpack = Player:FindFirstChildOfClass("Backpack")
+                if Backpack then
+                    for _, Tool in Backpack:GetChildren() do
+                        if Tool:IsA("BackpackItem") then
+                            Inventory = `{Inventory}\n    {Tool.Name}`
                         end
                     end
+                end
 
-                    --Add the character tools.
-                    local Character = Player.Character
-                    if Character then
-                        for _, Tool in Character:GetChildren() do
-                            if Tool:IsA("BackpackItem") then
-                                Inventory = `{Inventory}\n    {Tool.Name}`
-                            end
+                --Add the character tools.
+                local Character = Player.Character
+                if Character then
+                    for _, Tool in Character:GetChildren() do
+                        if Tool:IsA("BackpackItem") then
+                            Inventory = `{Inventory}\n    {Tool.Name}`
                         end
                     end
-
-                    --Add the line.
-                    table.insert(Inventories, Inventory)
                 end
 
-                --Sort the lines by name.
-                table.sort(Inventories, function(a, b) return string.lower(a) < string.lower(b) end)
+                --Add the line.
+                table.insert(Inventories, Inventory)
             end
 
-            --Filter and return the inventories.
-            local FilteredInventories = {}
-            for _,Message in Inventories do
-                if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                    table.insert(FilteredInventories, Message)
-                end
-            end
-            return FilteredInventories
+            --Sort the lines by name.
+            table.sort(Inventories, function(a, b) return string.lower(a) < string.lower(b) end)
+            TextList:SetLines(Inventories)
         end
+
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

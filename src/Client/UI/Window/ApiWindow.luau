@@ -11,6 +11,7 @@ local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
 local ButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("ButtonFactory"))
 local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
 local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
+local ApiTextList = require(script.Parent:WaitForChild("ApiTextList"))
 
 local RefreshFactory = ButtonFactory.CreateDefault(Color3.fromRGB(0, 200, 0))
 local CloseFactory = TextButtonFactory.CreateDefault(Color3.fromRGB(200, 0, 0))
@@ -41,6 +42,7 @@ export type ApiWindow = {
         ResizeCorner: any?, --ThemedFrame is not in the correct place for the client.
         RefreshButton: any?, --NexusButton is not in the correct place for the client.
         CloseButton: any?, --NexusButton is not in the correct place for the client.
+        TextLists: {ApiTextList.ApiTextList},
     },
     EventConnections: {RBXScriptConnection},
 } & typeof(setmetatable({}, ApiWindow))
@@ -138,6 +140,7 @@ function ApiWindow.new(): ApiWindow
             TitleText = TitleText,
             Background = Background,
             TopBarBackground = TopBarBackground,
+            TextLists = {},
         },
         EventConnections = {},
     }, ApiWindow) :: ApiWindow
@@ -349,6 +352,15 @@ function ApiWindow.SetRelativeSize(self: ApiWindow, RelativeX: number, RelativeY
 end
 
 --[[
+Adds a text list to the menu.
+--]]
+function ApiWindow.AddTextList(self: ApiWindow, TextType: ("TextLabel" | "TextBox")?): ApiTextList.ApiTextList
+    local TextList = ApiTextList.new(self.ContentsAdorn, self.TextHeight, TextType)
+    table.insert(ApiTextList, TextList)
+    return TextList
+end
+
+--[[
 Shows the window.
 --]]
 function ApiWindow.Show(self: ApiWindow, InitialPosition: UDim2?, InitialAnchorPoint: Vector2?, StartSide: Enum.NormalId?): ()
@@ -444,6 +456,9 @@ function ApiWindow.Destroy(self: ApiWindow): ()
     end
     if self.Instances.CloseButton then
         self.Instances.CloseButton:Destroy()
+    end
+    for _, TextList in self.Instances.TextLists do
+        TextList:Destroy()
     end
 end
 

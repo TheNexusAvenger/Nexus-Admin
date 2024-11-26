@@ -12,13 +12,13 @@ return {
     Description = "Opens up a window containing the list of admins.",
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Admins"
-        Window.GetTextLines = function(_, SearchTerm: string, ForceRefresh: boolean): ()
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Admins")
+        local TextList = Window:AddTextList()
+
+        local function FilterAdmins(SearchTerm: string, _: {{[string]: any}})
             SearchTerm = string.lower(SearchTerm)
 
             --Populate the data and sort by the level.
@@ -47,22 +47,32 @@ return {
             end
 
             --Create and return the lines.
-            local Lines = {} :: {string | {[string]: any}}
+            local Lines = {} :: {{[string]: any}}
             for _, LevelData in AdminLevelsData do
                 table.insert(Lines, {Text = `{LevelData.Name} ({LevelData.Level})`, Font = Enum.Font.SourceSansBold})
                 if #LevelData.Players == 0 then
                     table.insert(Lines, {Text = "(No one)", Font = Enum.Font.SourceSansItalic})
                 else
                     table.sort(LevelData.Players, function(a: Player, b: Player) return string.lower(a.Name) < string.lower(b.Name) end)
-                    for _,Player in LevelData.Players do
-                        table.insert(Lines, `{Player.Name} ({Player.UserId})`)
+                    for _, Player in LevelData.Players do
+                        table.insert(Lines, {Text = `{Player.Name} ({Player.UserId})`})
                     end
                 end
-                table.insert(Lines, "")
+                table.insert(Lines, {Text = ""})
             end
             table.remove(Lines, #Lines)
             return Lines
         end
+
+        local function UpdateText()
+            TextList:SetLines(FilterAdmins("", {}))
+        end
+
+        TextList:EnableSearching(FilterAdmins)
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

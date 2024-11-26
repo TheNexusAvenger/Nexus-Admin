@@ -28,28 +28,22 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Bans = nil
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Bans"
-        Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
-            --Get the bans.
-            if not Bans or ForceRefresh then
-                Bans = (Api.EventContainer:WaitForChild("GetBans") :: RemoteFunction):InvokeServer()
-            end
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Bans")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
 
-            --Filter and return the bans.
-            local FilteredBans = {}
-            for _, Message in Bans do
-                if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                    table.insert(FilteredBans, Message)
-                end
-            end
-            return FilteredBans
+        local function UpdateText()
+            TextList:SetLines({"Loading..."})
+            TextList:SetLines((Api.EventContainer:WaitForChild("GetBans") :: RemoteFunction):InvokeServer())
         end
+
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

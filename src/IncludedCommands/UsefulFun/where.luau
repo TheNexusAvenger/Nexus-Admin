@@ -17,42 +17,37 @@ return {
     },
     ClientRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Positions = nil
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Positions"
-        Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
-            --Get the positions.
-            if not Positions or ForceRefresh then
-                Positions = {}
-                for _, Player in Players do
-                    local Character = Player.Character
-                    if Character then
-                        local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
-                        if HumanoidRootPart then
-                            local Position = HumanoidRootPart.Position
-                            table.insert(Positions, string.format(`{Player.Name}: %.3f,%.3f,%.3f`, Position.X, Position.Y, Position.Z))
-                        else
-                            table.insert(Positions, `{Player.Name} has no HumanoidRootPart.`)
-                        end
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Positions")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+
+        local function UpdateText()
+            local Positions = {}
+            for _, Player in Players do
+                local Character = Player.Character
+                if Character then
+                    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
+                    if HumanoidRootPart then
+                        local Position = HumanoidRootPart.Position
+                        table.insert(Positions, string.format(`{Player.Name}: %.3f,%.3f,%.3f`, Position.X, Position.Y, Position.Z))
                     else
-                        table.insert(Positions, `{Player.Name} has no character.`)
+                        table.insert(Positions, `{Player.Name} has no HumanoidRootPart.`)
                     end
-                end
-                table.sort(Positions,function(a, b) return string.lower(a) < string.lower(b) end)
-            end
-
-            --Filter and return the positions.
-            local FilteredPositionss = {}
-            for _, Message in Positions do
-                if string.find(string.lower(Message), string.lower(SearchTerm)) then
-                    table.insert(FilteredPositionss, Message)
+                else
+                    table.insert(Positions, `{Player.Name} has no character.`)
                 end
             end
-            return FilteredPositionss
+            table.sort(Positions,function(a, b) return string.lower(a) < string.lower(b) end)
+            TextList:SetLines(Positions)
         end
+
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

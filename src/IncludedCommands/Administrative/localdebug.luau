@@ -57,36 +57,24 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
+        --Show the windows.
         for _, Player in Players do
-            task.spawn(function()
-                local Output = nil
-                local Window = ScrollingTextWindow.new(nil, false)
-                Window.Title = `Client Output - {Player.DisplayName} ({Player.Name})`
-                Window.GetTextLines = function(_,SearchTerm,ForceRefresh)
-                    --Get the output.
-                    if not Output or ForceRefresh then
-                        Output = (Api.EventContainer:WaitForChild("GetClientOutput") :: RemoteFunction):InvokeServer(Player)
-                    end
-
-                    --Filter and return the output.
-                    local FilteredOutput = {}
-                    for _, Message in Output do
-                        local Text = Message
-                        if type(Message) == "table" then
-                            Text = Message.Text
-                        end
-                        if string.find(string.lower(Text), string.lower(SearchTerm)) then
-                            table.insert(FilteredOutput, Message)
-                        end
-                    end
-                    return FilteredOutput
-                end
-                Window:Show()
-            end)
+            local Window = Api.Window:CreateWindow(`Client Output - {Player.DisplayName} ({Player.Name})`)
+            local TextList = Window:AddTextList()
+            TextList:EnableSearching()
+    
+            local function UpdateText()
+                TextList:SetLines({"Loading..."})
+                TextList:SetLines((Api.EventContainer:WaitForChild("GetClientOutput") :: RemoteFunction):InvokeServer(Player))
+            end
+    
+            task.spawn(UpdateText)
+            Window:EnableRefreshing(UpdateText)
+            Window:EnableClosing()
+            Window:EnableResizing()
+            Window:Show()
         end
     end,
 }

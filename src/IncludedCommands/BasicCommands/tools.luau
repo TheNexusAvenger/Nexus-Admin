@@ -62,27 +62,22 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
+        local Api = Util:GetClientApi()
 
-        --Display the text window.
-        local Tools = nil
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Tools"
-        Window.GetTextLines = function(_, SearchTerm, ForceRefresh)
-            --Get the tools.
-            if not Tools or ForceRefresh then
-                Tools = Util:GetRemote("GetToolsInContainers"):InvokeServer()
-            end
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Tools")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
 
-            --Filter and return the tools.
-            local FilteredTools = {}
-            for _,Message in Tools do
-                if Message == "" or type(Message) ~= "string" or string.find(string.lower(Message), string.lower(SearchTerm)) then
-                    table.insert(FilteredTools, Message)
-                end
-            end
-            return FilteredTools
+        local function UpdateText()
+            TextList:SetLines({"Loading..."})
+            TextList:SetLines((Api.EventContainer:WaitForChild("GetToolsInContainers") :: RemoteFunction):InvokeServer())
         end
+
+        task.spawn(UpdateText)
+        Window:EnableRefreshing(UpdateText)
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }
