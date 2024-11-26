@@ -119,7 +119,7 @@ return {
                 TextChannel.OnIncomingMessage = function(Message: TextChatMessage)
                     --Add the message if it was successful.
                     --Logs don't support replacing messages (such as when filtered).
-                    if Message.Status ~= Enum.TextChatMessageStatus.Sending then
+                    if Message.Status ~= Enum.TextChatMessageStatus.Sending and Message.TextSource ~= nil then
                         NewLog:Add(`{Message.TextSource.Name} [{Api.Time:GetTimeString()}]: {Message.Text}`)
                     end
 
