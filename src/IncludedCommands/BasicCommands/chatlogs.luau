@@ -40,13 +40,15 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
-
-        --Display the text window.
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Chat Logs"
-        Window:DisplayLogs(Api.LogsRegistry:GetLogs("ChatLogs"))
+        local Api = Util:GetClientApi()
+        
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Chat Logs")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+        TextList:DisplayLogs(Api.LogsRegistry:GetLogs("ChatLogs"), "NewestFirst")
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }

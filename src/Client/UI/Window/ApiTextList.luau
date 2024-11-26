@@ -5,6 +5,7 @@ local TextService = game:GetService("TextService")
 
 local NexusVirtualList = require(script.Parent.Parent.Parent:WaitForChild("NexusVirtualList"))
 local CreateScrollingTextEntryCreator = require(script.Parent:WaitForChild("CreateScrollingTextEntryCreator"))
+local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 local ApiTextList = {}
 ApiTextList.__index = ApiTextList
@@ -21,6 +22,7 @@ export type ApiTextList = {
         SearchBar: TextBox?,
         VirtualList: any, --NexusVirtualList is not in the correct place for the client.
     },
+    EventConnections: {any},
 } & typeof(setmetatable({}, ApiTextList))
 
 
@@ -55,6 +57,7 @@ function ApiTextList.new(Parent: Instance, TextSize: number, TextType: ("TextLab
             ScrollingFrame = ScrollingFrame,
             VirtualList = VirtualList,
         },
+        EventConnections = {},
     }, ApiTextList) :: ApiTextList
 end
 
@@ -156,7 +159,7 @@ end
 --[[
 Adds lines to the window.
 --]]
-function ApiTextList.AddLines(self: ApiTextList, Lines: {string | {[string]: any}}): ()
+function ApiTextList.AddLines(self: ApiTextList, Lines: {string | {[string]: any}}, Order: ("NewestFirst" | "OldestFirst")?): ()
     --Convert the lines.
     local NewLines = {} :: {{[string]: any}}
     for _, Line in Lines do
@@ -166,8 +169,15 @@ function ApiTextList.AddLines(self: ApiTextList, Lines: {string | {[string]: any
                 Text = Line,
             }
         end
-        table.insert(NewLines, Line :: {[string]: any})
-        table.insert(self.CurrentLines, Line :: {[string]: any})
+
+        --Add the line.
+        local CurrentLine = Line :: {[string]: any}
+        table.insert(NewLines, CurrentLine)
+        if Order == "NewestFirst" then
+            table.insert(self.CurrentLines, 1, CurrentLine)
+        else
+            table.insert(self.CurrentLines, CurrentLine)
+        end
     end
 
     --Update the max width of the lines.
@@ -193,9 +203,33 @@ function ApiTextList.SetLines(self: ApiTextList, Lines: {string | {[string]: any
 end
 
 --[[
+Displays logs and automatically updates when new entries are added.
+--]]
+function ApiTextList.DisplayLogs(self: ApiTextList, Logs: Types.Logs, Order: ("NewestFirst" | "OldestFirst")?): ()
+    --Add the initial messages.
+    local LogEntries = Logs:GetLogs()
+    if Order == "NewestFirst" then
+        local NewLogs = {}
+        for i = #LogEntries, 1, -1 do
+            table.insert(NewLogs, LogEntries[i])
+        end
+        LogEntries = NewLogs
+    end
+    self:AddLines(LogEntries, Order)
+
+    --Connect logs being added.
+    table.insert(self.EventConnections, Logs.LogAdded:Connect(function(LogEntry)
+        self:AddLines({LogEntry}, Order)
+    end))
+end
+
+--[[
 Destroys the API text list.
 --]]
 function ApiTextList.Destroy(self: ApiTextList): ()
+    for _, EventConnection in self.EventConnections do
+        EventConnection:Disconnect()
+    end
     self.Instances.AdornFrame:Destroy()
     self.Instances.VirtualList:Destroy()
 end

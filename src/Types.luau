@@ -168,8 +168,9 @@ export type ApiTextList = {
     new: (Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?) -> (),
     EnableSearching: (self: ApiTextList, Filter: ((SearchTerm: string, Lines: {{[string]: any}}) -> ({{[string]: any}}))?) -> (),
     Move: (self: ApiTextList, Size: UDim2?, Position: UDim2?, AnchorPoint: Vector2?) -> (),
-    AddLines: (self: ApiTextList, Lines: {string | {[string]: any}}) -> (),
+    AddLines: (self: ApiTextList, Lines: {string | {[string]: any}}, Order: ("NewestFirst" | "OldestFirst")?) -> (),
     SetLines: (self: ApiTextList, Lines: {string | {[string]: any}}) -> (),
+    DisplayLogs: (self: ApiTextList, Logs: Logs, Order: ("NewestFirst" | "OldestFirst")?) -> (),
     Destroy: (self: ApiTextList) -> (),
 }
 

@@ -39,13 +39,15 @@ return {
     end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext, Command: string)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ScrollingTextWindow = require(Util.ClientResources:WaitForChild("ScrollingTextWindow")) :: any
-
-        --Display the text window.
-        local Window = ScrollingTextWindow.new()
-        Window.Title = "Server Output"
-        Window:DisplayLogs(Api.LogsRegistry:GetLogs("ServerOutput"), true)
+        local Api = Util:GetClientApi()
+        
+        --Show the window.
+        local Window = Api.Window:CreateWindow("Server Output")
+        local TextList = Window:AddTextList()
+        TextList:EnableSearching()
+        TextList:DisplayLogs(Api.LogsRegistry:GetLogs("ServerOutput"), "OldestFirst")
+        Window:EnableClosing()
+        Window:EnableResizing()
         Window:Show()
     end,
 }
