@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Extension of the Window class to add resizing.
---]]
+--Extension of the Window class to add resizing.
 
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")

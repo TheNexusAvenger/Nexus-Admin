@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Class representing a window.
---]]
+--Class representing a window.
 
 local REFRESH_ICON = "rbxasset://textures/StudioToolbox/AssetConfig/restore@3x.png"
 
@@ -37,6 +33,7 @@ Creates the window.
 --]]
 function Window:__new()
     self:InitializeSuper()
+    warn("Window, ResizableWindow, and ScrollingTextWindow are deprecated in Nexus Admin V.2.8.0 for removal in V.2.9.0. Please move to the Window API.")
     local DB = true
 
     --Calculate the heights.

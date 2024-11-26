@@ -142,7 +142,7 @@ function API.GetTextBounds(Text,Font,FontSize,Wrapped,Size,Clipped)
 end
 
 function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
-    warn("NexusAdminClientAPI.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction) is deprecated as of V.2.0.0. Please use NexusAdminClientAPI.Gui.Window or NexusAdminClientAPI.Gui.ResizableWindow instead.")
+    warn("NexusAdminClientAPI.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction) is deprecated as of V.2.0.0 for removal in Nexus Admin V.2.9.0. Please move to the Window API.")
     
     --Create the window.
     local ScreenGui = Instance.new("ScreenGui")
