@@ -330,6 +330,14 @@ Sets the title of the window.
 --]]
 function ApiWindow.SetTitle(self: ApiWindow, Name: string): ()
     self.Instances.TitleText.Text = Name
+    self.Instances.ScreenGui.Name = `NexusAdminWindow_{Name}`
+end
+
+--[[
+Sets the display order of the window.
+--]]
+function ApiWindow.SetDisplayOrder(self: ApiWindow, DisplayOrder: number): ()
+    self.Instances.ScreenGui.DisplayOrder = DisplayOrder
 end
 
 --[[

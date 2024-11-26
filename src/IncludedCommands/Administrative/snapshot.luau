@@ -81,8 +81,7 @@ return {
     ClientRun = function(CommandContext: Types.CmdrCommandContext, PlayersList: {Player})
         local Player = PlayersList[1]
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ResizableWindow = require(script.Parent.Parent.Parent:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")) :: any
+        local Api = Util:GetClientApi()
 
         --Determine the offset.
         local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -112,11 +111,6 @@ return {
         SnapshotBackground.DisplayOrder = Offset
         SnapshotBackground.Parent = SnapshotFolder
 
-        local SnapshotBackgroundWindow = Instance.new("ScreenGui")
-        SnapshotBackgroundWindow.Name = "SnapshotBackgroundWindow"
-        SnapshotBackgroundWindow.DisplayOrder = Offset + 900
-        SnapshotBackgroundWindow.Parent = SnapshotFolder
-
         local SnapshotBackgroundFrame = Instance.new("Frame")
         SnapshotBackgroundFrame.BackgroundTransparency = 0.75
         SnapshotBackgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -132,8 +126,8 @@ return {
         local Camera = Workspace.Camera
         local CameraViewportSize = Camera.ViewportSize
         local GetClientViewRemoteFunction = Api.EventContainer:WaitForChild("GetClientViewRemoteFunction") :: RemoteFunction
-        local Window = ResizableWindow.new()
-        Window.Title = `Snapshot - {Player.DisplayName} ({Player.Name})`
+        local Window = Api.Window:CreateWindow(`Snapshot - {Player.DisplayName} ({Player.Name})`)
+        Window:EnableResizing()
 
         local ScreenSizeText = Instance.new("TextLabel")
         ScreenSizeText.BackgroundTransparency = 1
@@ -149,7 +143,7 @@ return {
         ScreenSizeText.Text = "Loading..."
         ScreenSizeText.Parent = Window.ContentsAdorn
 
-        function Window:OnRefresh()
+        local function Refresh()
             --Get the screen data.
             ScreenSizeText.Text = "Loading..."
             local ScreenData = GetClientViewRemoteFunction:InvokeServer(Player)
@@ -168,20 +162,17 @@ return {
             end
         end
 
-        function Window:OnClose()
+        Window:EnableRefreshing(Refresh)
+        task.spawn(Refresh)
+
+        Window:EnableClosing(function()
             SnapshotBackground:Destroy()
             SnapshotScreenGuisFolder:Destroy()
-            Window:TweenOut(Enum.NormalId.Bottom, function()
-                Window:Destroy()
-                SnapshotFolder:Destroy()
-            end)
-        end
+        end)
 
         --Show the window.
-        Window.WindowFrame.Parent = SnapshotBackgroundWindow
-        Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.3, 0, CameraViewportSize.Y * 0.125)
-        Window:MoveTo(Enum.NormalId.Bottom, 0.5, 0.5)
-        Window:TweenTo(Enum.NormalId.Bottom)
-        Window:OnRefresh()
+        Window:SetDisplayOrder(Offset + 900)
+        Window:SetRelativeSize(0.3, 0.125)
+        Window:Show(UDim2.new(0.5, 0, 0.8, 0), Vector2.new(0.5, 1), Enum.NormalId.Bottom)
     end,
 }

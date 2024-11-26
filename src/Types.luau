@@ -172,6 +172,7 @@ export type ApiWindow = {
     EnableClosing: (self: ApiWindow, OnClose: (() -> ())?) -> (),
     EnableRefreshing: (self: ApiWindow, OnRefresh: () -> ()) -> (),
     SetTitle: (self: ApiWindow, Name: string) -> (),
+    SetDisplayOrder: (self: ApiWindow, DisplayOrder: number) -> (),
     SetRelativeSize: (self: ApiWindow, RelativeX: number, RelativeY: number) -> (),
     Show: (self: ApiWindow, InitialPosition: UDim2?, InitialAnchorPoint: Vector2?, StartSide: Enum.NormalId?) -> (),
     Close: (self: ApiWindow) -> (),

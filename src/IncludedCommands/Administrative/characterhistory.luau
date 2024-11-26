@@ -187,8 +187,7 @@ return {
     ClientRun = function(CommandContext: Types.CmdrCommandContext, PlayersList: {Player})
         local Player = PlayersList[1]
         local Util = IncludedCommandUtil.ForContext(CommandContext)
-        local Api = Util:GetApi()
-        local ResizableWindow = require(script.Parent.Parent.Parent:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")) :: any
+        local Api = Util:GetClientApi()
 
         --Create the window.
         local CharacterHistoryScreenGui = Instance.new("ScreenGui")
@@ -198,11 +197,9 @@ return {
 
         local CurrentDisplayCenter: BasePart? = nil
         local CurrentInfoCenter: BasePart? = nil
-        local Camera = Workspace.Camera
-        local CameraViewportSize = Camera.ViewportSize
         local GetClientViewRemoteFunction = Api.EventContainer:WaitForChild("GetCharacterHistory") :: RemoteFunction
-        local Window = ResizableWindow.new()
-        Window.Title = `History - {Player.DisplayName} ({Player.Name})`
+        local Window = Api.Window:CreateWindow(`History - {Player.DisplayName} ({Player.Name})`)
+        Window:EnableResizing()
 
         local ScreenSizeText = Instance.new("TextLabel")
         ScreenSizeText.BackgroundTransparency = 1
@@ -212,13 +209,13 @@ return {
         ScreenSizeText.TextColor3 = Color3.new(1, 1, 1)
         ScreenSizeText.TextStrokeColor3 = Color3.new(0, 0, 0)
         ScreenSizeText.TextStrokeTransparency = 0
-        ScreenSizeText.TextSize = CameraViewportSize.Y * 0.5 * 0.045
+        ScreenSizeText.TextSize = Window.TextHeight
         ScreenSizeText.TextXAlignment = Enum.TextXAlignment.Left
         ScreenSizeText.TextYAlignment = Enum.TextYAlignment.Top
         ScreenSizeText.Text = "Loading..."
         ScreenSizeText.Parent = Window.ContentsAdorn
 
-        function Window:OnRefresh()
+        local function Refresh()
             --Get the screen data.
             ScreenSizeText.Text = "Loading..."
             if CurrentDisplayCenter then
@@ -345,7 +342,10 @@ return {
             ScreenSizeText.Text = Text
         end
 
-        function Window:OnClose()
+        Window:EnableRefreshing(Refresh)
+        task.spawn(Refresh)
+
+        Window:EnableClosing(function()
             if CurrentDisplayCenter then
                 CurrentDisplayCenter:Destroy()
                 CurrentDisplayCenter = nil
@@ -354,17 +354,10 @@ return {
                 CurrentInfoCenter:Destroy()
                 CurrentInfoCenter = nil
             end
-            Window:TweenOut(Enum.NormalId.Bottom, function()
-                Window:Destroy()
-                CharacterHistoryScreenGui:Destroy()
-            end)
-        end
+        end)
 
         --Show the window.
-        Window.WindowFrame.Parent = CharacterHistoryScreenGui
-        Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.3, 0, CameraViewportSize.Y * 0.175)
-        Window:MoveTo(Enum.NormalId.Bottom, 0.5, 0.5)
-        Window:TweenTo(Enum.NormalId.Bottom)
-        Window:OnRefresh()
+        Window:SetRelativeSize(0.3, 0.175)
+        Window:Show(UDim2.new(0.5, 0, 0.8, 0), Vector2.new(0.5, 1), Enum.NormalId.Bottom)
     end,
 }

@@ -1,7 +1,6 @@
 --Implementation of a command.
 --!strict
 
-local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -24,21 +23,15 @@ return {
         },
     },
     ClientRun = function(CommandContext: Types.CmdrCommandContext, PlayersToRun: {Player}, Command: string)
-        local ResizableWindow = require(script.Parent.Parent.Parent:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")) :: any
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
 
         --Create the window.
         local CommandsRanOn = {}
         local CurrentPlayer = 1
-        local Camera = Workspace.CurrentCamera
-        local CameraViewportSize = Camera.ViewportSize
-        local PlayerStepScreenGui = Instance.new("ScreenGui")
-        PlayerStepScreenGui.Name = "PlayerStepWindow"
-        PlayerStepScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
-        local Window = ResizableWindow.new()
-        Window.Title = "Player Step (1/"..tostring(#PlayersToRun)..")"
+        local Window = Api.Window:CreateWindow(`Player Step (1/{#PlayersToRun})`)
+        Window:EnableResizing()
 
         local PlayerStepText = Instance.new("TextBox")
         PlayerStepText.BackgroundTransparency = 1
@@ -51,13 +44,13 @@ return {
         PlayerStepText.ClearTextOnFocus = false
         PlayerStepText.TextEditable = false
         PlayerStepText.TextStrokeTransparency = 0
-        PlayerStepText.TextSize = CameraViewportSize.Y * 0.5 * 0.045
+        PlayerStepText.TextSize = Window.TextHeight
         PlayerStepText.TextXAlignment = Enum.TextXAlignment.Left
         PlayerStepText.TextYAlignment = Enum.TextYAlignment.Top
         PlayerStepText.Text = "Loading..."
         PlayerStepText.Parent = Window.ContentsAdorn
 
-        function Window:OnRefresh()
+        local function Refresh()
             --Build the text.
             local Player = PlayersToRun[CurrentPlayer]
             local PlayerCommand = string.gsub(Command, "{[Pp][Ll][Aa][Yy][Ee][Rr]}", Player.Name)
@@ -71,7 +64,7 @@ return {
                 local NextPlayer = PlayersToRun[CurrentPlayer + 1]
                 WindowText ..= `\n\nNext player: {NextPlayer.DisplayName} ({NextPlayer.Name})\nRefresh the window to continue.`
             end
-            Window.Title = `Player Step ({CurrentPlayer}/{#PlayersToRun})`
+            Window:SetTitle(`Player Step ({CurrentPlayer}/{#PlayersToRun})`)
             PlayerStepText.Text = WindowText
 
             --Prepare the next player.
@@ -91,17 +84,12 @@ return {
             end
         end
 
-        function Window:OnClose()
-            Window:TweenOut(Enum.NormalId.Bottom, function()
-                Window:Destroy()
-            end)
-        end
+        Window:EnableRefreshing(Refresh)
+        task.spawn(Refresh)
+        Window:EnableClosing()
 
         --Show the window.
-        Window.WindowFrame.Parent = PlayerStepScreenGui
-        Window.WindowFrame.Size = UDim2.new(0, CameraViewportSize.Y * 0.4, 0, CameraViewportSize.Y * 0.225)
-        Window:MoveTo(Enum.NormalId.Bottom, 0.5, 0.5)
-        Window:TweenTo(Enum.NormalId.Bottom)
-        Window:OnRefresh()
+        Window:SetRelativeSize(0.4, 0.225)
+        Window:Show(UDim2.new(0.5, 0, 0.8, 0), Vector2.new(0.5, 1), Enum.NormalId.Bottom)
     end,
 }
