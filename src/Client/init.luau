@@ -1,8 +1,4 @@
---[[
-TheNexusAvengeer
-
-Client API for Nexus Admin.
---]]
+--Client API for Nexus Admin.
 --!strict
 
 --Get the containers.
@@ -41,7 +37,7 @@ local Cmdr = require(ReplicatedStorage:WaitForChild("CmdrClient")) :: Types.Cmdr
 local Configuration = (require(script:WaitForChild("Common"):WaitForChild("Configuration")) :: Types.Configuration).new(ConvertStringIndexesToNumbers(EventContainer:WaitForChild("GetConfiguration"):InvokeServer()))
 local Authorization = require(script:WaitForChild("ClientAuthorization")).new(Configuration,EventContainer)
 local Filter = require(script:WaitForChild("Common"):WaitForChild("Filter")).new() :: Types.Filter
-local Messages = require(script:WaitForChild("ClientMessages")).new(EventContainer)
+local Messages = require(script:WaitForChild("ClientMessages")).new(EventContainer) :: Types.MessagesClient
 local Registry = require(script:WaitForChild("ClientRegistry")).new(Authorization, Configuration, Messages, Cmdr, EventContainer)
 local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(EventContainer)
 local Executor = (require(script:WaitForChild("Common"):WaitForChild("Executor")) :: Types.Executor).new(Cmdr,Registry)

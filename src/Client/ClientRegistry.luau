@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Registers commands on the client.
---]]
+--Registers commands on the client.
 --!strict
 
 local Types = require(script.Parent:WaitForChild("Types"))
@@ -12,40 +8,44 @@ local ClientRegistry = {}
 ClientRegistry.__index = ClientRegistry
 setmetatable(ClientRegistry, Registry)
 
+export type ClientRegistry = {
+    GetRegisteredCommands: RemoteFunction,
+    Cmdr: Types.Cmdr,
+} & typeof(setmetatable({}, ClientRegistry)) & Types.Registry
+
 
 
 --[[
 Creates the client registry.
 --]]
-function ClientRegistry.new(Authorization: Types.Authorization, Configuration: Types.Configuration, Messages: Types.MessagesClient,Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Types.Registry
-    local self = Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes)
-    setmetatable(self, ClientRegistry)
+function ClientRegistry.new(Authorization: Types.Authorization, Configuration: Types.Configuration, Messages: Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): ClientRegistry
+    local self = setmetatable(Registry.new(Authorization, Configuration, Messages, Cmdr, NexusAdminRemotes), ClientRegistry) :: ClientRegistry
 
     --Set up the events.
     local RegistryEvents = NexusAdminRemotes:WaitForChild("RegistryEvents")
-    local GetRegisteredCommands = RegistryEvents:WaitForChild("GetRegisteredCommands");
-    (self :: any).GetRegisteredCommands = GetRegisteredCommands
-    local CommandRegistered = RegistryEvents:WaitForChild("CommandRegistered");
-    (CommandRegistered :: RemoteEvent).OnClientEvent:Connect(function(Data: Types.NexusAdminCommandData): ()
-        (self :: any):LoadCommand(Data)
-    end);
+    local GetRegisteredCommands = RegistryEvents:WaitForChild("GetRegisteredCommands") :: RemoteFunction
+    self.GetRegisteredCommands = GetRegisteredCommands
+    local CommandRegistered = RegistryEvents:WaitForChild("CommandRegistered") :: RemoteEvent
+    CommandRegistered.OnClientEvent:Connect(function(Data: Types.NexusAdminCommandData): ()
+        self:LoadCommand(Data)
+    end)
 
     --Register the BeforeRun hook for verifying admin levels.
-    ((self :: any).Cmdr :: Types.Cmdr).Registry:RegisterHook("BeforeRun", function(CommandContext): string?
+    self.Cmdr.Registry:RegisterHook("BeforeRun", function(CommandContext): string?
         --Return if a result exists from the common function.
-        local BeforeRunResult = (self :: any):PerformBeforeRun(CommandContext)
+        local BeforeRunResult = self:PerformBeforeRun(CommandContext)
         if BeforeRunResult then
             return BeforeRunResult
         end
         return nil
     end)
-    return (self :: any) :: Types.Registry
+    return self
 end
 
 --[[
 Loads a command.
 --]]
-function ClientRegistry:LoadCommand(CommandData: Types.NexusAdminCommandData): ()
+function ClientRegistry.LoadCommand(self: ClientRegistry, CommandData: Types.NexusAdminCommandData): ()
     Registry.LoadCommand(self :: any, CommandData)
     
     --Register the command.
@@ -72,7 +72,7 @@ end
 --[[
 Loads the current commands from the server.
 --]]
-function ClientRegistry:LoadServerCommands(): ()
+function ClientRegistry.LoadServerCommands(self: ClientRegistry): ()
     for _, Command in self.GetRegisteredCommands:InvokeServer() do
         self:LoadCommand(Command)
     end
@@ -80,4 +80,4 @@ end
 
 
 
-return (ClientRegistry :: any) :: Types.Registry
+return ClientRegistry

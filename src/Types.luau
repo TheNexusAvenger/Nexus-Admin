@@ -269,6 +269,9 @@ export type MessagesServer = {
 export type Registry = {
     new: (Authorization: Authorization, Configuration: Configuration, Messages: MessagesServer | MessagesClient, Cmdr: Cmdr, NexusAdminRemotes: Folder) -> (Registry),
 
+    GetReplicatableCmdrData: (self: Registry, CommandData: NexusAdminCommandData) -> (NexusAdminCommandData),
+    PerformBeforeRun: (self: Registry, CommandContext: CmdrCommandContext) -> (string?),
+    CreateRunMethod: (self: Registry, CommandData: NexusAdminCommandData) -> (CmdrCommandContext, ... any) -> (string?),
     LoadCommand: (self: Registry, CommandData: NexusAdminCommandData) -> (),
     AddEnumType: (self: Registry, Name: string, Options: {string}) -> (),
 }

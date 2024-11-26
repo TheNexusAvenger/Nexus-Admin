@@ -1,9 +1,5 @@
---[[
-TheNexusAvenger
-
-Passthrough for types for development.
-For backwards compatibility, the client modules can't be moved.
---]]
+--Passthrough for types for development.
+--For backwards compatibility, the client modules can't be moved.
 --!strict
 
 local Types = require(script.Parent.Parent:WaitForChild("Types"))

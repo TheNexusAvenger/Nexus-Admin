@@ -1,24 +1,23 @@
---[[
-TheNexusAvenger
-
-Sends messages to the local player.
---]]
+--Sends messages to the local player.
 --!strict
-
-local Types = require(script.Parent:WaitForChild("Types"))
 
 local ClientMessages = {}
 ClientMessages.__index = ClientMessages
+
+export type ClientMessages = {
+    DisplayHintLoopbackEvent: BindableEvent,
+    DisplayMessageLoopbackEvent: BindableEvent,
+    DisplayNotificationLoopbackEvent: BindableEvent,
+} & typeof(setmetatable({}, ClientMessages))
 
 
 
 --[[
 Creates a client messages instance.
 --]]
-function ClientMessages.new(NexusAdminRemotes: Folder): Types.MessagesClient
+function ClientMessages.new(NexusAdminRemotes: Folder): ClientMessages
     --Create the object.
-    local self = {}
-    setmetatable(self, ClientMessages)
+    local self = setmetatable({}, ClientMessages) :: ClientMessages
 
     --Create the bindable objects.
     local MessageEvents = NexusAdminRemotes:WaitForChild("MessageEvents")
@@ -50,30 +49,30 @@ function ClientMessages.new(NexusAdminRemotes: Folder): Types.MessagesClient
     end)
 
     --Return the object.
-    return (self :: any) :: Types.MessagesClient
+    return self
 end
 
 --[[
 Sends a message to the local player.
 --]]
-function ClientMessages:DisplayMessage(TopText: string, Message: string, DisplayTime: number?): ()
+function ClientMessages.DisplayMessage(self: ClientMessages, TopText: string, Message: string, DisplayTime: number?): ()
     self.DisplayMessageLoopbackEvent:Fire(TopText, Message, DisplayTime)
 end
 
 --[[
 Sends a hint to the local player.
 --]]
-function ClientMessages:DisplayHint(Message: string, DisplayTime: number?)
+function ClientMessages.DisplayHint(self: ClientMessages, Message: string, DisplayTime: number?)
     self.DisplayHintLoopbackEvent:Fire(Message, DisplayTime)
 end
 
 --[[
 Sends a notification to the local player.
 --]]
-function ClientMessages:DisplayNotification(TopText: string, Message: string, DisplayTime: number?)
+function ClientMessages.DisplayNotification(self: ClientMessages, TopText: string, Message: string, DisplayTime: number?)
     self.DisplayNotificationLoopbackEvent:Fire(TopText, Message, DisplayTime)
 end
 
 
 
-return (ClientMessages :: any) :: Types.MessagesClient
+return ClientMessages

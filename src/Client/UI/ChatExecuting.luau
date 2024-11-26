@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Adds executing messages from the chat.
---]]
+--Adds executing messages from the chat.
 --!strict
 
 local TextChatService = game:GetService("TextChatService")

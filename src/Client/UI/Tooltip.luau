@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Adds the native tooltip API.
---]]
+--Adds the native tooltip API.
+--!strict
 
 local TOOLTIP_SIZE_RELATIVE = 0.03
 
@@ -27,10 +24,11 @@ return function(API,Player)
         
         --Create the ScreenGui.
         if not TooptipContainer or not TooptipContainer.Parent then
-            TooptipContainer = Instance.new("ScreenGui")
-            TooptipContainer.Name = "NexusAdminTooltips"
-            TooptipContainer.Parent = Player:FindFirstChild("PlayerGui")
-            TooptipContainer.ResetOnSpawn = false
+            local NewTooptipContainer = Instance.new("ScreenGui")
+            NewTooptipContainer.Name = "NexusAdminTooltips"
+            NewTooptipContainer.Parent = Player:FindFirstChild("PlayerGui")
+            NewTooptipContainer.ResetOnSpawn = false
+            TooptipContainer = NewTooptipContainer
         end
 
         --Create the tooltip GUI.
@@ -54,17 +52,17 @@ return function(API,Player)
         TextLabel.TextColor3 = Color3.new(1,1,1)
         TextLabel.TextStrokeColor3 = Color3.new(0,0,0)
         TextLabel.TextStrokeTransparency = 0
-        TextLabel.Font = "SourceSans"
-        TextLabel.TextXAlignment = "Left"
+        TextLabel.Font = Enum.Font.SourceSans
+        TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.Text = Text
         TextLabel.Parent = AdornFrame
         
         --[[
         Returns if the given position is in a frame.
         --]]
-        local function MouseInFrame(Frame,X,Y)
-            local PosX,PosY = Frame.AbsolutePosition.X,Frame.AbsolutePosition.Y
-            local SizeX,SizeY = Frame.AbsoluteSize.X,Frame.AbsoluteSize.Y
+        local function MouseInFrame(Frame: GuiObject, X: number, Y: number): boolean
+            local PosX,PosY = Frame.AbsolutePosition.X, Frame.AbsolutePosition.Y
+            local SizeX,SizeY = Frame.AbsoluteSize.X, Frame.AbsoluteSize.Y
             return (X > PosX and Y > PosY and X < PosX + SizeX and Y < PosY + SizeY)
         end
         
@@ -78,7 +76,7 @@ return function(API,Player)
                     return false
                 end
                 
-                if FrameParent.ClipsDescendants and not MouseInFrame(FrameParent,X,Y) then
+                if FrameParent.ClipsDescendants and not MouseInFrame(FrameParent :: any, X, Y) then
                     return false
                 end
                 
@@ -87,24 +85,24 @@ return function(API,Player)
             return true
         end
         
-        local Events = {}
-        local function Update(X,Y)
+        local Events = {} :: {RBXScriptConnection}
+        local function Update(X: number | boolean, Y: number?)
             --If the frame was unparented, disconnect the events.
             if not Frame.Parent then 
                 for _, Event in Events do
                     Event:Disconnect()
                 end
-                Events = nil
+                Events = {}
                 AdornFrame:Destroy()
                 return 
             end
             
             --Update the frame.
-            if X ~= true and MouseInFrame(Frame,X,Y) and ParentsVisible(Frame,X,Y) then
+            if X ~= true and MouseInFrame(Frame, X :: number, Y :: number) and ParentsVisible(Frame :: any, X :: number, Y :: number) then
                 AdornFrame.Visible = true
-                AdornFrame.Position = UDim2.new(0,X + 20,0,Y)
+                AdornFrame.Position = UDim2.new(0, (X :: number) + 20, 0, Y)
                 
-                local SizeY = AdornFrame.Parent.AbsoluteSize.Y * TOOLTIP_SIZE_RELATIVE
+                local SizeY = (AdornFrame.Parent :: any).AbsoluteSize.Y * TOOLTIP_SIZE_RELATIVE
                 AdornFrame.Size = UDim2.new(0,(SizeY * BoundsXRelative) + 12,0,(SizeY * BoundsYRelative) + 12)
                 TextLabel.TextSize = SizeY
             else

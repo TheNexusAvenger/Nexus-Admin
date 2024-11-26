@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Adds message UI functionality to the API.
---]]
+--Adds message UI functionality to the API.
 --!strict
 
 local HINT_HEIGHT_RELATIVE = 0.035
@@ -399,7 +395,7 @@ local function AddAdminLevelNotifications(API: Types.NexusAdminApiClient, Player
     end
 
     --Initialize the admin level.
-    API.Authorization.AdminLevelChanged:Connect(function(OtherPlayer, _)
+    API.Authorization.AdminLevelChanged:Connect(function(OtherPlayer)
         if Player == OtherPlayer then
             AdminLevelChanged()
         end
