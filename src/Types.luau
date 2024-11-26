@@ -163,6 +163,21 @@ export type NexusAdminCommandData = {
     Run: ((Context: CmdrCommandContext, ...any) -> (string?)),
 } & CmdrCommandDefinition
 
+--Nexus Admin Classes
+export type ApiWindow = {
+    new: () -> (ApiWindow),
+    TextHeight: number,
+    ContentsAdorn: Frame,
+    EnableResizing: (self: ApiWindow, MinWidth: number?, MinHeight: number?, MaxWidth: number?, MaxHeight: number?) -> (),
+    EnableClosing: (self: ApiWindow, OnClose: (() -> ())?) -> (),
+    EnableRefreshing: (self: ApiWindow, OnRefresh: () -> ()) -> (),
+    SetTitle: (self: ApiWindow, Name: string) -> (),
+    SetRelativeSize: (self: ApiWindow, RelativeX: number, RelativeY: number) -> (),
+    Show: (self: ApiWindow, InitialPosition: UDim2?, InitialAnchorPoint: Vector2?, StartSide: Enum.NormalId?) -> (),
+    Close: (self: ApiWindow) -> (),
+    Destroy: (self: ApiWindow) -> (),
+}
+
 --Nexus Admin Modules
 export type Authorization = {
     new: (Configuration: Configuration) -> (Authorization),
@@ -292,6 +307,10 @@ export type Time = {
     GetDateTimeString: (self: Time, Time: number?) -> (string),
 }
 
+export type Window = {
+    CreateWindow: (self: Window, TitleName: string) -> (ApiWindow),
+}
+
 --Nexus Admin API.
 export type NexusAdminApi = {
     Types: {
@@ -321,6 +340,7 @@ export type NexusAdminApi = {
 
 export type NexusAdminApiClient = {
     Messages: MessagesClient,
+    Window: Window,
 } & NexusAdminApi
 
 export type NexusAdminApiServer = {

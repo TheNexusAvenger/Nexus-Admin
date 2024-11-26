@@ -16,6 +16,7 @@ export type LogsRegistryClient = Types.LogsRegistryClient
 export type MessagesClient = Types.MessagesClient
 export type Registry = Types.Registry
 export type Time = Types.Time
+export type Window = Types.Window
 export type NexusAdminApiClient = Types.NexusAdminApiClient
 
 return true

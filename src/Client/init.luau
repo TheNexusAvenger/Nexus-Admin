@@ -43,6 +43,7 @@ local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(Even
 local Executor = (require(script:WaitForChild("Common"):WaitForChild("Executor")) :: Types.Executor).new(Cmdr,Registry)
 local FeatureFlags = (require(script:WaitForChild("NexusFeatureFlags")) :: Types.NexusFeatureFlagsSource)
 local Time = (require(script:WaitForChild("Common"):WaitForChild("Time")) :: Types.Time)
+local Window = (require(script:WaitForChild("Window")) :: Types.Window)
 
 --Create the API.
 local API = {
@@ -64,6 +65,7 @@ local API = {
     Executor = Executor,
     FeatureFlags = FeatureFlags,
     Time = Time,
+    Window = Window,
     Gui = {
         Window = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("Window")),
         ResizableWindow = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")),
@@ -103,7 +105,7 @@ end
 --Initialize the optional UI.
 require(script:WaitForChild("UI"):WaitForChild("Messages"))(API :: any, Players.LocalPlayer)
 require(script:WaitForChild("UI"):WaitForChild("ChatExecuting"))(API :: any, Players.LocalPlayer)
-require(script:WaitForChild("UI"):WaitForChild("Tooltip"))(API, Players.LocalPlayer)
+require(script:WaitForChild("UI"):WaitForChild("Tooltip"))(API :: any, Players.LocalPlayer)
 
 --Add the API fetchers.
 function _G.NexusAdmin_GetLocalAPI()
