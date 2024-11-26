@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Sends messages to players.
---]]
+--Sends messages to players.
 --!strict
 
 local ServerMessages = {}

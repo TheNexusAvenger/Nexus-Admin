@@ -5,7 +5,7 @@ In the case this isn't an option, a custom
 loader can be set up.
 
 On the server, the following is required:
-```lua
+```luau
 --Require Nexus Admin (not the MainModule)
 local NexusAdmin = require(game:GetService("ServerScriptService").MainModule.NexusAdmin)
 
@@ -26,7 +26,7 @@ NexusAdmin:LoadClientLoader()
 If `NexusAdmin:LoadClientLoader()` isn't
 invoked, a client loader must also be provided
 as a `LocalScript`:
-```lua
+```luau
 --Require Nexus Admin. It will always be in this location after loading on the server.
 local NexusAdminClient = require(game:GetService("ReplicatedStorage"):WaitForChild("NexusAdminClient"))
 

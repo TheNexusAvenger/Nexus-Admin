@@ -12,15 +12,15 @@ local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
 
 
 
-return function(API,Player)
+return function(API, Player)
     local TooptipContainer
 
     --[[
     Adds a tooltip to a frame.
     --]]
-    function API.Gui:AddTooltipToFrame(Text,Frame)
-        local Bounds = TextService:GetTextSize(Text,18,"SourceSans",Vector2.new(4096,4096))
-        local BoundsXRelative,BoundsYRelative = Bounds.X/18,Bounds.Y/18
+    function API.Gui:AddTooltipToFrame(Text, Frame)
+        local Bounds = TextService:GetTextSize(Text, 18, "SourceSans", Vector2.new(4096, 4096))
+        local BoundsXRelative,BoundsYRelative = Bounds.X / 18, Bounds.Y / 18
         
         --Create the ScreenGui.
         if not TooptipContainer or not TooptipContainer.Parent then
@@ -39,18 +39,18 @@ return function(API,Player)
         AdornFrame.Parent = TooptipContainer
 
         local Background = ThemedFrame.new()
-        Background.Size = UDim2.new(1,0,1,0)
-        Background.BackgroundColor3 = Color3.new(0,0,0)
+        Background.Size = UDim2.new(1, 0, 1, 0)
+        Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
         Background.Parent = AdornFrame
 
         local TextLabel = Instance.new("TextLabel")
         TextLabel.BackgroundTransparency = 1
         TextLabel.ZIndex = 12
-        TextLabel.Size = UDim2.new(1,-12,1,-12)
-        TextLabel.Position = UDim2.new(0,6,0,6)
-        TextLabel.TextColor3 = Color3.new(1,1,1)
-        TextLabel.TextStrokeColor3 = Color3.new(0,0,0)
+        TextLabel.Size = UDim2.new(1, -12, 1, -12)
+        TextLabel.Position = UDim2.new(0, 6, 0, 6)
+        TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         TextLabel.TextStrokeTransparency = 0
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -69,7 +69,7 @@ return function(API,Player)
         --[[
         Returns if the parent is visible.
         --]]
-        local function ParentsVisible(Frame,X,Y)
+        local function ParentsVisible(Frame, X, Y)
             local FrameParent = Frame.Parent
             if FrameParent and FrameParent:IsA("GuiObject") then
                 if not FrameParent.Visible then
@@ -80,7 +80,7 @@ return function(API,Player)
                     return false
                 end
                 
-                return ParentsVisible(FrameParent,X,Y)
+                return ParentsVisible(FrameParent, X, Y)
             end
             return true
         end
@@ -113,12 +113,12 @@ return function(API,Player)
         --Connect the mouse moving.
         table.insert(Events, UserInputService.InputChanged:Connect(function(Key)
             if Key.UserInputType == Enum.UserInputType.MouseMovement then
-                Update(Key.Position.X,Key.Position.Y)
+                Update(Key.Position.X, Key.Position.Y)
             end
         end))
         
         --Connect the mouse leaving the frame.
-        table.insert(Events, Frame.MouseLeave:Connect(function(X,Y)
+        table.insert(Events, Frame.MouseLeave:Connect(function(X, Y)
             Update(true)
         end))
 

@@ -23,7 +23,7 @@ return {
         --]]
         local function ConnectPlayerChatted(Player: Player)
             ChatEvents[Player] = Player.Chatted:Connect(function(Message: string)
-                ChatLogs:Add(Player.Name.." ["..Api.Time:GetTimeString().."]: "..Api.Filter:FilterString(Message, Player))
+                ChatLogs:Add(`{Player.Name} [{Api.Time:GetTimeString()}]: {Api.Filter:FilterString(Message, Player)}`)
             end)
         end
 

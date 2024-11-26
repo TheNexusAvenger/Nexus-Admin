@@ -28,11 +28,11 @@ return {
                 table.insert(Output,LineData)
 
                 if Line.messageType == Enum.MessageType.MessageError then
-                    LineData.TextColor3 = Color3.new(1, 0, 0)
+                    LineData.TextColor3 = Color3.fromRGB(255, 0, 0)
                 elseif Line.messageType == Enum.MessageType.MessageInfo then
-                    LineData.TextColor3 = Color3.new(102 / 255, 127 / 255, 1)
+                    LineData.TextColor3 = Color3.fromRGB(102, 127, 255)
                 elseif Line.messageType == Enum.MessageType.MessageWarning then
-                    LineData.TextColor3 = Color3.new(1, 153 / 255, 102 / 255)
+                    LineData.TextColor3 = Color3.fromRGB(255, 153, 102)
                 end
             end
 

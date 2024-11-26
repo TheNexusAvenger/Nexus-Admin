@@ -31,7 +31,7 @@ return function(API: Types.NexusAdminApiClient, Player: Player): ()
                 --Display the message if the prefix is valid.
                 for Prefix, _ in (API.Registry :: any).Prefixes do
                     if string.len(Command) >= string.len(Prefix) and string.sub(Command, 1, string.len(Prefix)) == Prefix then
-                        API.Messages:DisplayHint(Command.." is not a valid command.")
+                        API.Messages:DisplayHint(`{Command} is not a valid command.`)
                         break
                     end
                 end

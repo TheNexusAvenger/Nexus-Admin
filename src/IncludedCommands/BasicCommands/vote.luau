@@ -8,7 +8,7 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 local TextButtonFactory = require(script.Parent.Parent.Parent:WaitForChild("NexusButton"):WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
 
-local YesFactory = TextButtonFactory.CreateDefault(Color3.new(0, 200, 0))
+local YesFactory = TextButtonFactory.CreateDefault(Color3.fromRGB(0, 200, 0))
 YesFactory:SetTextDefault("Text", "Yes")
 YesFactory:SetTextDefault("Font", Enum.Font.SciFi)
 

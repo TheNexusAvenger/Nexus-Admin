@@ -113,7 +113,7 @@ end
 Sends an error back to the executor.
 --]]
 function IncludedCommandUtil.SendError(self: IncludedCommandUtil, Message: string): ()
-    self:SendResponse(Message, Color3.new(255, 0, 0))
+    self:SendResponse(Message, Color3.fromRGB(255, 0, 0))
 end
 
 --[[

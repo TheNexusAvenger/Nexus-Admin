@@ -22,8 +22,8 @@ local function CreateSoftShutdownGui(Source: {Source: string, Name: string?, Rea
 
     --Create background to cover behind top bar.
     local BackgroundFrame = Instance.new("Frame")
-    BackgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-    BackgroundFrame.BorderColor3 = Color3.new(0, 0, 0)
+    BackgroundFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    BackgroundFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     BackgroundFrame.BorderSizePixel = 100
     BackgroundFrame.Position = UDim2.new(-0.5, 0, -0.5, 0)
     BackgroundFrame.Size = UDim2.new(2, 0, 2, 0)
@@ -46,8 +46,8 @@ local function CreateSoftShutdownGui(Source: {Source: string, Name: string?, Rea
         TextLabel.ZIndex = 10
         TextLabel.Font = Enum.Font.SourceSansBold
         TextLabel.TextScaled = true
-        TextLabel.TextColor3 = Color3.new(1, 1, 1)
-        TextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         TextLabel.TextStrokeTransparency = 0
         TextLabel.Parent = TextAdornFrame
         for Key, Value in Properties do

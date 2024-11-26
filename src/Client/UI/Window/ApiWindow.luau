@@ -86,7 +86,7 @@ function ApiWindow.new(): ApiWindow
 
     --Create the backgrounds.
     local Background = ThemedFrame.new()
-    Background.BackgroundColor3 = Color3.new(0,0,0)
+    Background.BackgroundColor3 = Color3.fromRGB(0,0,0)
     Background.BackgroundTransparency = 0.75 * GuiService.PreferredTransparency
     Background.Size = UDim2.new(1,0,1,0)
     Background.Theme = "CutBottomRightCorner"
@@ -97,7 +97,7 @@ function ApiWindow.new(): ApiWindow
     end)
 
     local TopBarBackground = ThemedFrame.new()
-    TopBarBackground.BackgroundColor3 = Color3.new(0,170/255,1)
+    TopBarBackground.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
     TopBarBackground.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
     TopBarBackground.Size = UDim2.new(1,0,1,0)
     TopBarBackground.Theme = "CutTopLeftCorner"
@@ -219,9 +219,9 @@ function ApiWindow.EnableResizing(self: ApiWindow, MinWidth: number?, MinHeight:
     ResizeCornerAdorn.Parent = self.Instances.WindowFrame
 
     local ResizeCorner = ThemedFrame.new()
-    ResizeCorner.BackgroundColor3 = Color3.new(1,1,1)
+    ResizeCorner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     ResizeCorner.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
-    ResizeCorner.Size = UDim2.new(1,0,1,0)
+    ResizeCorner.Size = UDim2.new(1, 0, 1, 0)
     ResizeCorner.Theme = "CutBottomRightCorner"
     ResizeCorner.SliceScaleMultiplier = 2
     ResizeCorner.Parent = ResizeCornerAdorn

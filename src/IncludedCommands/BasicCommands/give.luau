@@ -23,7 +23,7 @@ return {
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, ToolNames: {string})
         --Give the tools.
         for _, Tool in ToolListEnum:GetTools(ToolNames) do
-            for _, Player in pairs(Players) do
+            for _, Player in Players do
                 local Backpack = Player:FindFirstChild("Backpack")
                 if Backpack then
                     Tool:Clone().Parent = Backpack

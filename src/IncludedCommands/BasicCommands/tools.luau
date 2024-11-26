@@ -43,7 +43,7 @@ return {
                     local ToolsInContainer = ToolsByContainer[Container]
                     table.sort(ToolsInContainer, function(a, b) return string.lower(a) < string.lower(b) end)
                     if #ToolsInContainer ~= 0 then
-                        for _,Tool in pairs(ToolsInContainer) do
+                        for _,Tool in ToolsInContainer do
                             table.insert(ToolsList, Tool)
                         end
                     else

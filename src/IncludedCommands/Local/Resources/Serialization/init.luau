@@ -195,7 +195,7 @@ function Serialization.Deserialize(self: Serialization, SerializedInstances)
 
         --Set the properties.
         --Some properties are dependent on others, so they are set twice.
-        for PropertyName, PropertyValue in pairs(Properties) do
+        for PropertyName, PropertyValue in Properties do
             (Ins :: any)[PropertyName] = PropertyValue
         end
         for PropertyName, _ in DEPENDENT_PROPERTIES do

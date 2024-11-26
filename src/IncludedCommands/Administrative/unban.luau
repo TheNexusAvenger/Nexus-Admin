@@ -39,7 +39,7 @@ return {
         end
 
         --Unban the users.
-        for _, UserId in pairs(UserIdsToRemove) do
+        for _, UserId in UserIdsToRemove do
             Api.CommandData.BannedUserIds[UserId] = nil
         end
     end,

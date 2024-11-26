@@ -55,7 +55,7 @@ function ServerRegistry.new(Cmdr: Types.Cmdr, Configuration: Configuration.Confi
 
         --Log the command asynchronously.
         task.spawn(function()
-            Logs:Add(CommandContext.Executor.Name.." ["..Time:GetTimeString().."]: "..Filter:FilterString(CommandContext.RawText,CommandContext.Executor))
+            Logs:Add(`{CommandContext.Executor.Name} [{Time:GetTimeString()}]: {Filter:FilterString(CommandContext.RawText,CommandContext.Executor)}`)
         end)
         return nil
     end)
@@ -81,7 +81,7 @@ function ServerRegistry.LoadCommand(self: ServerRegistry, CommandData: Types.Nex
 
     --Load the command.
     if (CommandData :: any).OnCommandLoad then
-        warn("OnCommandLoad (used in "..CmdrCommandData.Name..") is deprecated as of V.2.0.0. All commands are loaded as of V.2.0.0, so this is no longer needed.");
+        warn(`OnCommandLoad (used in {CmdrCommandData.Name}) is deprecated as of V.2.0.0. All commands are loaded as of V.2.0.0, so this is no longer needed.`);
         (CommandData :: any).OnCommandLoad()
     end
 end

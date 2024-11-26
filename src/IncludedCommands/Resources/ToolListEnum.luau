@@ -11,12 +11,11 @@ local TOOL_CONTAINERS = {
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 local ToolListEnum = {}
+ToolListEnum.NexusAdminRegistry = nil :: Types.Registry?
 ToolListEnum.ToolsLookup = {}
 ToolListEnum.ToolChangedEvents = {} :: {RBXScriptConnection}
 
-export type ToolListEnum = {
-    NexusAdminRegistry: Types.Registry,
-} & typeof(ToolListEnum)
+export type ToolListEnum = typeof(ToolListEnum)
 
 
 --[[
@@ -52,7 +51,9 @@ function ToolListEnum.UpdateEnum(self: ToolListEnum): ()
     --Register the enum.
     table.sort(ToolNames, function(a, b) return string.lower(a) < string.lower(b) end)
     table.insert(ToolNames, 1, "all")
-    self.NexusAdminRegistry:AddEnumType("nexusAdminTool", ToolNames)
+    if self.NexusAdminRegistry then
+        self.NexusAdminRegistry:AddEnumType("nexusAdminTool", ToolNames)
+    end
 
     --Create the lookup for all.
     local AllLookup = {}

@@ -14,7 +14,7 @@ return function(LoaderScript,Configuration)
 
     --Load the child scripts.
     if LoaderScript then
-        for _,Ins in pairs(LoaderScript:GetChildren()) do
+        for _, Ins in LoaderScript:GetChildren() do
             if Ins:IsA("ModuleScript") then
                 xpcall(function()
                     local _ = require(Ins) :: any

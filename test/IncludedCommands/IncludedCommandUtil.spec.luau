@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the IncludedCommandUtil class.
---]]
+--Tests the IncludedCommandUtil class.
 --!strict
 
 local IncludedCommandUtil = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("IncludedCommandUtil"))

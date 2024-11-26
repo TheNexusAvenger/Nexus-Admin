@@ -38,8 +38,8 @@ return {
         PlayerStepText.Size = UDim2.new(0.95, 0, 1, -10)
         PlayerStepText.Position = UDim2.new(0.025, 0, 0, 5)
         PlayerStepText.Font = Enum.Font.SourceSans
-        PlayerStepText.TextColor3 = Color3.new(1, 1, 1)
-        PlayerStepText.TextStrokeColor3 = Color3.new(0, 0, 0)
+        PlayerStepText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        PlayerStepText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         PlayerStepText.ClipsDescendants = true
         PlayerStepText.ClearTextOnFocus = false
         PlayerStepText.TextEditable = false

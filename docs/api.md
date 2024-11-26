@@ -10,7 +10,7 @@ stored anywhere in the game.
 ## Fetching The API
 Nexus Admin's API is fetched differently on the client
 and the server.
-```lua
+```luau
 local NexusAdminTypes = require(...)
 
 --Server
@@ -173,7 +173,7 @@ table is the strings to use for the target players.
 that stores the history of commands being ran. For creating
 a new instance of `Logs`, require the module instead.
 
-```lua
+```luau
 local NexusAdminTypes = require(...)
 local Logs = require(game:GetService("ReplicatedStorage"):WaitForChild("NexusAdminClient"):WaitForChid("Common"):WaitForChild("Logs")) :: NexusAdminTypes.Logs
 

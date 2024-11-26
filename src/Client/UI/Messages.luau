@@ -63,25 +63,25 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             TextLabel.BorderSizePixel = 0
             TextLabel.Size = UDim2.new(1, 0, 1, 0)
             TextLabel.Position = UDim2.new(0, 0, -1, 0)
-            TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+            TextLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             TextLabel.Font = Enum.Font.SourceSans
             TextLabel.TextWrapped = true
             TextLabel.Text = Message
             TextLabel.RichText = true
-            TextLabel.TextColor3 = Color3.new(1, 1, 1)
-            TextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+            TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             TextLabel.TextStrokeTransparency = 0
             TextLabel.Parent = NexusAdminMessagesScreenGui
             
             local TopTextLabel = Instance.new("TextLabel")
             TopTextLabel.BackgroundTransparency = 1
             TopTextLabel.Size = UDim2.new(1, 0, 0.05, 0)
-            TopTextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+            TopTextLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             TopTextLabel.Font = Enum.Font.SourceSansBold
             TopTextLabel.Text = TopText
             TopTextLabel.RichText = true
-            TopTextLabel.TextColor3 = Color3.new(1, 1, 1)
-            TopTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+            TopTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TopTextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             TopTextLabel.TextStrokeTransparency = 0
             TopTextLabel.Parent = TextLabel
             TextLabel.TextSize = TextLabel.AbsoluteSize.Y * 0.05
@@ -200,13 +200,13 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
             local HintFrame = Instance.new("TextLabel")
             HintFrame.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
             HintFrame.BorderSizePixel = 0
-            HintFrame.BackgroundColor3 = Color3.new(0,0,0)
+            HintFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
             HintFrame.Position = UDim2.new(0, 0, -HINT_HEIGHT_RELATIVE, 0)
             HintFrame.Size = UDim2.new(1, 0, HINT_HEIGHT_RELATIVE, 0)
             HintFrame.Font = Enum.Font.SourceSans
             HintFrame.TextScaled = true
-            HintFrame.TextColor3 = Color3.new(1, 1, 1)
-            HintFrame.TextStrokeColor3 = Color3.new(0, 0, 0)
+            HintFrame.TextColor3 = Color3.fromRGB(255, 255, 255)
+            HintFrame.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             HintFrame.Text = Message
             HintFrame.RichText = true
             HintFrame.TextStrokeTransparency = 0
@@ -271,7 +271,7 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
             NotificationFrame.Parent = NexusAdminNotificationsScreenGui
 
             local Background = ThemedFrame.new()
-            Background.BackgroundColor3 = Color3.new(0, 0, 0)
+            Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             Background.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
             Background.Size = UDim2.new(1, 0, 1, 0)
             Background.SliceScaleMultiplier = 0.3
@@ -387,7 +387,7 @@ local function AddAdminLevelNotifications(API: Types.NexusAdminApiClient, Player
 
             --Display a message.
             if IsAuthorized then
-                API.Messages:DisplayNotification("Nexus Admin", "You are an admin. Use "..API.Configuration.CommandPrefix.."cmds or !cmds to view the commands. Use !usage to view using the system.", 10)
+                API.Messages:DisplayNotification("Nexus Admin", `You are an admin. Use {API.Configuration.CommandPrefix}cmds or !cmds to view the commands. Use !usage to view using the system.`, 10)
             else
                 API.Messages:DisplayNotification("Nexus Admin", "Your admin level has changed and you no longer are an admin.", 5)
             end

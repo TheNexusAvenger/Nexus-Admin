@@ -26,7 +26,7 @@ return {
         local Hats = {}
         for _,Id in Ids do
             local Model = InsertService:LoadAsset(Id)
-            for _, Hat in pairs(Model:GetChildren()) do
+            for _, Hat in Model:GetChildren() do
                 if Hat:IsA("Hat") or Hat:IsA("Accoutrement") or Hat:IsA("Accessory") then
                     table.insert(Hats, Hat)
                 end

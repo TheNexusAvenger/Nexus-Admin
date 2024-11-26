@@ -28,7 +28,7 @@ return {
             if not Inventories or ForceRefresh then
                 Inventories = {}
                 for _,Player in Players do
-                    local Inventory = Player.Name..":"
+                    local Inventory = `{Player.Name}:`
                     
                     --Add the backpack tools.
                     local Backpack = Player:FindFirstChildOfClass("Backpack")

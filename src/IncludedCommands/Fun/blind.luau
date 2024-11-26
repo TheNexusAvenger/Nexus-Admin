@@ -26,7 +26,7 @@ return {
                     local Frame = Instance.new("Frame")
                     Frame.Size = UDim2.new(3, 0, 3, 0)
                     Frame.Position = UDim2.new(-1, 0, -1, 0)
-                    Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+                    Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     Frame.BorderSizePixel = 0
                     Frame.Parent = NexusAdminBlind
                 end

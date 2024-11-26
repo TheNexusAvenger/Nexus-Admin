@@ -206,8 +206,8 @@ return {
         ScreenSizeText.Size = UDim2.new(0.95, 0, 1, -10)
         ScreenSizeText.Position = UDim2.new(0.025, 0, 0, 5)
         ScreenSizeText.Font = Enum.Font.SourceSans
-        ScreenSizeText.TextColor3 = Color3.new(1, 1, 1)
-        ScreenSizeText.TextStrokeColor3 = Color3.new(0, 0, 0)
+        ScreenSizeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ScreenSizeText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         ScreenSizeText.TextStrokeTransparency = 0
         ScreenSizeText.TextSize = Window.TextHeight
         ScreenSizeText.TextXAlignment = Enum.TextXAlignment.Left

@@ -113,7 +113,7 @@ return {
 
         local SnapshotBackgroundFrame = Instance.new("Frame")
         SnapshotBackgroundFrame.BackgroundTransparency = 0.75
-        SnapshotBackgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+        SnapshotBackgroundFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         SnapshotBackgroundFrame.BorderSizePixel = 0
         SnapshotBackgroundFrame.Size = UDim2.new(1, 0, 1, 0)
         SnapshotBackgroundFrame.Parent = SnapshotBackground
@@ -134,8 +134,8 @@ return {
         ScreenSizeText.Size = UDim2.new(0.95, 0, 1, -10)
         ScreenSizeText.Position = UDim2.new(0.025, 0, 0, 5)
         ScreenSizeText.Font = Enum.Font.SourceSans
-        ScreenSizeText.TextColor3 = Color3.new(1, 1, 1)
-        ScreenSizeText.TextStrokeColor3 = Color3.new(0, 0, 0)
+        ScreenSizeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ScreenSizeText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         ScreenSizeText.TextStrokeTransparency = 0
         ScreenSizeText.TextSize = CameraViewportSize.Y * 0.5 * 0.045
         ScreenSizeText.TextXAlignment = Enum.TextXAlignment.Left
@@ -156,7 +156,7 @@ return {
 
             --Show the ScreenGuis.
             SnapshotScreenGuisFolder:ClearAllChildren()
-            for _, ScreenGui in pairs(Serialization:Deserialize(ScreenData.ScreenGuis)) do
+            for _, ScreenGui in Serialization:Deserialize(ScreenData.ScreenGuis) do
                 ScreenGui.Parent = SnapshotScreenGuisFolder
                 ScreenGui.DisplayOrder += (1000 + 1)
             end

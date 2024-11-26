@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the Serialization class.
---]]
+--Tests the Serialization class.
 --!strict
 
 local Serialization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("Local"):WaitForChild("Resources"):WaitForChild("Serialization"))

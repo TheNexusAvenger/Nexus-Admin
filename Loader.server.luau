@@ -314,5 +314,5 @@ xpcall(function()
     --Load Nexus admin.
     NexusAdminModule(script,Config)
 end, function(ErrorMessage: string)
-    warn("NEXUS ADMIN FAILED TO LOAD: "..tostring(ErrorMessage).."\n"..debug.traceback())
+    warn(`NEXUS ADMIN FAILED TO LOAD: {ErrorMessage}\n{debug.traceback()}`)
 end)

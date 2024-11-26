@@ -54,10 +54,10 @@ return {
                     Text.BackgroundTransparency = 1
                     Text.Size = UDim2.new(1, 0, 0.5, 0)
                     Text.TextSize = 24
-                    Text.TextColor3 = Color3.new(1, 1, 1)
-                    Text.TextStrokeColor3 = Color3.new(0, 0, 0)
+                    Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    Text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
                     Text.TextStrokeTransparency = 0
-                    Text.Text = Player.Name.."\nv"
+                    Text.Text = `{Player.Name}\nv`
                     Text.Parent = BillboardGui
                     self.Text = Text
                 end
@@ -108,7 +108,7 @@ return {
 
             function Tracker:UpdateColor()
                 if not self.Active then return end
-                local Color = (Player.Neutral and Color3.new(1, 1, 1) or Player.TeamColor.Color)
+                local Color = (Player.Neutral and Color3.fromRGB(255, 255, 255) or Player.TeamColor.Color)
                 if self.Text then
                     self.Text.TextColor3 = Color
                 end

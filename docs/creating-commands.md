@@ -22,7 +22,7 @@ to the command object and a [`CommandContext`](https://eryn.io/Cmdr/api/CommandC
 Additional parameters are passed for each argument specified with
 `Args` or `Arguments`. The examples above show this.
 
-```lua
+```luau
 --Get the Nexus Admin API.
 --Use a ModuleScript and parent this to the server loaded.
 local NexusAdminAPI = require(game:GetService("ServerScriptService"):WaitForChild("NexusAdmin"))
@@ -51,9 +51,9 @@ local CommandData = {
 		},
 	},
 	Run = function(self, CommandContext, Players, Message)
-		print("Raw command: "..CommandContext.RawText)
-		print("Players: "..#Players)
-		print("Message: "..Message)
+		print(`Raw command: {CommandContext.RawText}`)
+# 		print(`Players: {#Players}`)
+		print(`Message: {Message}`)
 	end,
 }	
 	
@@ -73,7 +73,7 @@ Cmdr's structure should be used to minimize the time
 converting code. `Prefix` and `AdminLevel` from the
 Nexus Admin method can also be included for Nexus Admin.
 
-```lua
+```luau
 --Get the Nexus Admin API.
 --Use a ModuleScript and parent this to the server loaded.
 local NexusAdminAPI = require(game:GetService("ServerScriptService"):WaitForChild("NexusAdmin"))
@@ -101,9 +101,9 @@ local CommandData = {
 		},
 	},
 	Run = function(self, CommandContext, Players, Message)
-		print("Raw command: "..CommandContext.RawText)
-		print("Players: "..#Players)
-		print("Message: "..Message)
+		print(`Raw command: {CommandContext.RawText}`)
+		print(`Players: {#Players}`)
+		print(`Message: {Message}`)
 	end,
 	
 	--Optional for Nexus Admin.

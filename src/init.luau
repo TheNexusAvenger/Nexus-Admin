@@ -179,7 +179,7 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
     table.insert(CmdrCommandsToLoad, script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("help"))
     for _, CommandScript in CmdrCommandsToLoad do
         if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
-            local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(CommandScript.Name.."Server")
+            local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(`{CommandScript.Name}Server`)
             local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
             CommandData.AutoExec = nil --AutoExec is handled on the client.
             CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
@@ -259,7 +259,7 @@ end
 
 function API.InvokeCommand(Command,ArgumentString,ReferencePlayer)
     warn("NexusAdminServerAPI.InvokeCommand(Command,ArgumentString,ReferencePlayer) is deprecated as of V.2.0.0. Please use NexusAdminServerAPI.Executor:ExecuteCommandWithPrefix(Command,ReferencePlayer) instead.")
-    return API.Executor:ExecuteCommandWithPrefix(Command.." "..ArgumentString,ReferencePlayer)
+    return API.Executor:ExecuteCommandWithPrefix(`{Command} {ArgumentString}`, ReferencePlayer)
 end
 
 function API.DisplayHint(Player,Message,DisplayTime)
