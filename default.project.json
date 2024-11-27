@@ -1,7 +1,7 @@
 {
     "name": "NexusAdmin",
     "tree": {
-        "$path": "./MainModule.lua",
+        "$path": "./MainModule.luau",
         "NexusAdmin": {
             "$path": "./src",
             "NexusInstance": {

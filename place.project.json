@@ -11,7 +11,7 @@
                 "$path": "./test"
             },
             "NexusAdminLoader": {
-                "$path": "Loader.server.lua"
+                "$path": "Loader.server.luau"
             }
         }
     }
