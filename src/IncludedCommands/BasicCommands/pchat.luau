@@ -14,6 +14,7 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 Parses the players in a chat.
 --]]
 local function ParseChatName(Name: string): {Player}
+    if not string.find(Name, "NexusAdminChat_") then return {} end
     local ChatPlayers = {}
     for _, UserIdString in string.split(Name, "_") do
         local UserId = tonumber(UserIdString)
