@@ -14,7 +14,7 @@ return {
         local Api = Util:GetClientApi()
 
         --Show the window.
-        local Window = Api.Window:CreateWindow("Bans")
+        local Window = Api.Window:CreateWindow("Keybinds")
         local TextList = Window:AddTextList()
         TextList:EnableSearching()
 
