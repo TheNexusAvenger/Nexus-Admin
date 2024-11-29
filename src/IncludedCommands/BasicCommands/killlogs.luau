@@ -91,7 +91,7 @@ return {
         local Api = Util:GetClientApi()
 
         --Show the window.
-        local Window = Api.Window:CreateWindow("Bans")
+        local Window = Api.Window:CreateWindow("Kill Logs")
         local TextList = Window:AddTextList()
         TextList:EnableSearching()
         TextList:DisplayLogs(Api.LogsRegistry:GetLogs("KillLogs"), "NewestFirst")
