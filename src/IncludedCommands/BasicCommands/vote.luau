@@ -171,6 +171,10 @@ return {
 
         --Create the labels.
         local PlayerResults = {} :: {[Player]: string}
+        for _, Player in Players do
+            PlayerResults[Player] = "Undecided"
+        end
+
         local QuestionText = Instance.new("TextLabel")
         QuestionText.BackgroundTransparency = 1
         QuestionText.Size = UDim2.new(0, WindowWidth * 0.95, 0, QuestionHeight)
