@@ -31,8 +31,8 @@ prefixes used. If false, chat executing will be ignored.
 If true, players will be able to drop swords. 
 If false, they won't.
 
-## PreformSoftShutdownOnClose (default: `true`)
-If true, the server will automaticly preform a SoftShutdown on `game:BindToClose()`.
+## PerformSoftShutdownOnClose (default: `true`)
+If true, the server will automatically perform a SoftShutdown on `game:BindToClose()`.
 If false, it will not.
 
 ## UseBeamsWhenTracking (default: `true`)
