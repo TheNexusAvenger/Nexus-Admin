@@ -249,6 +249,17 @@ return {
                     end
 
                     --[[
+                    Toggles the flight.
+                    --]]
+                    function Flight:Toggle()
+                        if self.Active then
+                            self:Stop()
+                        else
+                            self:Start()
+                        end
+                    end
+                    
+                    --[[
                     Destroys the flight.
                     --]]
                     function Flight:Destroy()
@@ -274,17 +285,17 @@ return {
                     end
 
                     ContextActionService:BindAction("ToggleFlight", function(ActionName, UserInputState, InputObject)
-                        -- Prevent multiple fires on 1 press
                         if UserInputState ~= Enum.UserInputState.End then return end
-                        --Toggle the flight.
-                        if Flight.Active then
-                            (Flight :: any):Stop()
-                        else
-                            (Flight :: any):Start()
-                        end
-                    end, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)
+                        (Flight :: any):Toggle()
+                    end, true)
                     ContextActionService:SetTitle("ToggleFlight", "Toggle Flight")
                     ContextActionService:SetPosition("ToggleFlight", UDim2.new(0, 50, 0, 100))
+
+                    table.insert(Flight.Events, UserInputService.InputBegan:Connect(function(Input, Processed)
+                        if Processed then return end
+                        if Input.KeyCode ~= Enum.KeyCode.E and Input.KeyCode ~= Enum.KeyCode.ButtonX then return end
+                        (Flight :: any):Toggle()
+                    end))
 
                     --Connect the events.
                     table.insert(Flight.Events, Humanoid.Died:Connect(function()
