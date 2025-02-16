@@ -1,6 +1,8 @@
 --Standard window used with the Window API.
 --!strict
 
+local MINIMUM_TEXT_SIZE = 12
+
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local GuiService = game:GetService("GuiService")
@@ -55,7 +57,7 @@ Creates an API Window.
 function ApiWindow.new(): ApiWindow
     --Create the base window.
     local Camera = Workspace.CurrentCamera
-    local WindowHeight = math.ceil(0.5 * Camera.ViewportSize.Y)
+    local WindowHeight = math.max(math.ceil(0.5 * Camera.ViewportSize.Y), 5 * MINIMUM_TEXT_SIZE)
     local TopBarHeightPixel = math.ceil(WindowHeight * 0.1)
     local CornerSizePixel = math.floor(TopBarHeightPixel * 0.4)
 
@@ -128,7 +130,7 @@ function ApiWindow.new(): ApiWindow
         InitialViewportSize = Camera.ViewportSize,
         InitialHeight = WindowHeight,
         InitialWidth = math.ceil(0.375 * Camera.ViewportSize.Y),
-        TextHeight = math.ceil(Camera.ViewportSize.Y * 0.5 * 0.045),
+        TextHeight = math.max(MINIMUM_TEXT_SIZE, math.ceil(Camera.ViewportSize.Y * 0.5 * 0.045)),
         StartSide = Enum.NormalId.Left,
         ContentsAdorn = ContentsAdorn,
         Instances = {

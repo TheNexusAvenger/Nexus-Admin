@@ -1,6 +1,7 @@
 --Adds message UI functionality to the API.
 --!strict
 
+local MINIMUM_TEXT_SIZE = 12
 local HINT_HEIGHT_RELATIVE = 0.035
 local NOTIFICATION_HEIGHT_RELATIVE = 0.0225
 local MAX_HINTS = 5
@@ -58,6 +59,7 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             end
 
             --Create the text.
+            local TextSize = math.max(MINIMUM_TEXT_SIZE, NexusAdminMessagesScreenGui.AbsoluteSize.Y * 0.05)
             local TextLabel = Instance.new("TextLabel")
             TextLabel.BackgroundTransparency = 0.5
             TextLabel.BorderSizePixel = 0
@@ -71,11 +73,12 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             TextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             TextLabel.TextStrokeTransparency = 0
+            TextLabel.TextSize = TextSize
             TextLabel.Parent = NexusAdminMessagesScreenGui
             
             local TopTextLabel = Instance.new("TextLabel")
             TopTextLabel.BackgroundTransparency = 1
-            TopTextLabel.Size = UDim2.new(1, 0, 0.05, 0)
+            TopTextLabel.Size = UDim2.new(1, 0, 0, TextSize)
             TopTextLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
             TopTextLabel.Font = Enum.Font.SourceSansBold
             TopTextLabel.Text = TopText
@@ -83,14 +86,15 @@ local function AddNativeMessages(API: Types.NexusAdminApiClient, Player: Player)
             TopTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             TopTextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             TopTextLabel.TextStrokeTransparency = 0
-            TopTextLabel.Parent = TextLabel
-            TextLabel.TextSize = TextLabel.AbsoluteSize.Y * 0.05
             TopTextLabel.TextSize = TopTextLabel.AbsoluteSize.Y
+            TopTextLabel.Parent = TextLabel
             
             --Connect the event for resizing.
-            local Event = NexusAdminMessagesScreenGui:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-                TextLabel.TextSize = TextLabel.AbsoluteSize.Y * 0.035
-                TopTextLabel.TextSize = TopTextLabel.AbsoluteSize.Y
+            local Event = NexusAdminMessagesScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+                TextSize = math.max(MINIMUM_TEXT_SIZE, NexusAdminMessagesScreenGui.AbsoluteSize.Y * 0.05)
+                TextLabel.TextSize = TextSize
+                TopTextLabel.Size = UDim2.new(1, 0, 0, TextSize)
+                TopTextLabel.TextSize = TextSize
             end)
             
             --Tween the frame in and out.
@@ -113,6 +117,7 @@ end
 Adds native hints.
 --]]
 local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): ()
+    local HintHeight = MINIMUM_TEXT_SIZE
     local HintsQueue = {} :: {{Frame: TextLabel, Duration: number}}
     local NexusAdminHintsScreenGui = nil
 
@@ -122,7 +127,7 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
     local function UpdateHintPositions()
         for i, HintData in HintsQueue do
             Tween(HintData.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
-                Position = UDim2.new(0, 0, (i - 1) * HINT_HEIGHT_RELATIVE, 0)
+                Position = UDim2.new(0, 0, 0, (i - 1) * HintHeight)
             })
         end
     end
@@ -144,7 +149,7 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
         --Remove the hint and update the other hint positions.
         table.remove(HintsQueue,Index)
         Tween(HintData.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
-            Position = UDim2.new(1, 0, (Index - 1) * HINT_HEIGHT_RELATIVE, 0),
+            Position = UDim2.new(1, 0, 0, (Index - 1) * HintHeight),
         }, function()
             HintData.Frame:Destroy()
         end)
@@ -166,10 +171,10 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
         if OverflowHint then
             HintsQueue[MAX_HINTS + 1] = nil
             Tween(OverflowHint.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
-                Position = UDim2.new(0, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0),
+                Position = UDim2.new(0, 0, 0, MAX_HINTS * HintHeight),
             }, function()
                 Tween(OverflowHint.Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
-                    Position = UDim2.new(1, 0, MAX_HINTS * HINT_HEIGHT_RELATIVE, 0),
+                    Position = UDim2.new(1, 0, 0, MAX_HINTS * HintHeight),
                 }, function()
                     OverflowHint.Frame:Destroy()
                 end)
@@ -194,6 +199,15 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
                 NewNexusAdminHintsScreenGui.ResetOnSpawn = false
                 NewNexusAdminHintsScreenGui.DisplayOrder = 50
                 NexusAdminHintsScreenGui = NewNexusAdminHintsScreenGui
+
+                HintHeight = math.max(MINIMUM_TEXT_SIZE, HINT_HEIGHT_RELATIVE * NewNexusAdminHintsScreenGui.AbsoluteSize.Y)
+                NewNexusAdminHintsScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+                    HintHeight = math.max(MINIMUM_TEXT_SIZE, HINT_HEIGHT_RELATIVE * NewNexusAdminHintsScreenGui.AbsoluteSize.Y)
+                    for _, HintData in HintsQueue do
+                        HintData.Frame.Size = UDim2.new(1, 0, 0, HintHeight)
+                    end
+                    UpdateHintPositions()
+                end)
             end
 
             --Create the hint frame.
@@ -201,8 +215,8 @@ local function AddNativeHints(API: Types.NexusAdminApiClient, Player: Player): (
             HintFrame.BackgroundTransparency = 0.5 * GuiService.PreferredTransparency
             HintFrame.BorderSizePixel = 0
             HintFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
-            HintFrame.Position = UDim2.new(0, 0, -HINT_HEIGHT_RELATIVE, 0)
-            HintFrame.Size = UDim2.new(1, 0, HINT_HEIGHT_RELATIVE, 0)
+            HintFrame.Position = UDim2.new(0, 0, 0, -HintHeight)
+            HintFrame.Size = UDim2.new(1, 0, 0, HintHeight)
             HintFrame.Font = Enum.Font.SourceSans
             HintFrame.TextScaled = true
             HintFrame.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -259,8 +273,8 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
 
             --Create the notification frame.
             local ViewportSizeY = NexusAdminNotificationsScreenGui.AbsoluteSize.Y
-            local TextSize = NOTIFICATION_HEIGHT_RELATIVE * NexusAdminNotificationsScreenGui.AbsoluteSize.Y
-            local NotificationWidth = 0.4 * ViewportSizeY
+            local TextSize = math.max(MINIMUM_TEXT_SIZE, NOTIFICATION_HEIGHT_RELATIVE * NexusAdminNotificationsScreenGui.AbsoluteSize.Y)
+            local NotificationWidth = (0.4 / NOTIFICATION_HEIGHT_RELATIVE) * TextSize
             local MessageHeight = TextService:GetTextSize(Message, TextSize, Enum.Font.SourceSans, Vector2.new(NotificationWidth - 10, ViewportSizeY)).Y
             local NotificationHeight = TextSize + MessageHeight
             local NotificationFrame = Instance.new("Frame")

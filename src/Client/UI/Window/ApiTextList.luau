@@ -45,6 +45,7 @@ function ApiTextList.new(Parent: Instance, TextSize: number, TextType: ("TextLab
     ScrollingFrame.Parent = AdornFrame
 
     local VirtualList = NexusVirtualList.CreateVirtualScrollList(ScrollingFrame, CreateScrollingTextEntryCreator(TextSize, TextType or "TextBox"))
+    VirtualList:SetEntryHeight(TextSize)
 
     --Create and return the object.
     return setmetatable({
