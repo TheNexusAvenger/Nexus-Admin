@@ -2,6 +2,7 @@
 --!strict
 
 local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -29,9 +30,16 @@ return {
         local Util = IncludedCommandUtil.ForContext(CommandContext)
 
         --Mute the players.
+        local TextChannels = TextChatService:FindFirstChild("TextChannels")
+        local GeneralChat = TextChannels and TextChannels:FindFirstChild("RBXGeneral")
         local UnmutePlayerEvent = Util:GetRemote("UnmutePlayer") :: RemoteEvent
         for _, Player in Players do
-            UnmutePlayerEvent:FireClient(Player)
+            local PlayerSource = GeneralChat and GeneralChat:FindFirstChild(Player.Name) :: TextSource
+            if PlayerSource then
+                PlayerSource.CanSend = true
+            else
+                UnmutePlayerEvent:FireClient(Player) --TODO: Remove when legacy chat removed.
+            end
         end
     end,
 }

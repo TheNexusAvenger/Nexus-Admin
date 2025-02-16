@@ -2,6 +2,7 @@
 --!strict
 
 local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -30,12 +31,19 @@ return {
         local Api = Util:GetApi()
 
         --Mute the players.
+        local TextChannels = TextChatService:FindFirstChild("TextChannels")
+        local GeneralChat = TextChannels and TextChannels:FindFirstChild("RBXGeneral")
         local MutePlayerEvent = Util:GetRemote("MutePlayer") :: RemoteEvent
         for _, Player in Players do
             if Api.Authorization:GetAdminLevel(Player) >= 0 then
                 Util:SendError("You can't mute admins.")
             else
-                MutePlayerEvent:FireClient(Player)
+                local PlayerSource = GeneralChat and GeneralChat:FindFirstChild(Player.Name) :: TextSource
+                if PlayerSource then
+                    PlayerSource.CanSend = false
+                else
+                    MutePlayerEvent:FireClient(Player) --TODO: Remove when legacy chat removed.
+                end
             end
         end
     end,
