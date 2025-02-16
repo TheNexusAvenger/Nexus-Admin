@@ -206,15 +206,8 @@ end
 Registers an included command.
 --]]
 function Registry.RegisterIncludedCommand(self: Registry, ModuleScript: ModuleScript, Api: Types.NexusAdminApiServer | Types.NexusAdminApi, LocalCommandContainer: Folder?): ()
-    --Load the command using the legacy system.
-    --TODO: Remove when migrated.
-    local CommandData = require(ModuleScript) :: any
-    if CommandData.Flatten then
-        self:LoadCommand(CommandData.new():Flatten())
-        return
-    end
-
     --Add the missing data.
+    local CommandData = require(ModuleScript) :: any
     if CommandData.Prefix then
         CommandData.Prefix = {self.Configuration.CommandPrefix, CommandData.Prefix}
     else
