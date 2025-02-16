@@ -165,9 +165,6 @@ return {
             return "TextChatService is not enabled."
         end
 
-        --Return if the player can't chat.
-        --TODO
-
         --Create the text channel if it doesn't exist.
         for _, Player in Players do
             --Show a message if the users can't chat.
