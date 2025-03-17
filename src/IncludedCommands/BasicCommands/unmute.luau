@@ -28,12 +28,16 @@ return {
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetApi()
 
         --Mute the players.
         local TextChannels = TextChatService:FindFirstChild("TextChannels")
         local GeneralChat = TextChannels and TextChannels:FindFirstChild("RBXGeneral")
         local UnmutePlayerEvent = Util:GetRemote("UnmutePlayer") :: RemoteEvent
         for _, Player in Players do
+            if Api.CommandData.MutedPlayers then
+                Api.CommandData.MutedPlayers[Player.UserId] = nil
+            end
             local PlayerSource = GeneralChat and GeneralChat:FindFirstChild(Player.Name) :: TextSource
             if PlayerSource then
                 PlayerSource.CanSend = true

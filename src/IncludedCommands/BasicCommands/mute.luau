@@ -24,7 +24,20 @@ return {
         end)
     end,
     ServerLoad = function(Api: Types.NexusAdminApiServer)
+        --Create the event.
         IncludedCommandUtil:CreateRemote("RemoteEvent", "MutePlayer")
+        Api.CommandData.MutedPlayers = {}
+
+        --Handle muted players joining.
+        task.spawn(function()
+            local TextChannels = TextChatService:WaitForChild("TextChannels", 10 ^ 99)
+            local GeneralChat = TextChannels:WaitForChild("RBXGeneral")
+            GeneralChat.ChildAdded:Connect(function(TextSource)
+                if not TextSource:IsA("TextSource") then return end
+                if not Api.CommandData.MutedPlayers[TextSource.UserId] then return end
+                TextSource.CanSend = false
+            end)
+        end)
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
@@ -38,6 +51,7 @@ return {
             if Api.Authorization:GetAdminLevel(Player) >= 0 then
                 Util:SendError("You can't mute admins.")
             else
+                Api.CommandData.MutedPlayers[Player.UserId] = true
                 local PlayerSource = GeneralChat and GeneralChat:FindFirstChild(Player.Name) :: TextSource
                 if PlayerSource then
                     PlayerSource.CanSend = false
