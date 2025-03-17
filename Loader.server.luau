@@ -151,6 +151,7 @@ local Config = {
             loop = nil,
             stoploops = nil,
             playerstep = nil,
+            alert = nil,
             m = nil,
             h = nil,
             sm = nil,
