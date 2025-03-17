@@ -24,6 +24,7 @@ return {
         --Listen for new output messages.
         LogService.MessageOut:Connect(function(Message, MessageType)
             ServerOutputLogs:Add({
+                Font = Enum.Font.Code,
                 Text = Message,
                 TextColor3 = MESSAGE_TYPE_TO_COLOR[MessageType],
             })
@@ -32,6 +33,7 @@ return {
         --Add the existing output.
         for _, Line in LogService:GetLogHistory() do
             ServerOutputLogs:Add({
+                Font = Enum.Font.Code,
                 Text = Line.message,
                 TextColor3 = MESSAGE_TYPE_TO_COLOR[Line.messageType],
             })

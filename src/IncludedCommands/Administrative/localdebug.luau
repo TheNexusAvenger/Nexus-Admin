@@ -23,6 +23,7 @@ return {
             local Output = {}
             for _,Line in LogService:GetLogHistory() do
                 local LineData = {
+                    Font = Enum.Font.Code,
                     Text = Line.message,
                 }
                 table.insert(Output,LineData)
