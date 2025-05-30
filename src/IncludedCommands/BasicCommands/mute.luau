@@ -1,7 +1,6 @@
 --Implementation of a command.
 --!strict
 
-local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
@@ -18,14 +17,8 @@ return {
             Description = "Players to mute.",
         },
     },
-    ClientLoad = function(Api: Types.NexusAdminApi)
-        (IncludedCommandUtil:GetRemote("MutePlayer") :: RemoteEvent).OnClientEvent:Connect(function()
-            StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-        end)
-    end,
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         --Create the event.
-        IncludedCommandUtil:CreateRemote("RemoteEvent", "MutePlayer")
         Api.CommandData.MutedPlayers = {}
 
         --Handle muted players joining.
@@ -46,7 +39,6 @@ return {
         --Mute the players.
         local TextChannels = TextChatService:FindFirstChild("TextChannels")
         local GeneralChat = TextChannels and TextChannels:FindFirstChild("RBXGeneral")
-        local MutePlayerEvent = Util:GetRemote("MutePlayer") :: RemoteEvent
         for _, Player in Players do
             if Api.Authorization:GetAdminLevel(Player) >= 0 then
                 Util:SendError("You can't mute admins.")
@@ -55,8 +47,6 @@ return {
                 local PlayerSource = GeneralChat and GeneralChat:FindFirstChild(Player.Name) :: TextSource
                 if PlayerSource then
                     PlayerSource.CanSend = false
-                else
-                    MutePlayerEvent:FireClient(Player) --TODO: Remove when legacy chat removed.
                 end
             end
         end

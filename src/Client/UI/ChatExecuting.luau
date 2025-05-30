@@ -40,7 +40,6 @@ return function(API: Types.NexusAdminApiClient, Player: Player): ()
     end
 
     --Connect the chatted event.
-    Player.Chatted:Connect(ExecuteCommand)
     TextChatService.SendingMessage:Connect(function(Message: TextChatMessage)
         if not Message.TextSource or Message.TextSource.UserId ~= Player.UserId then return end
         ExecuteCommand(Message.Text)
