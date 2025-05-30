@@ -22,7 +22,7 @@ return function()
                     error("Test error")
                 else
                     return {
-                        GetChatForUserAsync = function(_,Id)
+                        GetNonChatStringForUserAsync = function(_,Id)
                             if Id == 1 then
                                 return "#### message"
                             else
