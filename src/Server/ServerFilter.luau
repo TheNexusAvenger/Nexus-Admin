@@ -25,7 +25,8 @@ Filters a string for a user.
 --]]
 function ServerFilter.FilterString(self: ServerFilter, String: string, PlayerFrom: Player, PlayerTo: Player?): string
     if PlayerTo then
-        warn("ServerFilter::FilterString with PlayerTo is deprecated in Nexus Admin 2.9.0 due to TextChatService changes (https://devforum.roblox.com/t/textservice-filtering-returns-empty-message-for-valid-text-input/3650504).")
+        --TODO: Deprecate when an easy solution exists.
+        --warn("ServerFilter::FilterString with PlayerTo is deprecated in Nexus Admin 2.9.0 due to TextChatService changes (https://devforum.roblox.com/t/textservice-filtering-returns-empty-message-for-valid-text-input/3650504).")
     end
 
     --Return the string if it is an empty string.
@@ -58,7 +59,8 @@ Filters a string for a set of users.
 Returns a map of the players to their filtered string.
 --]]
 function ServerFilter.FilterStringForPlayers(self: ServerFilter, String: string, PlayerFrom: Player, PlayersTo: {Player}): {[Player]: string}
-    warn("ServerFilter::FilterStringForPlayers is deprecated in Nexus Admin 2.9.0 due to TextChatService changes (https://devforum.roblox.com/t/textservice-filtering-returns-empty-message-for-valid-text-input/3650504).")
+    --TODO: Deprecate when an easy solution exists.
+    --warn("ServerFilter::FilterStringForPlayers is deprecated in Nexus Admin 2.9.0 due to TextChatService changes (https://devforum.roblox.com/t/textservice-filtering-returns-empty-message-for-valid-text-input/3650504).")
 
     --Return the string if it is an empty string.
     local FilteredResults = {}
