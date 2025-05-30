@@ -34,7 +34,7 @@ return {
 
         local DisplayAlertEvent = Util:GetRemote("DisplayAlert") :: RemoteEvent
         for Player, FilteredMessage in Api.Filter:FilterStringForPlayers(Message, CommandContext.Executor, Players) do
-            DisplayAlertEvent:FireClient(Player, Message)
+            DisplayAlertEvent:FireClient(Player, FilteredMessage)
         end
     end,
 }
