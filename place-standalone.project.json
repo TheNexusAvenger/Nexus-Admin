@@ -1,0 +1,15 @@
+{
+    "name": "Nexus-Admin",
+    "tree": {
+        "$className": "DataModel",
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "NexusAdminLoader": {
+                "$path": "Loader.server.luau"
+            },
+            "MainModule": {
+                "$path": "./default-standalone.project.json"
+            }
+        }
+    }
+}

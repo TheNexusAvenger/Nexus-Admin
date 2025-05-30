@@ -1,7 +1,9 @@
 --Tests the Serialization class.
 --!strict
 
-local Serialization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("Local"):WaitForChild("Resources"):WaitForChild("Serialization"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Serialization = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.IncludedCommands.Local.Resources.Serialization)
 
 return function()
     describe("Serialization", function()

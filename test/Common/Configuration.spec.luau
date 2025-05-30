@@ -1,7 +1,9 @@
 --Tests the Configuration class.
 --!strict
 
-local Configuration = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Configuration"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Configuration = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Configuration)
 
 return function()
     local TestConfiguration = nil

@@ -2,16 +2,27 @@
     "name": "Nexus-Admin",
     "tree": {
         "$className": "DataModel",
+        "ReplicatedStorage": {
+            "Packages": {
+                "$path": "./Packages",
+                "NexusAdmin": {
+                    "$path": "."
+                }
+            }
+        },
         "ServerScriptService": {
             "$className": "ServerScriptService",
-            "MainModule": {
-                "$path": "."
-            },
             "NexusAdminTests": {
                 "$path": "./test"
             },
             "NexusAdminLoader": {
                 "$path": "Loader.server.luau"
+            },
+            "MainModule": {
+                "$path": "./test/MainModule.luau",
+                "NexusAdmin": {
+                    "$className": "Folder"
+                }
             }
         }
     }

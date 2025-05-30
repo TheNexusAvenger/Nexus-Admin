@@ -1,7 +1,9 @@
 --Tests the Logs class.
 --!strict
 
-local Logs = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Logs"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Logs = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Logs)
 
 return function()
     local TestLogs = nil

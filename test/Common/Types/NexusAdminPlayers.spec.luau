@@ -1,7 +1,9 @@
 --Tests the NexusAdminPlayers type.
 --!strict
 
-local NexusAdminPlayers = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Types"):WaitForChild("NexusAdminPlayers"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local NexusAdminPlayers = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Types.NexusAdminPlayers)
 
 return function()
     local MockTeam, MockPlayers, MockPlayersService, MockTeamsService, MockAPI, TestNexusAdminPlayers = nil, nil, nil, nil, nil, nil

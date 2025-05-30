@@ -1,7 +1,9 @@
 --Tests the Filter class.
 --!strict
 
-local Filter = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Filter"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Filter = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Filter)
 
 return function()
     describe("The filter module", function()

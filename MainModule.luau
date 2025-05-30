@@ -1,9 +1,47 @@
 --Loads Nexus Admin for the normal deployment.
 --!strict
 
+local REQUIRED_LIBRARIES = {
+    --Cmdr = "cmdr", --Git submodule used for Cmdr due to outdated release.
+    NexusButton = "nexus-button",
+    NexusDataStore = "nexus-data-store",
+    NexusFeatureFlags = "nexus-feature-flags",
+    NexusInstance = "nexus-instance",
+    NexusVirtualList = "nexus-virtual-list",
+}
+
+
+
 return function(LoaderScript,Configuration)
-    --Copy Nexus Admin to ServerScriptService.
+    --Replace the packages when in a Wally package.
     local NexusAdminModule = script:WaitForChild("NexusAdmin")
+    local SourcePackages = script.Parent
+    if SourcePackages then
+        local TargetPackages = NexusAdminModule:WaitForChild("Packages")
+        if not TargetPackages:FindFirstChild("_Index") then
+            local Index = Instance.new("Folder")
+            Index.Name = "_Index"
+            Index.Parent = TargetPackages
+            
+            for PackageName, WallyPackageName in REQUIRED_LIBRARIES do
+                local SourceReference = SourcePackages:FindFirstChild(PackageName)
+                local SourcePackage = SourcePackages:FindFirstChild(WallyPackageName, true)
+                local TargetPackage = TargetPackages:FindFirstChild(PackageName)
+                if SourceReference then
+                    SourceReference:Clone().Parent = TargetPackages
+                end
+                if SourcePackage then
+                    SourcePackage.Parent:Clone().Parent = Index
+                end
+                if TargetPackage then
+                    TargetPackage:Destroy()
+                end
+            end
+        end
+    end
+
+    --Copy Nexus Admin to ServerScriptService.
+    --This is meant to provide backward compatibility with the expected final module location.
     NexusAdminModule.Parent = game:GetService("ServerScriptService")
 
     --Load Nexus admin.

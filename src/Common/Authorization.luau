@@ -1,8 +1,10 @@
 --Handles users being authorized.
 --!strict
 
-local TypedEvent = require(script.Parent.Parent:WaitForChild("NexusButton"):WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("TypedEvent"))
+local NexusInstance = require(script.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusInstance"))
 local Configuration = require(script.Parent:WaitForChild("Configuration"))
+
+local TypedEvent = NexusInstance.TypedEvent
 
 local Authorization = {}
 Authorization.__index = Authorization
@@ -10,7 +12,7 @@ Authorization.__index = Authorization
 export type Authorization = {
     Configuration: Configuration.Configuration,
     AdminLevels: {[string]: number},
-    AdminLevelChanged: TypedEvent.TypedEvent<Player>,
+    AdminLevelChanged: NexusInstance.TypedEvent<Player>,
 } & typeof(setmetatable({}, Authorization))
 
 

@@ -1,6 +1,8 @@
 --Tests the Registry class.
 
-local Registry = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Registry"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Registry = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Registry)
 
 return function()
     describe("A Registry", function()
@@ -32,7 +34,7 @@ return function()
                 IsPlayerAuthorized = function(_,Player,Level)
                     return Player.UserId == 1
                 end
-            }, nil, nil, TestNexusAdminRemotes)
+            } :: any, nil :: any, nil :: any, nil :: any, TestNexusAdminRemotes)
         end)
 
         local function expectDeepEquals(Expected: any, Actual: any)

@@ -41,7 +41,7 @@ local Messages = require(script:WaitForChild("ClientMessages")).new(EventContain
 local Registry = require(script:WaitForChild("ClientRegistry")).new(Authorization, Configuration, Messages, Cmdr, EventContainer)
 local LogsRegistry = require(script:WaitForChild("ClientLogsRegistry")).new(EventContainer)
 local Executor = (require(script:WaitForChild("Common"):WaitForChild("Executor")) :: Types.Executor).new(Cmdr,Registry)
-local FeatureFlags = (require(script:WaitForChild("NexusFeatureFlags")) :: Types.NexusFeatureFlagsSource)
+local FeatureFlags = (require(script:WaitForChild("Packages"):WaitForChild("NexusFeatureFlags")) :: Types.NexusFeatureFlagsSource)
 local Time = (require(script:WaitForChild("Common"):WaitForChild("Time")) :: Types.Time)
 local Window = (require(script:WaitForChild("Window")) :: Types.Window)
 
@@ -66,10 +66,7 @@ local API = {
     FeatureFlags = FeatureFlags,
     Time = Time,
     Window = Window,
-    Gui = {
-        Window = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("Window")),
-        ResizableWindow = require(script:WaitForChild("UI"):WaitForChild("Window"):WaitForChild("ResizableWindow")),
-    },
+    Gui = {},
 }
 
 --Add the custom Cmdr types.
@@ -139,51 +136,6 @@ end
 function API.GetTextBounds(Text,Font,FontSize,Wrapped,Size,Clipped)
     warn("NexusAdminClientAPI.SendHint(Message,DisplayTime) is deprecated as of V.2.0.0. Please use TextService:GetTextSize(Text,FontSize,Font,Size) instead.")
     return TextService:GetTextSize(Text,FontSize,Font,Vector2.new(Size.X.Offset,Size.Y.Offset))
-end
-
-function API.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction)
-    warn("NexusAdminClientAPI.CreateGenericListBox(Name,RefreshFunction,OnCloseFunction) is deprecated as of V.2.0.0 for removal in Nexus Admin V.2.9.0. Please move to the Window API.")
-    
-    --Create the window.
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui")
-
-    local ScrollingFrame = Instance.new("ScrollingFrame")
-    ScrollingFrame.BackgroundTransparency = 1
-    ScrollingFrame.BorderSizePixel = 0
-    ScrollingFrame.Size = UDim2.new(1,0,1,0)
-    ScrollingFrame.ScrollBarThickness = 10
-    ScrollingFrame.CanvasSize = UDim2.new(0,0,0,0)
-
-    local Window = API.Gui.ResizableWindow.new()
-    Window.Title = Name
-    Window.WindowFrame.Position = UDim2.new(-0.3,0,0,0.3 * Window.WindowFrame.AbsoluteSize.Y)
-    ScrollingFrame.Parent = Window.ContentsAdorn
-    Window.WindowFrame.Parent = ScreenGui
-
-    --Connect the events.
-    Window.OnRefresh = function()
-        RefreshFunction(ScrollingFrame)
-    end
-    Window.OnClose = function()
-        --Run the OnClose function.
-        if OnCloseFunction then
-            spawn(function()
-                OnCloseFunction(ScrollingFrame)
-            end)
-        end
-
-        --Hide and destroy the window.
-        Window:TweenOut(Enum.NormalId.Left, function()
-            Window:Destroy()
-            ScreenGui:Destroy()
-        end)
-    end
-
-    --Run the refresh function and show the window.
-    RefreshFunction(ScrollingFrame)
-    Window:MoveTo(Enum.NormalId.Left)
-    Window:TweenTo(Enum.NormalId.Left)
 end
 
 function API.AddTooltipToFrame(Text,Frame)

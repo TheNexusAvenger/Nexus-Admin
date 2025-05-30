@@ -10,10 +10,11 @@ local GuiService = game:GetService("GuiService")
 local TextService = game:GetService("TextService")
 local TweenService = game:GetService("TweenService")
 
-local NexusButton = script.Parent.Parent:WaitForChild("NexusButton")
-local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame")) :: any
-local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("TextButtonFactory")) :: any
+local NexusButton = require(script.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusButton")) :: any
 local Types = require(script.Parent.Parent:WaitForChild("Types"))
+
+local ThemedFrame = NexusButton.ThemedFrame
+local TextButtonFactory = NexusButton.TextButtonFactory
 
 
 

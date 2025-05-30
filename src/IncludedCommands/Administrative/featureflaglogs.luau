@@ -11,7 +11,7 @@ return {
     Category = "Administrative",
     Description = "Opens up a window logs of feature flag changes.",
     ServerLoad = function(Api: Types.NexusAdminApiServer)
-        local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("NexusFeatureFlags"):WaitForChild("NexusDataStore")) :: any
+        local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
         xpcall(function()
             Api.CommandData.FeatureFlagLogsDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "FeatureFlagLogs")
         end, function(ErrorMessage)

@@ -4,7 +4,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("NexusFeatureFlags"):WaitForChild("NexusDataStore")) :: any
+local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 local PersistentBans = {}

@@ -1,7 +1,7 @@
 --Creates text entries in a ScrollingTextWindow.
 --!strict
 
-local NexusVirtualList = require(script.Parent.Parent.Parent:WaitForChild("NexusVirtualList"))
+local NexusVirtualList = require(script.Parent.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusVirtualList"))
 
 export type Properties = {[string]: any}
 

@@ -63,14 +63,8 @@ function API:Load(ConfigurationTable: {[string]: any}): ()
     local Common = script:WaitForChild("Common"):Clone()
     Common.Parent = NexusAdminClient
 
-    local NexusInstance = script:WaitForChild("NexusInstance"):Clone()
-    NexusInstance.Parent = NexusAdminClient
-
-    local NexusButton = script:WaitForChild("NexusButton"):Clone()
-    NexusButton.Parent = NexusAdminClient
-
-    local NexusVirtualList = script:WaitForChild("NexusVirtualList"):Clone()
-    NexusVirtualList.Parent = NexusAdminClient
+    local Packages = script:WaitForChild("Packages")
+    Packages:Clone().Parent = NexusAdminClient
 
     local LocalIncludedCommands = script:WaitForChild("IncludedCommands"):WaitForChild("Local"):Clone()
     LocalIncludedCommands.Name = "IncludedCommands"
@@ -79,18 +73,13 @@ function API:Load(ConfigurationTable: {[string]: any}): ()
     local IncludedCommandUtil = script:WaitForChild("IncludedCommands"):WaitForChild("IncludedCommandUtil"):Clone()
     IncludedCommandUtil.Parent = LocalIncludedCommands
 
-    local BaseCommand = script:WaitForChild("IncludedCommands"):WaitForChild("BaseCommand"):Clone()
-    BaseCommand.Parent = LocalIncludedCommands
-
     --Initialize the resources.
-    local Cmdr = require(script:WaitForChild("Cmdr"))
+    local Cmdr = require(Packages:WaitForChild("Cmdr"))
     local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConfigurationTable)
     local Authorization = require(script:WaitForChild("Server"):WaitForChild("ServerAuthorization")).new(Configuration, EventContainer);
     (Authorization):InitializePlayers()
     local Messages = require(script:WaitForChild("Server"):WaitForChild("ServerMessages")).new(EventContainer)
-    local FeatureFlagsModule = script:WaitForChild("NexusFeatureFlags")
-    FeatureFlagsModule.Parent = NexusAdminClient
-    local FeatureFlags = require(FeatureFlagsModule)
+    local FeatureFlags = require(Packages:WaitForChild("NexusFeatureFlags"))
     local Replicator = require(script:WaitForChild("Server"):WaitForChild("Replicator")).new()
     local Filter = require(script:WaitForChild("Server"):WaitForChild("ServerFilter")).new()
     local Time = require(script:WaitForChild("Common"):WaitForChild("Time"))
@@ -174,9 +163,10 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
     end
 
     --Load the Cmdr utility commands.
-    local CmdrUtilityCommands = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility")
-    local CmdrCommandsToLoad = script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("Utility"):GetChildren()
-    table.insert(CmdrCommandsToLoad, script:WaitForChild("Cmdr"):WaitForChild("Server commands"):WaitForChild("help"))
+    local Cmdr = script:WaitForChild("Packages"):WaitForChild("Cmdr")
+    local CmdrUtilityCommands = Cmdr:WaitForChild("Server commands"):WaitForChild("Utility")
+    local CmdrCommandsToLoad = Cmdr:WaitForChild("Server commands"):WaitForChild("Utility"):GetChildren()
+    table.insert(CmdrCommandsToLoad, Cmdr:WaitForChild("Server commands"):WaitForChild("help"))
     for _, CommandScript in CmdrCommandsToLoad do
         if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
             local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(`{CommandScript.Name}Server`)

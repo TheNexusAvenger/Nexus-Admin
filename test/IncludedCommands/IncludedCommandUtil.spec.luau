@@ -1,7 +1,9 @@
 --Tests the IncludedCommandUtil class.
 --!strict
 
-local IncludedCommandUtil = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("IncludedCommands"):WaitForChild("IncludedCommandUtil"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local IncludedCommandUtil = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.IncludedCommands.IncludedCommandUtil)
 
 return function()
     describe("A static util", function()

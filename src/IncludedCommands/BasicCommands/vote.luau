@@ -6,7 +6,9 @@ local TextService = game:GetService("TextService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
-local TextButtonFactory = require(script.Parent.Parent.Parent:WaitForChild("NexusButton"):WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
+local NexusButton = require(script.Parent.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusButton"))
+
+local TextButtonFactory = NexusButton.TextButtonFactory
 
 local YesFactory = TextButtonFactory.CreateDefault(Color3.fromRGB(0, 200, 0))
 YesFactory:SetTextDefault("Text", "Yes")

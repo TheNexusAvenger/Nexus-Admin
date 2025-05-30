@@ -1,7 +1,9 @@
 --Tests the ServerFilter class.
 --!strict
 
-local ServerFilter = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Server"):WaitForChild("ServerFilter"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ServerFilter = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Server.ServerFilter)
 
 return function()
     local MockPlayers, TestFilter = nil, nil

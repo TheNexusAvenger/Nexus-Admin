@@ -5,7 +5,7 @@
         "NexusAdmin": {
             "$path": "./src",
             "Packages": {
-                "$path": "./dist/",
+                "$path": "./Packages/",
                 "Cmdr": {
                     "$path": "./module/Cmdr"
                 }

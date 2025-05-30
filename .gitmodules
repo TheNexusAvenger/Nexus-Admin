@@ -1,18 +1,3 @@
-[submodule "module/Nexus-Instance"]
-	path = module/Nexus-Instance
-	url = https://github.com/TheNexusAvenger/Nexus-Instance.git
-[submodule "module/Nexus-Button"]
-	path = module/Nexus-Button
-	url = https://github.com/thenexusavenger/nexus-button
-[submodule "module/Nexus-Data-Store"]
-	path = module/Nexus-Data-Store
-	url = https://github.com/TheNexusAvenger/Nexus-Data-Store.git
-[submodule "module/Nexus-Feature-Flags"]
-	path = module/Nexus-Feature-Flags
-	url = https://github.com/TheNexusAvenger/Nexus-Feature-Flags.git
 [submodule "module/Cmdr"]
 	path = module/Cmdr
 	url = https://github.com/evaera/Cmdr.git
-[submodule "module/Nexus-Virtual-List"]
-	path = module/Nexus-Virtual-List
-	url = https://github.com/TheNexusAvenger/Nexus-Virtual-List

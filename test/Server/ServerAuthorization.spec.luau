@@ -1,8 +1,10 @@
 --Tests the ServerAuthorization class.
 --!strict
 
-local ServerAuthorization = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Server"):WaitForChild("ServerAuthorization"))
-local Configuration = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Configuration"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Configuration = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Configuration)
+local ServerAuthorization = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Server.ServerAuthorization)
 
 return function()
     local MockPlayers, TestServerAuthorization = nil, nil

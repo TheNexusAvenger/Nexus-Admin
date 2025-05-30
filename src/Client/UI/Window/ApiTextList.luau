@@ -3,7 +3,7 @@
 
 local TextService = game:GetService("TextService")
 
-local NexusVirtualList = require(script.Parent.Parent.Parent:WaitForChild("NexusVirtualList"))
+local NexusVirtualList = require(script.Parent.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusVirtualList"))
 local CreateScrollingTextEntryCreator = require(script.Parent:WaitForChild("CreateScrollingTextEntryCreator"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 

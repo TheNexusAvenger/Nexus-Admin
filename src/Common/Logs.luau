@@ -1,7 +1,9 @@
 --Stores a log of events.
 --!strict
 
-local TypedEvent = require(script.Parent.Parent:WaitForChild("NexusButton"):WaitForChild("NexusInstance"):WaitForChild("Event"):WaitForChild("TypedEvent"))
+local NexusInstance = require(script.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusInstance"))
+
+local TypedEvent = NexusInstance.TypedEvent
 
 local Logs = {}
 Logs.__index = Logs
@@ -9,7 +11,7 @@ Logs.__index = Logs
 export type Logs = {
     MaxLogs: number,
     Logs: {any},
-    LogAdded: TypedEvent.TypedEvent<any>,
+    LogAdded: NexusInstance.TypedEvent<any>,
 } & typeof(setmetatable({}, Logs))
 
 

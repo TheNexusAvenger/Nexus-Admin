@@ -1,7 +1,9 @@
 --Tests the Executor class.
 --!strict
 
-local Executor = require(game:GetService("ServerScriptService"):WaitForChild("MainModule"):WaitForChild("NexusAdmin"):WaitForChild("Common"):WaitForChild("Executor"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Executor = require(ReplicatedStorage.Packages.NexusAdmin.NexusAdmin.Common.Executor)
 
 return function()
     local MockCmdr, MockRegistry, TestExecutor = nil, nil, nil

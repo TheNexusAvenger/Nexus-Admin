@@ -9,11 +9,12 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
-local NexusButton = script.Parent.Parent.Parent:WaitForChild("NexusButton")
-local ButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("ButtonFactory"))
-local TextButtonFactory = require(NexusButton:WaitForChild("Factory"):WaitForChild("TextButtonFactory"))
-local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
+local NexusButton = require(script.Parent.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusButton"))
 local ApiTextList = require(script.Parent:WaitForChild("ApiTextList"))
+
+local ButtonFactory = NexusButton.ButtonFactory
+local TextButtonFactory = NexusButton.TextButtonFactory
+local ThemedFrame = NexusButton.ThemedFrame
 
 local RefreshFactory = ButtonFactory.CreateDefault(Color3.fromRGB(0, 200, 0))
 local CloseFactory = TextButtonFactory.CreateDefault(Color3.fromRGB(200, 0, 0))

@@ -7,8 +7,9 @@ local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 local TextService = game:GetService("TextService")
 
-local NexusButton = script.Parent.Parent:WaitForChild("NexusButton")
-local ThemedFrame = require(NexusButton:WaitForChild("ThemedFrame"))
+local NexusButton = require(script.Parent.Parent:WaitForChild("Packages"):WaitForChild("NexusButton")) :: any
+
+local ThemedFrame = NexusButton.ThemedFrame
 
 
 
