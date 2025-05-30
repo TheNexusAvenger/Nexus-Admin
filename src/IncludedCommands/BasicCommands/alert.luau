@@ -30,9 +30,10 @@ return {
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Message: string)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
+        local Api = Util:GetServerApi()
 
         local DisplayAlertEvent = Util:GetRemote("DisplayAlert") :: RemoteEvent
-        for _, Player in Players do
+        for Player, FilteredMessage in Api.Filter:FilterStringForPlayers(Message, CommandContext.Executor, Players) do
             DisplayAlertEvent:FireClient(Player, Message)
         end
     end,
