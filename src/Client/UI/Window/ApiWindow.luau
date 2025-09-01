@@ -319,7 +319,7 @@ function ApiWindow.EnableRefreshing(self: ApiWindow, OnRefresh: () -> ()): ()
     RefreshIcon.SizeConstraint = Enum.SizeConstraint.RelativeYY
     RefreshIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     RefreshIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
-    RefreshIcon.Image = "rbxasset://textures/StudioToolbox/AssetConfig/restore@3x.png"
+    RefreshIcon.Image = "rbxassetid://86084882582277"
     RefreshIcon.ZIndex = 4
     RefreshIcon.Parent = RefreshButton:GetAdornFrame()
 

@@ -77,7 +77,7 @@ function ApiTextList.EnableSearching(self: ApiTextList, Filter: ((SearchTerm: st
     SearchIcon.Size = UDim2.new(0, TextSize, 0, TextSize)
     SearchIcon.Position = UDim2.new(0, 0.25 * TextSize, 0, 0.25 * TextSize)
     SearchIcon.BackgroundTransparency = 1
-    SearchIcon.Image = "rbxasset://textures/StudioToolbox/Search.png"
+    SearchIcon.Image = "rbxasset://textures/DevConsole/Search.png"
     SearchIcon.Parent = self.Instances.AdornFrame
 
     local SearchBar = Instance.new("TextBox")
