@@ -43,7 +43,7 @@ Creates the configuration.
 function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
     ConfigurationTable = ConfigurationTable or {}
     local self = setmetatable({
-        Version = "Version 2.9.0",
+        Version = "Version 2.9.1",
         VersionNumberId = 2.9,
         CmdrVersion = "Version 1.12.0",
         RawConfiguration = ConfigurationTable,
