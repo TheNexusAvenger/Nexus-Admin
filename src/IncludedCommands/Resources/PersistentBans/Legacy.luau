@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
-local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
+local Types = require(script.Parent.Parent.Parent.Parent:WaitForChild("Types"))
 
 local PersistentBans = {}
 PersistentBans.__index = PersistentBans
@@ -18,6 +18,7 @@ export type PersistentBans = {
     Api: Types.NexusAdminApiServer,
     PlayerUpdateEvents: {[Player]: RBXScriptConnection},
     BansDataStore: any,
+    IsLegacy: boolean,
 } & typeof(setmetatable({}, PersistentBans))
 
 
@@ -31,6 +32,7 @@ function PersistentBans.new(Api: Types.NexusAdminApiServer): PersistentBans
         Initialized = false,
         Api = Api,
         PlayerUpdateEvents = {},
+        IsLegacy = true,
     }, PersistentBans) :: PersistentBans
 end
 

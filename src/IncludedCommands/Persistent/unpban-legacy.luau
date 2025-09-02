@@ -5,21 +5,14 @@ local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedC
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
 return {
-    Keyword = "unpban",
+    Keyword = "unpban-legacy",
     Category = "PersistentCommands",
-    Description = "Unbans a set of players by their user id or username (use user if if the name is a number).",
+    Description = "Unbans a set of players by their user id or username (use user if if the name is a number). (Legacy Persistent Bans)",
     Arguments = {
         {
             Type = "strings",
             Name = "Names",
             Description = "Players to unban.",
-        },
-        {
-            Type = "boolean",
-            Name = "Experience Wide",
-            Description = "Should the unban apply to all places within the experience.\nDefaults to true",
-            Default = true,
-            Optional = true,
         },
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
@@ -28,17 +21,17 @@ return {
 
         Api.CommandData.LegacyPersistentBans = Api.CommandData.PersistentBans.IsLegacy
     end,
-    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExpWide : boolean): string?
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, Message: string?): string?
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"):WaitForChild("Legacy"))
         
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
 
-        --Return if persistent bans is the legacy system.
-        if Api.CommandData.LegacyPersistentBans then
-            return "Overhauled persistent bans disabled within this experience. Please use :unpban-legacy."
+        --Return if persistent bans is not the legacy system.
+        if not Api.CommandData.LegacyPersistentBans then
+            return "Legacy Persistent Bans is disabled within this experience. Please use :unpban."
         end
-        
+
         --Return if the persistent bans weren't initialized.
         local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
@@ -46,18 +39,11 @@ return {
         end
 
         --Unban the names.
-        local Ids = {}
         for _,Name in PlayerNames do
             for _, Id in PersistentBans:ResolveUserIds(Name) do
-                table.insert(Ids,Id)
+                PersistentBans:UnbanId(Id)
             end
         end
-        
-        local Success, ErrorMessage = PersistentBans:UnbanIds({
-            ["UserIds"] = Ids,
-            ["ApplyToUniverse"] = ExpWide
-        })
-        
         return nil
     end,
 }

@@ -4,6 +4,10 @@
 local DEFAULT_COMMAND_CONFIGURATIONS = {
     --Default Admin Level for Server Lock (slock).
     DefaultServerLockAdminLevel = 0,
+    --Use Legacy Persistent Bans (pban, unpban, pbans) system utilizing DataStores.
+    LegacyPersistentBans = false,
+    --Minimum Admin Level for a player to be immune to :pban.
+    PersistentBanImmune = "${PersistentCommandsLevel}"
 } :: {[string]: any}
 
 local Configuration = {}
@@ -29,6 +33,7 @@ export type Configuration = {
     BannedUsers: {[number]: string | boolean},
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
+        LegacyPersistentBans: boolean,
         [string]:any,
     },
     CommandLevelOverrides: {[string]: {[string]: number}},
@@ -43,7 +48,7 @@ Creates the configuration.
 function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
     ConfigurationTable = ConfigurationTable or {}
     local self = setmetatable({
-        Version = "Version 2.9.0",
+        Version = "Version 2.9.1",
         VersionNumberId = 2.9,
         CmdrVersion = "Version 1.12.0",
         RawConfiguration = ConfigurationTable,
@@ -76,6 +81,10 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
     --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
         if self.CommandConfigurations[Name] ~= nil then continue end
+        if type(Value) == "string" and (Value :: string):sub(1,2) == "${" then
+            local Key = Value:sub(3,Value:len()-1)
+            Value = self[Key]
+        end
         self.CommandConfigurations[Name] = Value
     end
 

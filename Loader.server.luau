@@ -3,7 +3,7 @@ TheNexusAvenger
 
 Loads Nexus Admin.
 
-Loader version: V.2.9.0
+Loader version: V.2.9.1
 GitHub: https://github.com/thenexusavenger/nexus-admin
 
 For the change log, view the GitHub Releases (except V.1.0.0, V.1.0.1, V.1.1.0, and V.1.2.0).
@@ -104,6 +104,11 @@ local Config = {
     CommandConfigurations = {
         --Default Admin Level for Server Lock (slock). Defaults to 0, but can be any number.
         DefaultServerLockAdminLevel = nil,
+        --Use Legacy Persistent Bans (pban-legacy, unpban-legacy, pbans-legacy) system utilizing DataStores. Defaults to false.
+        LegacyPersistentBans = nil,
+        --Minimum Admin Level for a player to be immune to :pban. Defaults to PersistentCommandsLevel but can be any number.
+        --This only prevents a player from being banned via :pban. Not from Roblox's ban system itself.
+        PersistentBanImmune = nil
     },
 
     --Below is for overriding the defaults levels
