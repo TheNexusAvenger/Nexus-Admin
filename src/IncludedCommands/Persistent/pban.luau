@@ -43,7 +43,7 @@ return {
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
 
         Api.CommandData.LegacyPersistentBans = Api.CommandData.PersistentBans.IsLegacy;
-        
+
         (IncludedCommandUtil:CreateRemote("RemoteFunction","LegacyPersistentBansCheck") :: RemoteFunction).OnServerInvoke = function()
             return Api.CommandData.LegacyPersistentBans
         end
@@ -51,7 +51,7 @@ return {
         if Api.CommandData.LegacyPersistentBans then
             return
         end
-        
+
         local function UserIdToPlayer(Id: number) : Player?
             local Match
             for _, Player in Players:GetPlayers() do
@@ -62,7 +62,7 @@ return {
             end
             return Match
         end
-        
+
         --Try and filter out Persistent Ban Immune UserIds of both in server players and out of server players.
         local function FilterIds(Ids: {number}, Executor : Player)
             local Filtered = {}
@@ -80,7 +80,7 @@ return {
                         AdminLevel = math.max(AdminLevel,Api.Configuration.Admins[Id])
                     end
                     xpcall(function()
-                        for _, UserGroupInfo in GroupService:GetGroupsAsync(Player.UserId) do
+                        for _, UserGroupInfo in GroupService:GetGroupsAsync(Id) do
                             local GroupInfo = Api.Configuration.GroupAdminLevels[UserGroupInfo.Id]
                             if GroupInfo then
                                 for Rank, NewAdminLevel in GroupInfo do
@@ -106,16 +106,16 @@ return {
             end
             return Filtered
         end
-        
+
         local RemoteEvent = (IncludedCommandUtil:CreateRemote("RemoteEvent","PersistentBan") :: RemoteEvent)
-        
+
         RemoteEvent.OnServerEvent:Connect(function(Player,Ids : {number}, Duration : number, ExpWide : boolean, IncludeAlts : boolean)
             if not Api.Authorization:IsPlayerAuthorized(Player,Api.Configuration:GetCommandAdminLevel("PersistentCommands","pban")) then
                 return
             end
-            
+
             local VarStore = Api.Cmdr.Registry:GetStore("var_"..tostring(Player.UserId))
-            
+
             local DisplayReason = VarStore['DisplayReason']
             local PrivateReason = VarStore['PrivateReason']
 
@@ -145,8 +145,8 @@ return {
                 ["PrivateReason"] = PrivateReason,
                 ["ApplyToUniverse"] = ExpWide,
                 ["ExcludeAltAccounts"] = not IncludeAlts,
-            })
-            
+            },Player.UserId,Player.Name)
+
             VarStore['DisplayReason'] = nil
             VarStore['PrivateReason'] = nil
         end)
@@ -158,28 +158,28 @@ return {
 
         local Executor = Api.Executor :: Types.Executor
         local Messages = Api.Messages :: Types.MessagesClient
-        
+
         local DisplayReasonMessage = 'run edit ${var .DisplayReason} \\\\\n && var= .DisplayReason ||'
         local PrivateReasonMessage = 'run edit ${var .PrivateReason} \\\\\n && var= .PrivateReason ||'
-        
+
         local RemoteEvent = IncludedCommandUtil:GetRemote("PersistentBan") :: RemoteEvent
-            
+
         RemoteEvent.OnClientEvent:Connect(function(...)
             Messages:DisplayHint("Persistent Bans: Please provide an optional Display Ban Message. This will be shown to the banned individual(s). 400 Character Limit.",10)
             Executor:ExecuteCommandWithOrWithoutPrefix(DisplayReasonMessage,Players.LocalPlayer)
 
             Messages:DisplayHint("Persistent Bans: Please provide an optional Private Ban Message. This will be visible only to user(s) authorized to access :pbans. 950 Character Limit.",10)
             Executor:ExecuteCommandWithOrWithoutPrefix(PrivateReasonMessage,Players.LocalPlayer)
-            
+
             RemoteEvent:FireServer(...)
         end)
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, Duration: number, ExpWide: boolean, IncludeAlts: boolean): string?
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        
+
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
-        
+
         --Return if persistent bans is the legacy system.
         if Api.CommandData.LegacyPersistentBans then
             return "Overhauled persistent bans disabled within this experience. Please use :pban-legacy."
@@ -198,7 +198,7 @@ return {
                 table.insert(Ids,Id)
             end
         end
-        
+
         --Send Request to appropriate client as to provide the reasons for the ban. 
         (Util:GetRemote("PersistentBan") :: RemoteEvent):FireClient(CommandContext.Executor,Ids,Duration,ExpWide,IncludeAlts)  
         return nil

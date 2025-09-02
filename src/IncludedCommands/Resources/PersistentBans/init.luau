@@ -46,7 +46,6 @@ end
 Returns a static instance of the persistent bans.
 --]]
 function PersistentBans.GetInstance(Api: Types.NexusAdminApiServer): PersistentBans
-    print("GetInstance")
     if not StaticInstance then
         local UseLegacyPersistentBans = Api.Configuration.CommandConfigurations.LegacyPersistentBans
 
@@ -79,8 +78,6 @@ end
 Transfer legacy persistent bans
 --]]
 function PersistentBans.TransferLegacy(self: PersistentBans): ()
-    print("Transfering Legacy")
-    
     --Get the DataStore.
     local BansDataStore
     
@@ -95,12 +92,8 @@ function PersistentBans.TransferLegacy(self: PersistentBans): ()
     
     --Call :BanId individually for each legacy ban, assuming no two bans have the same reason.
     for _,Id in BansDataStore:ListKeys() do
-        print(Id)
         local Reason = BansDataStore:Get(Id)
-        print(Reason)
-        local Worked, ErrorMessage = self:BanId(tonumber(Id),Reason)
-        print(Worked)
-        warn(ErrorMessage)
+        local Worked, ErrorMessage = self:BanId(tonumber(Id),Reason,-2,"NexusAdmin-Legacy pban transfer")
         if Worked then
             --Remove the legacy ban, so next transfer does not apply another ban.
             BansDataStore:Set(Id,nil)
@@ -147,8 +140,7 @@ Bans a user id.
 
 Preserved for backwards compatibility and minimal script changes.
 --]]
-function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string | boolean): (boolean, string?)
-    print(UserId,Message)
+function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string | boolean, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
     return self:BanIds({
         UserIds = {UserId},
         Duration = -1,
@@ -156,14 +148,32 @@ function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: str
         PrivateReason = type(Message) == "string" and Message or "No ban reason specified.",
         ExcludeAltAccounts = false,
         ApplyToUniverse = true
-    })
+    }, ModeratorId or 0, ModeratorName or "NexusAdmin")
 end
 
 --[[
 Bans user ids.
 --]]
-function PersistentBans.BanIds(self: PersistentBans, Config : BanConfigType): (boolean, string?)
-    print(Config)
+function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
+    local Api = self.Api
+    if Api.CommandData.PersistentBanLogsDataStore then
+        task.spawn(function()
+            Api.CommandData.PersistentBanLogsDataStore:Update("PersistentBanActionsLog", function(OldLogs)
+                OldLogs = OldLogs or {}
+                table.insert(OldLogs, {
+                    Time = os.time(),
+                    Id = ModeratorId or 0,
+                    Name = ModeratorName or "NexusAdmin",
+                    Action = 0,
+                    EffectedUserIds = Config.UserIds,
+                    Duration = math.max(-1,Config.Duration),
+                    ExpWide = Config.ApplyToUniverse,
+                    IncludeAlts = not Config.ExcludeAltAccounts
+                })
+                return OldLogs
+            end)
+        end)
+    end
     return pcall(function()
         Players:BanAsync(Config)
     end)
@@ -174,14 +184,31 @@ Unbans a user id.
 
 Preserved for backwards compatibility and minimal script changes.
 --]]
-function PersistentBans.UnbanId(self: PersistentBans, UserId : number)
+function PersistentBans.UnbanId(self: PersistentBans, UserId: number, ModeratorId: number?, ModeratorName: string?)
     return self:UnbanIds({
         UserIds = {UserId},
         ApplyToUniverse = true,
-    })
+    },ModeratorId or 0, ModeratorName or "NexusAdmin")
 end
 
-function PersistentBans.UnbanIds(self: PersistentBans, Config : UnbanConfigType) : (boolean, string?)
+function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, ModeratorId: number?, ModeratorName: string?) : (boolean, string?)
+    local Api = self.Api
+    if Api.CommandData.PersistentBanLogsDataStore then
+        task.spawn(function()
+            Api.CommandData.PersistentBanLogsDataStore:Update("PersistentBanActionsLog", function(OldLogs)
+                OldLogs = OldLogs
+                table.insert(OldLogs, {
+                    Time = os.time(),
+                    Id = ModeratorId or 0,
+                    Name = ModeratorName or "NexusAdmin",
+                    Action = 1,
+                    EffectedUserIds = Config.UserIds,
+                    ExpWide = Config.ApplyToUniverse,
+                })
+                return OldLogs
+            end)
+        end)
+    end
     return pcall(function()
         Players:UnbanAsync(Config)
     end)

@@ -56,7 +56,7 @@ return {
         local Success, ErrorMessage = PersistentBans:UnbanIds({
             ["UserIds"] = Ids,
             ["ApplyToUniverse"] = ExpWide
-        })
+        },CommandContext.Executor.UserId,CommandContext.Executor.Name)
         
         return nil
     end,

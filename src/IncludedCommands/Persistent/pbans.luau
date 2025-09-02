@@ -60,19 +60,6 @@ local function pagesToTable(pages)
         end
         pages:AdvanceToNextPageAsync()
     end
-    print("{")
-    for i,v in items do
-        print(`    {i}: \{`)
-        for i2,v2 in v do
-            print(`        {i2}: \{`)
-            for i3,v3 in v2 do
-                print(`            {i3}: {v3}`)
-            end
-            print("        }")
-        end
-        print("    }")
-    end
-    print("}")
     return items
 end
 
@@ -162,8 +149,6 @@ return {
                 UsernameCache[UserId] = Username
             end
         end
-
-        print(Bans)
 
         for UserId, History : {{BanHistoryPage}} in Bans do
             --Show the window.
