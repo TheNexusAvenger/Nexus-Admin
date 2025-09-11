@@ -104,8 +104,6 @@ local Config = {
     CommandConfigurations = {
         --Default Admin Level for Server Lock (slock). Defaults to 0, but can be any number.
         DefaultServerLockAdminLevel = nil,
-        --Use Legacy Persistent Bans (pban-legacy, unpban-legacy, pbans-legacy) system utilizing DataStores. Defaults to false.
-        LegacyPersistentBans = nil,
         --Minimum Admin Level for a player to be immune to :pban. Defaults to PersistentCommandsLevel but can be any number.
         --This only prevents a player from being banned via :pban. Not from Roblox's ban system itself.
         PersistentBanImmune = nil

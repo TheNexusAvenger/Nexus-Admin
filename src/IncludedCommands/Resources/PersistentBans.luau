@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
-local LegacyPersistentBans = require(script:WaitForChild("Legacy"))
 
 local PersistentBans = {}
 PersistentBans.__index = PersistentBans
@@ -16,29 +15,21 @@ local StaticInstance = nil
 export type PersistentBans = {
     Initialized: boolean,
     InitializationStarted: boolean,
+    Disabled: boolean,
     Api: Types.NexusAdminApiServer,
     PlayerUpdateEvents: {[Player]: RBXScriptConnection},
     BansDataStore: any,
-    IsLegacy: boolean,
 } & typeof(setmetatable({}, PersistentBans))
 
 --[[
 Creates a persistent bans object.
 --]]
 function PersistentBans.new(Api: Types.NexusAdminApiServer): PersistentBans
-    local Worked, ErrorMessage = pcall(function()
-        Players:GetBanHistoryAsync(1)
-    end)
-    if not Worked and ErrorMessage == "GetBanHistoryAsync is disabled due to Players:BanningEnabled being set to false" then
-        warn(`Unable to use RobloxBanApi as Players.BanningEnabled is set to false. Defaulting to legacy persistent bans.`)
-        return LegacyPersistentBans.new(Api)
-    end
-    
     return setmetatable({
-        InitializationStarted = false,
+        InitializationStated = false,
         Initialized = false,
         Api = Api,
-        IsLegacy = false,
+        Disabled = false,
     }, PersistentBans) :: PersistentBans
 end
 
@@ -47,13 +38,8 @@ Returns a static instance of the persistent bans.
 --]]
 function PersistentBans.GetInstance(Api: Types.NexusAdminApiServer): PersistentBans
     if not StaticInstance then
-        local UseLegacyPersistentBans = Api.Configuration.CommandConfigurations.LegacyPersistentBans
-
-        if UseLegacyPersistentBans then
-            StaticInstance = LegacyPersistentBans.new(Api)
-        else
-            StaticInstance = PersistentBans.new(Api)
-        end
+        StaticInstance = PersistentBans.new(Api)
+        
         StaticInstance:Initialize()
     end
     while not StaticInstance.Initialized do
@@ -68,6 +54,23 @@ Initializes the bans.
 function PersistentBans.Initialize(self: PersistentBans): ()
     if self.InitializationStarted then return end
     self.InitializationStarted = true
+    
+    --Players.BanningEnabled is unreadable, this is a workaround.
+    local Worked, ErrorMessage = pcall(function()
+        print("Intentional Error, go brrrrr"+65+{})
+        Players:GetBanHistoryAsync(1)
+    end)
+    if not Worked and ErrorMessage == "GetBanHistoryAsync is disabled due to Players:BanningEnabled being set to false" then
+        warn(`Unable to use RobloxBanApi as Players.BanningEnabled is set to false. Persistent bans disabled.`)
+        self.Initialized = true
+        self.Disabled = true
+        return
+    elseif not Worked then
+        self.Initialized = true
+        warn(`Persistent Bans failed to load because {ErrorMessage}`)
+        return
+    end
+    
     
     self:TransferLegacy()
     
@@ -104,8 +107,7 @@ end
 Returns if the bans initialized correctly.
 --]]
 function PersistentBans.WasInitialized(self: PersistentBans): boolean
-    --I... don't know what to do here yet.
-    return self.Initialized
+    return self.Initialized and not self.Disabled
 end
 
 --[[

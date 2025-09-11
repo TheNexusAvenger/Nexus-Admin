@@ -25,12 +25,6 @@ return {
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
-
-        Api.CommandData.LegacyPersistentBans = Api.CommandData.PersistentBans.IsLegacy;
-
-        if Api.CommandData.LegacyPersistentBans then
-            return
-        end
         
         local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
         xpcall(function()
@@ -45,6 +39,14 @@ return {
 
         function GetPersistentBanLogsFunction.OnServerInvoke(Player): {string}
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbanlogs")) then
+                if not Api.CommandData.PersistentBans:WasInitialized() then
+                    if Api.CommandData.PersistentBans.Disabled then
+                        return {"RobloxBanAPI is disabled within this experience."}
+                    else
+                        return {"Persistent bans failed to initialize."}
+                    end
+                end
+                
                 if Api.CommandData.PersistentBanLogsDataStore then
                     local LogEntries = Api.CommandData.PersistentBanLogsDataStore:Get("PersistentBanActionsLog") or {}
                     local Logs = {}
@@ -87,11 +89,6 @@ return {
     ClientRun = function(CommandContext: Types.CmdrCommandContext): string?
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
-
-        --Return if persistent bans is the legacy system.
-        if (Util:GetRemote("LegacyPersistentBansCheck") :: RemoteFunction):InvokeServer() then
-            return "Overhauled persistent bans disabled within this experience. :pbanlogs does not support the Legacy Persistent Bans system."
-        end
 
         --Show the window.
         local Window = Api.Window:CreateWindow("Persistent Ban Logs")

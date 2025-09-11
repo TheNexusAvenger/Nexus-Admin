@@ -4,8 +4,6 @@
 local DEFAULT_COMMAND_CONFIGURATIONS = {
     --Default Admin Level for Server Lock (slock).
     DefaultServerLockAdminLevel = 0,
-    --Use Legacy Persistent Bans (pban, unpban, pbans) system utilizing DataStores.
-    LegacyPersistentBans = false,
     --Minimum Admin Level for a player to be immune to :pban.
     PersistentBanImmune = "${PersistentCommandsLevel}"
 } :: {[string]: any}
@@ -33,7 +31,7 @@ export type Configuration = {
     BannedUsers: {[number]: string | boolean},
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
-        LegacyPersistentBans: boolean,
+        PersistentBanImmune: number,
         [string]:any,
     },
     CommandLevelOverrides: {[string]: {[string]: number}},

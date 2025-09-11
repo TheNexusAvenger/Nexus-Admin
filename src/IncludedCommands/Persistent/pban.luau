@@ -42,16 +42,6 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
 
-        Api.CommandData.LegacyPersistentBans = Api.CommandData.PersistentBans.IsLegacy;
-
-        (IncludedCommandUtil:CreateRemote("RemoteFunction","LegacyPersistentBansCheck") :: RemoteFunction).OnServerInvoke = function()
-            return Api.CommandData.LegacyPersistentBans
-        end
-
-        if Api.CommandData.LegacyPersistentBans then
-            return
-        end
-
         local function UserIdToPlayer(Id: number) : Player?
             local Match
             for _, Player in Players:GetPlayers() do
@@ -152,10 +142,6 @@ return {
         end)
     end,
     ClientLoad = function(Api: Types.NexusAdminApiClient)
-        if Api.Configuration.CommandConfigurations.LegacyPersistentBans then
-            return
-        end
-
         local Executor = Api.Executor :: Types.Executor
         local Messages = Api.Messages :: Types.MessagesClient
 
@@ -180,15 +166,14 @@ return {
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
 
-        --Return if persistent bans is the legacy system.
-        if Api.CommandData.LegacyPersistentBans then
-            return "Overhauled persistent bans disabled within this experience. Please use :pban-legacy."
-        end
-
         --Return if the persistent bans weren't initialized.
         local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
-            return "Persistent bans failed to initialize."
+            if Api.CommandData.PersistentBans.Disabled then
+                return "RobloxBanAPI is disabled within this experience."
+            else
+                return "Persistent bans failed to initialize."
+            end
         end
 
         --Resolve the names.

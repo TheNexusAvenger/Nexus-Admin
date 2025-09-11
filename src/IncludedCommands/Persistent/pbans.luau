@@ -97,18 +97,13 @@ return {
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
-
-        Api.CommandData.LegacyPersistentBans = Api.CommandData.PersistentBans.IsLegacy
-
-        if Api.CommandData.LegacyPersistentBans then
-            return
-        end
-
+        
         local PersistentBans = Api.CommandData.PersistentBans
 
         --Create the remote function.
         local GetPersistentBansRemoteFunction = IncludedCommandUtil:CreateRemote("RemoteFunction", "GetPersistentBans") :: RemoteFunction
         function GetPersistentBansRemoteFunction.OnServerInvoke(Player, Names : {number})
+            
             --Resolve the names.
             local Ids = {}
             for _,Name in Names do
@@ -127,7 +122,11 @@ return {
 
                     return PersistentBanHistories,CompletedUsernameCache
                 else
-                    return "Persistent bans failed to initialize", {}
+                    if Api.CommandData.PersistentBans.Disabled then
+                        return "RobloxBanAPI is disabled within this experience.", {}
+                    else
+                        return "Persistent bans failed to initialize.", {}
+                    end
                 end
             else
                 return "Unauthorized", {}
@@ -138,12 +137,12 @@ return {
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
 
-        --Return if persistent bans is the legacy system.
-        if (Util:GetRemote("LegacyPersistentBansCheck") :: RemoteFunction):InvokeServer() then
-            return "Overhauled persistent bans disabled within this experience. Please use :pbans-legacy."
-        end
-
         local Bans, NewUserNameCache = (Util:GetRemote("GetPersistentBans") :: RemoteFunction):InvokeServer(Names)
+        
+        if typeof(Bans) == "string" then
+            return Bans
+        end
+        
         for UserId, Username in NewUserNameCache do
             if not UsernameCache[UserId] then
                 UsernameCache[UserId] = Username

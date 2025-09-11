@@ -223,7 +223,6 @@ export type Configuration = {
     BannedUsers: {[number]: string | boolean},
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
-        LegacyPersistentBans: boolean,
         PersistentBanImmune: number,
         [string]:any,
     },
