@@ -3,6 +3,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -54,6 +55,13 @@ Initializes the bans.
 function PersistentBans.Initialize(self: PersistentBans): ()
     if self.InitializationStarted then return end
     self.InitializationStarted = true
+    
+    if RunService:IsStudio() then
+        print("NexusAdmin PersistentBans disabled in studio.")
+        self.Initialized = false
+        self.Disabled = true
+        return
+    end
     
     --Players.BanningEnabled is unreadable, this is a workaround.
     local Worked, ErrorMessage = pcall(function()
