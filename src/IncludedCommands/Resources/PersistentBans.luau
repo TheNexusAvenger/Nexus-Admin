@@ -27,7 +27,7 @@ Creates a persistent bans object.
 --]]
 function PersistentBans.new(Api: Types.NexusAdminApiServer): PersistentBans
     return setmetatable({
-        InitializationStated = false,
+        InitializationStarted = false,
         Initialized = false,
         Api = Api,
         Disabled = false,
@@ -65,7 +65,6 @@ function PersistentBans.Initialize(self: PersistentBans): ()
     
     --Players.BanningEnabled is unreadable, this is a workaround.
     local Worked, ErrorMessage = pcall(function()
-        print("Intentional Error, go brrrrr"+65+{})
         Players:GetBanHistoryAsync(1)
     end)
     if not Worked and ErrorMessage == "GetBanHistoryAsync is disabled due to Players:BanningEnabled being set to false" then
@@ -201,7 +200,7 @@ function PersistentBans.UnbanId(self: PersistentBans, UserId: number, ModeratorI
     },ModeratorId or 0, ModeratorName or "NexusAdmin")
 end
 
-function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, ModeratorId: number?, ModeratorName: string?) : (boolean, string?)
+function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
     local Api = self.Api
     if Api.CommandData.PersistentBanLogsDataStore then
         task.spawn(function()
