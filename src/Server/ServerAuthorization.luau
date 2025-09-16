@@ -18,6 +18,7 @@ export type ServerAuthorization = {
     GroupGameCreator: number?,
     GetAdminLevels: RemoteFunction,
     AdminLevelChangedRemote: RemoteEvent,
+    GroupServiceCache: {[number]: number}
 } & typeof(setmetatable({}, ServerAuthorization)) & Authorization.Authorization
 
 
@@ -30,6 +31,9 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
     self.GroupService = GroupService
     self.GameId = game.GameId
     self.CreatorId = game.CreatorId
+    
+    --Store the highest AdminLevel of a UserId based on Groups alone.
+    self.GroupServiceCache = {}
 
     --Determine the group owner.
     if game.CreatorType == Enum.CreatorType.Group then
@@ -87,19 +91,59 @@ Initializes a player.
 function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player: Player): ()
     --Set the admin level based on the default or given admin level.
     local UserId = tostring(Player.UserId)
-    local AdminLevel = self.AdminLevels[UserId] or self.Configuration.DefaultAdminLevel
-    if self.Configuration.Admins[Player.UserId] then
-        AdminLevel = math.max(AdminLevel, self.Configuration.Admins[Player.UserId])
+    local AdminLevel = self:EvaluateAdminLevelAsync(Player.UserId)
+
+    --Send the admin level change.
+    if self.AdminLevels[UserId] then
+        self.AdminLevels[UserId] = math.max(AdminLevel, self.AdminLevels[UserId])
+    else
+        self.AdminLevels[UserId] = AdminLevel
+    end
+    self.AdminLevelChangedRemote:FireAllClients(Player, AdminLevel)
+    self.AdminLevelChanged:Fire(Player)
+end
+
+--[[
+Evaluates the AdminLevel of a UserId.
+]]
+function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, UserId: number): number
+    local UserId_String = tostring(UserId)
+    local AdminLevel = self.AdminLevels[UserId_String] or self.Configuration.DefaultAdminLevel
+    if self.Configuration.Admins[UserId] then
+        AdminLevel = math.max(AdminLevel, self.Configuration.Admins[UserId])
     end
 
     --Set TheNexusAvenger as a debug admin.
-    if Player.UserId == 25691148 then
+    if UserId == 25691148 then
         AdminLevel = math.max(AdminLevel, 0)
     end
 
     --Set the admin level based on group id.
+    AdminLevel = math.max(AdminLevel,self:EvaluateGroupAdminLevelAsync(UserId))
+
+    --Set the admin level to highest one if the user is the owner or in Studio.
+    if self.GameId == 0 or self.CreatorId == 0 or UserId == self.CreatorId or UserId == self.GroupGameCreator then
+        if self.Configuration then
+            for Level, _ in self.Configuration.AdminNames do
+                AdminLevel = math.max(tonumber(Level) :: number, AdminLevel)
+            end
+        end
+    end
+    
+    return AdminLevel
+end
+
+--[[
+Evaluates the AdminLevel of a UserId based on groups alone and store said value.
+]]
+function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorization, UserId: number): number
+    if self.GroupServiceCache[UserId] then
+        return self.GroupServiceCache[UserId]
+    end
+    --Make the number unreasonably low just so the first math.max doesn't get fed a nil value.
+    local AdminLevel = -math.huge
     xpcall(function()
-        for _, UserGroupInfo in self.GroupService:GetGroupsAsync(Player.UserId) do
+        for _, UserGroupInfo in self.GroupService:GetGroupsAsync(UserId) do
             local GroupInfo = self.Configuration.GroupAdminLevels[UserGroupInfo.Id]
             if GroupInfo then
                 for Rank, NewAdminLevel in GroupInfo do
@@ -112,24 +156,10 @@ function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player:
     end, function(ErrorMessage)
         warn(`Getting group info failed because {ErrorMessage}`)
     end)
-
-    --Set the admin level to highest one if the user is the owner or in Studio.
-    if self.GameId == 0 or self.CreatorId == 0 or Player.UserId == self.CreatorId or Player.UserId == self.GroupGameCreator then
-        if self.Configuration then
-            for Level, _ in self.Configuration.AdminNames do
-                AdminLevel = math.max(tonumber(Level) :: number, AdminLevel)
-            end
-        end
-    end
-
-    --Send the admin level change.
-    if self.AdminLevels[UserId] then
-        self.AdminLevels[UserId] = math.max(AdminLevel, self.AdminLevels[UserId])
-    else
-        self.AdminLevels[UserId] = AdminLevel
-    end
-    self.AdminLevelChangedRemote:FireAllClients(Player, AdminLevel)
-    self.AdminLevelChanged:Fire(Player)
+    
+    self.GroupServiceCache[UserId] = AdminLevel
+    
+    return AdminLevel
 end
 
 --[[

@@ -40,7 +40,7 @@ Returns a static instance of the persistent bans.
 function PersistentBans.GetInstance(Api: Types.NexusAdminApiServer): PersistentBans
     if not StaticInstance then
         StaticInstance = PersistentBans.new(Api)
-        
+
         StaticInstance:Initialize()
     end
     while not StaticInstance.Initialized do
@@ -55,14 +55,14 @@ Initializes the bans.
 function PersistentBans.Initialize(self: PersistentBans): ()
     if self.InitializationStarted then return end
     self.InitializationStarted = true
-    
+
     if RunService:IsStudio() then
         print("NexusAdmin PersistentBans disabled in studio.")
-        self.Initialized = false
+        self.Initialized = true
         self.Disabled = true
         return
     end
-    
+
     --Players.BanningEnabled is unreadable, this is a workaround.
     local Worked, ErrorMessage = pcall(function()
         Players:GetBanHistoryAsync(1)
@@ -77,10 +77,10 @@ function PersistentBans.Initialize(self: PersistentBans): ()
         warn(`Persistent Bans failed to load because {ErrorMessage}`)
         return
     end
-    
-    
+
+
     self:TransferLegacy()
-    
+
     self.Initialized = true
 end
 
@@ -90,7 +90,7 @@ Transfer legacy persistent bans
 function PersistentBans.TransferLegacy(self: PersistentBans): ()
     --Get the DataStore.
     local BansDataStore
-    
+
     local Worked, ErrorMessage = pcall(function()
         BansDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "PercistentBans")
     end)
@@ -99,7 +99,7 @@ function PersistentBans.TransferLegacy(self: PersistentBans): ()
         warn(`Persistent bans legacy transfer aborted`)
         return
     end
-    
+
     --Call :BanId individually for each legacy ban, assuming no two bans have the same reason.
     for _,Id in BansDataStore:ListKeys() do
         local Reason = BansDataStore:Get(Id)

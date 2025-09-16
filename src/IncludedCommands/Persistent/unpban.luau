@@ -7,7 +7,7 @@ local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 return {
     Keyword = "unpban",
     Category = "PersistentCommands",
-    Description = "Unbans a set of players by their user id or username (use user if if the name is a number).",
+    Description = "Unbans a set of players by their user id or username (use user if the name is a number).",
     Arguments = {
         {
             Type = "strings",
@@ -26,9 +26,9 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
     end,
-    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExpWide : boolean): string?
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExpWide: boolean): string?
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        
+
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
 
@@ -46,15 +46,15 @@ return {
         local Ids = {}
         for _,Name in PlayerNames do
             for _, Id in PersistentBans:ResolveUserIds(Name) do
-                table.insert(Ids,Id)
+                table.insert(Ids, Id)
             end
         end
-        
+
         local Success, ErrorMessage = PersistentBans:UnbanIds({
             ["UserIds"] = Ids,
             ["ApplyToUniverse"] = ExpWide
-        },CommandContext.Executor.UserId,CommandContext.Executor.Name)
-        
+        }, CommandContext.Executor.UserId, CommandContext.Executor.Name)
+
         return nil
     end,
 }

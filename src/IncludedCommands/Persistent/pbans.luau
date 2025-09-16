@@ -91,24 +91,23 @@ return {
         {
             Type = "strings",
             Name = "Names",
-            Description = "Players to unban.",
+            Description = "Players to view the ban history of.",
         },
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
-        
+
         local PersistentBans = Api.CommandData.PersistentBans
 
         --Create the remote function.
         local GetPersistentBansRemoteFunction = IncludedCommandUtil:CreateRemote("RemoteFunction", "GetPersistentBans") :: RemoteFunction
-        function GetPersistentBansRemoteFunction.OnServerInvoke(Player, Names : {number})
-            
+        function GetPersistentBansRemoteFunction.OnServerInvoke(Player, Names: {number})
             --Resolve the names.
             local Ids = {}
             for _,Name in Names do
                 for _, Id in PersistentBans:ResolveUserIds(Name) do
-                    table.insert(Ids,Id)
+                    table.insert(Ids, Id)
                 end
             end
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbans")) then
@@ -133,23 +132,23 @@ return {
             end
         end
     end,
-    ClientRun = function(CommandContext: Types.CmdrCommandContext, Names : {string})
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Names: {string})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
 
         local Bans, NewUserNameCache = (Util:GetRemote("GetPersistentBans") :: RemoteFunction):InvokeServer(Names)
-        
+
         if typeof(Bans) == "string" then
             return Bans
         end
-        
+
         for UserId, Username in NewUserNameCache do
             if not UsernameCache[UserId] then
                 UsernameCache[UserId] = Username
             end
         end
 
-        for UserId, History : {{BanHistoryPage}} in Bans do
+        for UserId, History: {{BanHistoryPage}} in Bans do
             --Show the window.
             local Window = Api.Window:CreateWindow("Ban History: "..(UsernameCache[UserId] or tostring(UserId)))
             local TextList = Window:AddTextList()

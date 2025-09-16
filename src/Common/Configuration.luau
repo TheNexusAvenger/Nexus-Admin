@@ -4,8 +4,6 @@
 local DEFAULT_COMMAND_CONFIGURATIONS = {
     --Default Admin Level for Server Lock (slock).
     DefaultServerLockAdminLevel = 0,
-    --Minimum Admin Level for a player to be immune to :pban.
-    PersistentBanImmune = "${PersistentCommandsLevel}"
 } :: {[string]: any}
 
 local Configuration = {}
@@ -75,15 +73,16 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
         FeatureFlagOverrides = ConfigurationTable.FeatureFlagOverrides or {},
         CommandConfigurations = ConfigurationTable.CommandConfigurations or DEFAULT_COMMAND_CONFIGURATIONS,
     }, Configuration) :: Configuration
-    
+
     --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
         if self.CommandConfigurations[Name] ~= nil then continue end
-        if type(Value) == "string" and (Value :: string):sub(1,2) == "${" then
-            local Key = Value:sub(3,Value:len()-1)
-            Value = self[Key]
-        end
         self.CommandConfigurations[Name] = Value
+    end
+    
+    --DEFAULT_COMMAND_CONFIGURATIONS that default to other specified configurations.
+    if not self.CommandConfigurations.PersistentBanImmuneLevel then
+        self.CommandConfigurations.PersistentBanImmuneLevel = self.PersistentCommandsLevel
     end
 
     --Correct the administrative commands (V.2.0.0 and newer).

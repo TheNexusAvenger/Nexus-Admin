@@ -42,55 +42,14 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
 
-        local function UserIdToPlayer(Id: number) : Player?
-            local Match
-            for _, Player in Players:GetPlayers() do
-                if Player.UserId == Id then
-                    Match = Player
-                    break
-                end
-            end
-            return Match
-        end
-
         --Try and filter out Persistent Ban Immune UserIds of both in server players and out of server players.
-        local function FilterIds(Ids: {number}, Executor : Player)
+        local function FilterIds(Ids: {number}, Executor: Player)
             local Filtered = {}
-            local PersistentBanImmune = Api.Configuration.CommandConfigurations.PersistentBanImmune
+            local PersistentBanImmuneLevel = Api.Configuration.CommandConfigurations.PersistentBanImmuneLevel
             for i, Id in Ids do
-                local Player = UserIdToPlayer(Id)
-                local AdminLevel = -1
-                if Player then
-                    if Player == Executor then
-                        continue
-                    end
-                    AdminLevel = math.max(AdminLevel,Api.Authorization:YieldForAdminLevel(Player))
+                if Api.Authorization:EvaluateAdminLevelAsync(Id) >= math.min(PersistentBanImmuneLevel,Api.Authorization:GetAdminLevel(Executor)) then
+                    continue
                 else
-                    if Api.Configuration.Admins[Id] then
-                        AdminLevel = math.max(AdminLevel,Api.Configuration.Admins[Id])
-                    end
-                    xpcall(function()
-                        for _, UserGroupInfo in GroupService:GetGroupsAsync(Id) do
-                            local GroupInfo = Api.Configuration.GroupAdminLevels[UserGroupInfo.Id]
-                            if GroupInfo then
-                                for Rank, NewAdminLevel in GroupInfo do
-                                    if UserGroupInfo.Rank >= Rank then
-                                        AdminLevel = math.max(AdminLevel,NewAdminLevel)
-                                    end
-                                end
-                            end
-                        end
-                    end, function(ErrorMessage)
-                        warn(`Getting group info failed because {ErrorMessage}`)
-                    end)
-                end
-                if AdminLevel > PersistentBanImmune then
-                    continue
-                end
-                if AdminLevel > Api.Authorization:GetAdminLevel(Executor) then
-                    continue
-                end
-                if AdminLevel < PersistentBanImmune then
                     table.insert(Filtered,Id)
                 end
             end
@@ -99,7 +58,7 @@ return {
 
         local RemoteEvent = (IncludedCommandUtil:CreateRemote("RemoteEvent","PersistentBan") :: RemoteEvent)
 
-        RemoteEvent.OnServerEvent:Connect(function(Player,Ids : {number}, Duration : number, ExpWide : boolean, IncludeAlts : boolean)
+        RemoteEvent.OnServerEvent:Connect(function(Player, Ids: {number}, Duration: number, ExpWide: boolean, IncludeAlts: boolean)
             if not Api.Authorization:IsPlayerAuthorized(Player,Api.Configuration:GetCommandAdminLevel("PersistentCommands","pban")) then
                 return
             end
@@ -180,12 +139,12 @@ return {
         local Ids = {}
         for _,Name in PlayerNames do
             for _, Id in PersistentBans:ResolveUserIds(Name) do
-                table.insert(Ids,Id)
+                table.insert(Ids, Id)
             end
         end
 
         --Send Request to appropriate client as to provide the reasons for the ban. 
-        (Util:GetRemote("PersistentBan") :: RemoteEvent):FireClient(CommandContext.Executor,Ids,Duration,ExpWide,IncludeAlts)  
+        (Util:GetRemote("PersistentBan") :: RemoteEvent):FireClient(CommandContext.Executor, Ids, Duration, ExpWide, IncludeAlts)  
         return nil
     end,
 }

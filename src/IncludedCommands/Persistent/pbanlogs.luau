@@ -25,7 +25,7 @@ return {
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
-        
+
         local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
         xpcall(function()
             Api.CommandData.PersistentBanLogsDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "PersistentBan_Logs")
@@ -46,7 +46,7 @@ return {
                         return {"Persistent bans failed to initialize."}
                     end
                 end
-                
+
                 if Api.CommandData.PersistentBanLogsDataStore then
                     local LogEntries = Api.CommandData.PersistentBanLogsDataStore:Get("PersistentBanActionsLog") or {}
                     local Logs = {}
@@ -94,7 +94,7 @@ return {
         local Window = Api.Window:CreateWindow("Persistent Ban Logs")
         local TextList = Window:AddTextList()
         TextList:EnableSearching()
-        
+
         local function UpdateText()
             TextList:SetLines({"Loading..."})
             TextList:SetLines((Api.EventContainer:WaitForChild("GetPersistentBanLogs") :: RemoteFunction):InvokeServer())
