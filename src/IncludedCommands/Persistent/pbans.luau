@@ -51,36 +51,25 @@ local function GetCachedUsername(UserId: number): string
     return UsernameCache[UserId]
 end
 
-local function pagesToTable(pages)
-    local items = {}
+local function PagesToTable(Pages)
+    local Items = {}
     while true do
-        table.insert(items, pages:GetCurrentPage())
-        if pages.IsFinished then
+        table.insert(Items, Pages:GetCurrentPage())
+        if Pages.IsFinished then
             break
         end
-        pages:AdvanceToNextPageAsync()
+        Pages:AdvanceToNextPageAsync()
     end
-    return items
-end
-
-local function SecondsToTime(Seconds : number) : string
-    local Days = math.floor(Seconds/(60*60*24))
-    local D_Remainder = Seconds%(60*60*24)
-    local Hours = math.floor(D_Remainder/(60*60))
-    local H_Remainder = D_Remainder%(60*60)
-    local Minutes = math.floor(H_Remainder/60)
-    local Seconds = H_Remainder%60
-
-    return `{Days} Days; {Hours} Hours; {Minutes} Minutes; {Seconds} Seconds`
+    return Items
 end
 
 type BanHistoryPage = {
-    DisplayReason : string,
-    PrivateReason : string,
-    StartTime : string,
-    Duration : number,
-    Ban : boolean,
-    PlaceId : number,
+    DisplayReason: string,
+    PrivateReason: string,
+    StartTime: string,
+    Duration: number,
+    Ban: boolean,
+    PlaceId: number,
 }
 
 return {
@@ -116,15 +105,15 @@ return {
 
                     for _, Id in Ids do
                         GetCachedUsername(Id)
-                        PersistentBanHistories[Id] = pagesToTable(Players:GetBanHistoryAsync(Id))
+                        PersistentBanHistories[Id] = PagesToTable(Players:GetBanHistoryAsync(Id))
                     end
 
                     return PersistentBanHistories,CompletedUsernameCache
                 else
-                    if Api.CommandData.PersistentBans.Disabled then
-                        return "RobloxBanAPI is disabled within this experience.", {}
-                    else
+                    if Api.CommandData.PersistentBans.Enabled then
                         return "Persistent bans failed to initialize.", {}
+                    else
+                        return "RobloxBanAPI is disabled within this experience.", {}
                     end
                 end
             else
@@ -150,7 +139,7 @@ return {
 
         for UserId, History: {{BanHistoryPage}} in Bans do
             --Show the window.
-            local Window = Api.Window:CreateWindow("Ban History: "..(UsernameCache[UserId] or tostring(UserId)))
+            local Window = Api.Window:CreateWindow(`Ban History: {(UsernameCache[UserId] or tostring(UserId))}`)
             local TextList = Window:AddTextList()
             TextList:EnableSearching()
 
@@ -161,27 +150,27 @@ return {
                 --Username fetching is done on the client in case the server didn't load it in time.
                 local Lines = {}
                 table.insert(Lines, {Text = `Start of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
-                table.insert(Lines,"----------")
-                for _, BanPage : {BanHistoryPage} in History do
+                table.insert(Lines, "----------")
+                for _, BanPage: {BanHistoryPage} in History do
                     for _, Ban in BanPage do
-                        table.insert(Lines,`Effective Date: {Ban.StartTime}`)
+                        table.insert(Lines, `Effective Date: {Ban.StartTime}`)
                         table.insert(Lines, "")
                         table.insert(Lines, `Effective Location: {Ban.PlaceId == -1 and "Entire Experience" or `Single Place ({Ban.PlaceId})`}`)
                         table.insert(Lines, "")
                         if Ban.Ban then
-                            table.insert(Lines,"Action: Ban")
+                            table.insert(Lines, "Action: Ban")
                             table.insert(Lines, "")
-                            table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or SecondsToTime(Ban.Duration)}`)
+                            table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Ban.Duration)}`)
                             table.insert(Lines, "")
-                            table.insert(Lines,"Display Reason - Reason Shown to User")
-                            table.insert(Lines,Ban.DisplayReason)
+                            table.insert(Lines, "Display Reason - Reason Shown to User")
+                            table.insert(Lines, Ban.DisplayReason)
                             table.insert(Lines, "")
-                            table.insert(Lines,"Private Reason - Reason Shown to Moderators")
-                            table.insert(Lines,Ban.PrivateReason)
+                            table.insert(Lines, "Private Reason - Reason Shown to Moderators")
+                            table.insert(Lines, Ban.PrivateReason)
                         else
-                            table.insert(Lines,"Action: Unban")
+                            table.insert(Lines, "Action: Unban")
                         end
-                        table.insert(Lines,"----------")
+                        table.insert(Lines, "----------")
                     end
                 end
                 table.insert(Lines, {Text = `End of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
@@ -189,8 +178,7 @@ return {
             end
 
             task.spawn(UpdateText)
-            Window:EnableClosing(function()
-            end)
+            Window:EnableClosing()
             Window:EnableResizing()
             Window:Show()
         end

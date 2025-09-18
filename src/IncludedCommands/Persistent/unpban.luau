@@ -26,7 +26,7 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
     end,
-    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExpWide: boolean): string?
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExperienceWide: boolean): string?
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
 
         local Util = IncludedCommandUtil.ForContext(CommandContext)
@@ -35,24 +35,24 @@ return {
         --Return if the persistent bans weren't initialized.
         local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
-            if Api.CommandData.PersistentBans.Disabled then
-                return "RobloxBanAPI is disabled within this experience."
-            else
+            if Api.CommandData.PersistentBans.Enabled then
                 return "Persistent bans failed to initialize."
+            else
+                return "RobloxBanAPI is disabled within this experience."
             end
         end
 
         --Unban the names.
         local Ids = {}
-        for _,Name in PlayerNames do
+        for _, Name in PlayerNames do
             for _, Id in PersistentBans:ResolveUserIds(Name) do
                 table.insert(Ids, Id)
             end
         end
 
-        local Success, ErrorMessage = PersistentBans:UnbanIds({
+        PersistentBans:UnbanIds({
             ["UserIds"] = Ids,
-            ["ApplyToUniverse"] = ExpWide
+            ["ApplyToUniverse"] = ExperienceWide
         }, CommandContext.Executor.UserId, CommandContext.Executor.Name)
 
         return nil

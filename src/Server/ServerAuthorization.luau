@@ -18,7 +18,7 @@ export type ServerAuthorization = {
     GroupGameCreator: number?,
     GetAdminLevels: RemoteFunction,
     AdminLevelChangedRemote: RemoteEvent,
-    GroupServiceCache: {[number]: number}
+    GroupAdminLevelCache: {[number]: number}
 } & typeof(setmetatable({}, ServerAuthorization)) & Authorization.Authorization
 
 
@@ -33,7 +33,7 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
     self.CreatorId = game.CreatorId
     
     --Store the highest AdminLevel of a UserId based on Groups alone.
-    self.GroupServiceCache = {}
+    self.GroupAdminLevelCache = {}
 
     --Determine the group owner.
     if game.CreatorType == Enum.CreatorType.Group then
@@ -63,6 +63,13 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
     function GetAdminLevels.OnServerInvoke()
         return self.AdminLevels
     end
+    
+    --Initialize flushing GroupAdminLevelCache every 30 minutes.
+    task.spawn(function()
+        while task.wait(30 * 60) do
+            self:FlushGroupAdminLevelCache()
+        end
+    end)
 
     --Return the object.
     return self
@@ -89,6 +96,10 @@ end
 Initializes a player.
 --]]
 function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player: Player): ()
+    if self.GroupAdminLevelCache[Player.UserId] then
+        self.GroupAdminLevelCache[Player.UserId] = nil
+    end
+    
     --Set the admin level based on the default or given admin level.
     local UserId = tostring(Player.UserId)
     local AdminLevel = self:EvaluateAdminLevelAsync(Player.UserId)
@@ -105,7 +116,7 @@ end
 
 --[[
 Evaluates the AdminLevel of a UserId.
-]]
+--]]
 function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, UserId: number): number
     local UserId_String = tostring(UserId)
     local AdminLevel = self.AdminLevels[UserId_String] or self.Configuration.DefaultAdminLevel
@@ -113,13 +124,8 @@ function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, 
         AdminLevel = math.max(AdminLevel, self.Configuration.Admins[UserId])
     end
 
-    --Set TheNexusAvenger as a debug admin.
-    if UserId == 25691148 then
-        AdminLevel = math.max(AdminLevel, 0)
-    end
-
     --Set the admin level based on group id.
-    AdminLevel = math.max(AdminLevel,self:EvaluateGroupAdminLevelAsync(UserId))
+    AdminLevel = math.max(AdminLevel, self:EvaluateGroupAdminLevelAsync(UserId))
 
     --Set the admin level to highest one if the user is the owner or in Studio.
     if self.GameId == 0 or self.CreatorId == 0 or UserId == self.CreatorId or UserId == self.GroupGameCreator then
@@ -135,10 +141,10 @@ end
 
 --[[
 Evaluates the AdminLevel of a UserId based on groups alone and store said value.
-]]
+--]]
 function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorization, UserId: number): number
-    if self.GroupServiceCache[UserId] then
-        return self.GroupServiceCache[UserId]
+    if self.GroupAdminLevelCache[UserId] then
+        return self.GroupAdminLevelCache[UserId]
     end
     --Make the number unreasonably low just so the first math.max doesn't get fed a nil value.
     local AdminLevel = -math.huge
@@ -148,7 +154,7 @@ function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorizat
             if GroupInfo then
                 for Rank, NewAdminLevel in GroupInfo do
                     if UserGroupInfo.Rank >= Rank then
-                        AdminLevel = math.max(AdminLevel,NewAdminLevel)
+                        AdminLevel = math.max(AdminLevel, NewAdminLevel)
                     end
                 end
             end
@@ -157,9 +163,16 @@ function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorizat
         warn(`Getting group info failed because {ErrorMessage}`)
     end)
     
-    self.GroupServiceCache[UserId] = AdminLevel
+    self.GroupAdminLevelCache[UserId] = AdminLevel
     
     return AdminLevel
+end
+
+--[[
+Clears the GroupAdminLevelCache of all indexes and values.
+--]]
+function ServerAuthorization.FlushGroupAdminLevelCache(self: ServerAuthorization)
+    table.clear(self.GroupAdminLevelCache)
 end
 
 --[[

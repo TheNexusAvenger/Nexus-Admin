@@ -6,17 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
-local function SecondsToTime(Seconds : number) : string
-    local Days = math.floor(Seconds/(60*60*24))
-    local D_Remainder = Seconds%(60*60*24)
-    local Hours = math.floor(D_Remainder/(60*60))
-    local H_Remainder = D_Remainder%(60*60)
-    local Minutes = math.floor(H_Remainder/60)
-    local Seconds = H_Remainder%60
-
-    return `{Days} Days; {Hours} Hours; {Minutes} Minutes; {Seconds} Seconds`
-end
-
 return {
     Keyword = "pbanlogs",
     Category = "PersistentCommands",
@@ -26,13 +15,6 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
 
-        local NexusDataStore = require(ReplicatedStorage:WaitForChild("NexusAdminClient"):WaitForChild("Packages"):WaitForChild("NexusDataStore")) :: any
-        xpcall(function()
-            Api.CommandData.PersistentBanLogsDataStore = NexusDataStore:GetDataStore("NexusAdmin_Persistence", "PersistentBan_Logs")
-        end, function(ErrorMessage)
-            warn(`Failed to get persistent ban logs because {ErrorMessage}`)
-        end)
-
         local GetPersistentBanLogsFunction = Instance.new("RemoteFunction")
         GetPersistentBanLogsFunction.Name = "GetPersistentBanLogs"
         GetPersistentBanLogsFunction.Parent = Api.EventContainer
@@ -40,27 +22,28 @@ return {
         function GetPersistentBanLogsFunction.OnServerInvoke(Player): {string}
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbanlogs")) then
                 if not Api.CommandData.PersistentBans:WasInitialized() then
-                    if Api.CommandData.PersistentBans.Disabled then
-                        return {"RobloxBanAPI is disabled within this experience."}
-                    else
+                    if Api.CommandData.PersistentBans.Enabled then
                         return {"Persistent bans failed to initialize."}
+                    else
+                        return {"RobloxBanAPI is disabled within this experience."}
                     end
                 end
-
-                if Api.CommandData.PersistentBanLogsDataStore then
-                    local LogEntries = Api.CommandData.PersistentBanLogsDataStore:Get("PersistentBanActionsLog") or {}
-                    local Logs = {}
-                    --[[
-                    Moderator Values:
-                        #>0 = User
-                        #<=0 = Specified By Script
-                        
-                    Action Values:
-                        0 = Ban
-                        1 = Unban
-                    ]]
-                    for i = #LogEntries, 1, -1 do
-                        local Log = LogEntries[i]
+                local LogEntries = Api.CommandData.PersistentBans:GetLogs()
+                local Logs = {}
+                --[[
+                Moderator Values:
+                    #>0 = User
+                    #<=0 = Specified By Script
+                    
+                Action Values:
+                    0 = Ban
+                    1 = Unban
+                --]]
+                for i = #LogEntries, 1, -1 do
+                    local Log = LogEntries[i]
+                    if typeof(Log) == "string" then
+                        table.insert(Logs, Log)
+                    else
                         local ModeratorString = ""
                         if Log.Id then
                             if Log.Id <= 0 then
@@ -72,15 +55,13 @@ return {
                             ModeratorString = "NexusAdmin"
                         end
                         if Log.Action == 0 then
-                            table.insert(Logs,`{ModeratorString} banned UserIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or SecondsToTime(Log.Duration)}) {Log.ExpWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
+                            table.insert(Logs, `{ModeratorString} banned UserIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Log.Duration)}) {Log.ExperienceWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
                         else
-                            table.insert(Logs,`{ModeratorString} unbanned UerIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, {Log.ExpWide and "across the entire experience" or "in a single place"}.`)
+                            table.insert(Logs, `{ModeratorString} unbanned UserIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, {Log.ExperienceWide and "across the entire experience" or "in a single place"}.`)
                         end
                     end
-                    return Logs
-                else
-                    return {"Logs failed to load."}
                 end
+                return Logs
             else
                 return {"Unauthorized"}
             end

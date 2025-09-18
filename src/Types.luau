@@ -224,7 +224,7 @@ export type Configuration = {
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
         PersistentBanImmuneLevel: number,
-        [string]:any,
+        [string]: any,
     },
     CommandLevelOverrides: {[string]: {[string]: number}},
     FeatureFlagOverrides: {[string]: any},
@@ -318,6 +318,7 @@ export type Replicator = {
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),
     GetDateTimeString: (self: Time, Time: number?) -> (string),
+    SecondsToDuration: (self: Time, Seconds: number) -> (string)
 }
 
 export type Window = {
