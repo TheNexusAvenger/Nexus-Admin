@@ -42,23 +42,11 @@ return {
         local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
         Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
 
-        --Try and filter out Persistent Ban Immune UserIds of both in server players and out of server players.
-        local function FilterIds(Ids: {number}, Executor: Player)
-            local Filtered = {}
-            local PersistentBanImmuneLevel = Api.Configuration.CommandConfigurations.PersistentBanImmuneLevel
-            for i, Id in Ids do
-                if Api.Authorization:EvaluateAdminLevelAsync(Id) >= math.min(PersistentBanImmuneLevel,Api.Authorization:GetAdminLevel(Executor)) then
-                    continue
-                else
-                    table.insert(Filtered,Id)
-                end
-            end
-            return Filtered
-        end
+        local GetReasonsRemote = (IncludedCommandUtil:CreateRemote("RemoteEvent","PersistentBan") :: RemoteEvent)
 
-        local RemoteEvent = (IncludedCommandUtil:CreateRemote("RemoteEvent","PersistentBan") :: RemoteEvent)
+        local SendResponseRemote = (IncludedCommandUtil:CreateRemote("RemoteEvent", "PersistentBanResponse") :: RemoteEvent)
 
-        RemoteEvent.OnServerEvent:Connect(function(Player, Ids: {number}, Duration: number, ExperienceWide: boolean, IncludeAlts: boolean)
+        GetReasonsRemote.OnServerEvent:Connect(function(Player, Ids: {number}, Duration: number, ExperienceWide: boolean, IncludeAlts: boolean)
             if not Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pban")) then
                 return
             end
@@ -72,22 +60,20 @@ return {
                 DisplayReason = "No reason provided."
             elseif DisplayReason:len() > 400 then
                 Api.Messages:DisplayHint(Player, `Display Reason Character Limit exceeded. {DisplayReason:len()}/400`, 5)
-                return RemoteEvent:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
+                return GetReasonsRemote:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
             end
 
             if PrivateReason:len() == 0 then
                 PrivateReason = DisplayReason
             elseif PrivateReason:len() > 950 then
                 Api.Messages:DisplayHint(Player, `Private Reason Character Limit exceeded. {PrivateReason:len()}/950`, 5)
-                return RemoteEvent:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
+                return GetReasonsRemote:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
             end
             PrivateReason ..= `\nModerator: @{Player.Name}`
 
-            Ids = FilterIds(Ids,Player)
-
             local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
 
-            PersistentBans:BanIds({
+            local Success, Response, BannedIds, ImmuneIds = PersistentBans:BanIds({
                 ["UserIds"] = Ids,
                 ["Duration"] = Duration,
                 ["DisplayReason"] = DisplayReason,
@@ -95,6 +81,8 @@ return {
                 ["ApplyToUniverse"] = ExperienceWide,
                 ["ExcludeAltAccounts"] = not IncludeAlts,
             }, Player.UserId, Player.Name)
+
+            SendResponseRemote:FireClient(Player, "Ban", Success, Response, BannedIds, ImmuneIds)
 
             VarStore['DisplayReason'] = nil
             VarStore['PrivateReason'] = nil
@@ -107,16 +95,16 @@ return {
         local DisplayReasonMessage = 'run edit ${var .DisplayReason} \\\\\n && var= .DisplayReason ||'
         local PrivateReasonMessage = 'run edit ${var .PrivateReason} \\\\\n && var= .PrivateReason ||'
 
-        local RemoteEvent = IncludedCommandUtil:GetRemote("PersistentBan") :: RemoteEvent
+        local GetReasonsRemote = IncludedCommandUtil:GetRemote("PersistentBan") :: RemoteEvent
 
-        RemoteEvent.OnClientEvent:Connect(function(...)
-            Messages:DisplayHint("Persistent Bans: Please provide an optional Display Ban Message. This will be shown to the banned individual(s). 400 Character Limit.", 10)
+        GetReasonsRemote.OnClientEvent:Connect(function(...)
+            Messages:DisplayHint("Persistent Bans: Please provide an optional Display Ban Message. This will be shown to the banned individual(s). 400 Character Limit.",10)
             Executor:ExecuteCommandWithOrWithoutPrefix(DisplayReasonMessage, Players.LocalPlayer)
 
-            Messages:DisplayHint("Persistent Bans: Please provide an optional Private Ban Message. This will be visible only to user(s) authorized to access :pbans. 950 Character Limit.", 10)
+            Messages:DisplayHint("Persistent Bans: Please provide an optional Private Ban Message. This will be visible only to user(s) authorized to access :pbans. 950 Character Limit.",10)
             Executor:ExecuteCommandWithOrWithoutPrefix(PrivateReasonMessage, Players.LocalPlayer)
 
-            RemoteEvent:FireServer(...)
+            GetReasonsRemote:FireServer(...)
         end)
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, Duration: number, ExperienceWide: boolean, IncludeAlts: boolean): string?

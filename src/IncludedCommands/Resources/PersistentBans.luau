@@ -155,7 +155,7 @@ Bans a user id.
 
 Preserved for backwards compatibility and minimal script changes.
 --]]
-function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string | boolean, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
+function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string | boolean, ModeratorId: number?, ModeratorName: string?): (boolean, string, {number}, {number})
     return self:BanIds({
         UserIds = {UserId},
         Duration = -1,
@@ -169,11 +169,18 @@ end
 --[[
 Bans user ids.
 --]]
-function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
+function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string, {number}, {number})
+    local CanBan, Immune = self:FilterIds(Config.UserIds, ModeratorId)
+    Config.UserIds = CanBan
+    if #Config.UserIds == 0 then
+        return false, "No affected UserIds", CanBan, Immune
+    end
     self:Log(Config, ModeratorId, ModeratorName)
-    return pcall(function()
+    local Success, ErrorMessage = pcall(function()
         Players:BanAsync(Config)
     end)
+
+    return Success, ErrorMessage or "UserIds banned.", CanBan, Immune
 end
 
 --[[
@@ -193,7 +200,7 @@ end
 Unbans user ids
 --]]
 function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
-    self:Log(Config,ModeratorId,ModeratorName)
+    self:Log(Config, ModeratorId, ModeratorName)
     return pcall(function()
         Players:UnbanAsync(Config)
     end)
@@ -249,4 +256,24 @@ function PersistentBans.GetLogs(self: PersistentBans)
     end
 end
 
+--[[
+Try and filter out Persistent Ban Immune UserIds of both in server players and out of server players.
+--]]
+function PersistentBans.FilterIds(self: PersistentBans, Ids: {number}, ModeratorId: number): ({number}, {number})
+    local Filtered = {}
+    local Immune = {}
+    local PersistentBanImmuneLevel = self.Api.Configuration.CommandConfigurations.PersistentBanImmuneLevel
+    local AdminLevel = PersistentBanImmuneLevel
+    if ModeratorId > 0 then
+        AdminLevel = self.Api.Authorization:GetAdminLevel(Players:GetPlayerByUserId(ModeratorId))
+    end
+    for i, Id in Ids do
+        if self.Api.Authorization:EvaluateAdminLevelAsync(Id) >= math.min(PersistentBanImmuneLevel, AdminLevel) then
+            table.insert(Immune, Id)
+        else
+            table.insert(Filtered, Id)
+        end
+    end
+    return Filtered, Immune
+end
 return PersistentBans

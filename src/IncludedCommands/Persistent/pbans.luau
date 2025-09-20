@@ -2,6 +2,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -10,8 +11,6 @@ local UsernameCache = {}
 local CompletedUsernameCache = {}
 local UsernameFetchQueue = {}
 local UsernameLoaded = Instance.new("BindableEvent")
-
-
 
 --[[
 Returns the username.
@@ -51,10 +50,13 @@ local function GetCachedUsername(UserId: number): string
     return UsernameCache[UserId]
 end
 
-local function PagesToTable(Pages)
+local function PagesToTable(Pages: BanHistoryPages)
     local Items = {}
-    while not Pages.IsFinished do
+    while true do
         table.insert(Items, Pages:GetCurrentPage())
+        if Pages.IsFinished then
+            break
+        end
         Pages:AdvanceToNextPageAsync()
     end
     return Items
@@ -123,6 +125,134 @@ return {
             end
         end
     end,
+    ClientLoad = function(Api: Types.NexusAdminApiClient)
+        local ResponseRemote = IncludedCommandUtil:GetRemote("PersistentBanResponse") :: RemoteEvent
+
+        local function IsolateErrorResponses(Error: string): {{UserId: number, Lines: {string}}}
+            --EXAMPLE
+            --HTTP 429 failure for UserId 135955170: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 135955170 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 799258: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 799258 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 735798: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 735798 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 6443947: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 6443947 in this universe or place in a short period. Please try again." }
+            local Response = {}
+            local Individuals = {}
+            local Built = ""
+            for _, i in Error:split(",") do
+                if Built == "" then
+                    Built = i
+                else
+                    Built = `{Built},{i}`
+                end
+                if Built:sub(Built:len()) == "}" then
+                    table.insert(Individuals,Built)
+                    Built = ""
+                end
+            end
+
+            for _, Message in Individuals do
+                local Split1 = Message:split(": {")
+                local ColonPosition,_ = Message:find(":")
+                if not ColonPosition then
+                    table.insert(Response,{
+                        UserId = -1,
+                        Lines = {
+                            "Unable to Parse Error Message:",
+                            Message
+                        }
+                    })
+                    continue
+                end
+                local RawJSON = Message:sub(ColonPosition + 1)
+                print(RawJSON)
+                local ParsedJSON
+                pcall(function()
+                    ParsedJSON = HttpService:JSONDecode(RawJSON)
+                end)
+
+                --Isolate the UserId
+                local Split2 = Split1[1]:split(" ")
+                local UserId = Split2[#Split2]
+
+                print(UserId)
+
+                if ParsedJSON then
+                    table.insert(Response,{
+                        UserId = tonumber(UserId),
+                        Lines = {
+                            `Code: {ParsedJSON.code}`,
+                            `Message:`,
+                            ParsedJSON.message,
+                            "",
+                            "Full Error Message:",
+                            Message
+                        }
+                    })
+                else
+                    table.insert(Response,{
+                        UserId = UserId,
+                        Lines = {
+                            `Unable to parse JSON`,
+                            "",
+                            "Full Error Message:",
+                            Message
+                        }
+                    })
+                end
+            end
+            return Response
+        end
+
+        ResponseRemote.OnClientEvent:Connect(function(Action: "Ban" | "Unban", Success: boolean, Response: string, BannedIds: {number}, ImmuneIds: {number})
+            --Show the window.
+            local Window = Api.Window:CreateWindow(`Persistent {Action}`)
+            local TextList = Window:AddTextList()
+
+            local DecodedErrorMessage
+
+            if not Success then
+                DecodedErrorMessage = IsolateErrorResponses(Response)
+            end
+
+            local function UpdateText()
+                local Lines = {}
+                if #BannedIds > 0 then
+                    table.insert(Lines, `User(s) {Action} Attempted On:`)
+                    for _, Id in BannedIds do
+                        table.insert(Lines, `@{GetCachedUsername(Id)} ({Id})`)
+                    end
+                end
+                if #ImmuneIds > 0 then
+                    if #Lines > 0 then
+                        table.insert(Lines, "")
+                    end
+                    table.insert(Lines, "User(s) Immune to Ban:")
+                    for _, Id in ImmuneIds do
+                        table.insert(Lines, `@{GetCachedUsername(Id)} ({Id})`)
+                    end
+                end
+                if DecodedErrorMessage then
+                    if #Lines > 0 then
+                        table.insert(Lines, "")
+                    end
+                    table.insert(Lines, "Errored Users:")
+                    for _, ErrorMessage: {UserId: number, Lines: {string}} in DecodedErrorMessage do
+                        table.insert(Lines, "")
+                        if ErrorMessage.UserId > 0 then
+                            table.insert(Lines, `User: @{GetCachedUsername(ErrorMessage.UserId)} ({ErrorMessage.UserId})`)
+                        end
+                        for _, Line in ErrorMessage.Lines do
+                            table.insert(Lines, Line)
+                        end
+                    end
+                end
+                TextList:SetLines(Lines)
+            end
+
+            UsernameLoaded.Event:Connect(UpdateText)
+
+            task.spawn(UpdateText)
+            Window:EnableClosing()
+            Window:EnableResizing()
+            Window:Show()
+        end)
+    end,
     ClientRun = function(CommandContext: Types.CmdrCommandContext, Names: {string})
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
@@ -141,22 +271,23 @@ return {
 
         for UserId, History: {{BanHistoryPage}} in Bans do
             --Show the window.
-            local Window = Api.Window:CreateWindow(`Ban History: {(UsernameCache[UserId] or tostring(UserId))}`)
+            local Window = Api.Window:CreateWindow(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
             local TextList = Window:AddTextList()
             TextList:EnableSearching()
 
             local function UpdateText()
                 TextList:SetLines({"Loading..."})
+                Window:SetTitle(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
 
                 local Lines = {}
                 if History.err then
-                    table.insert(Lines, `Failed to get {UsernameCache[UserId] or UserId}'s Ban History`)
+                    table.insert(Lines, `Failed to get @{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
                     table.insert(Lines, "")
                     table.insert(Lines, `Error: {History.err}`)
                 else
                     --Format the lines.
                     --Username fetching is done on the client in case the server didn't load it in time.
-                    table.insert(Lines, {Text = `Start of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
+                    table.insert(Lines, {Text = `Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
                     table.insert(Lines, "----------")
                     for _, BanPage : {BanHistoryPage} in History do
                         for _, Ban in BanPage do
@@ -180,10 +311,12 @@ return {
                             table.insert(Lines, "----------")
                         end
                     end
-                    table.insert(Lines, {Text = `End of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
+                    table.insert(Lines, {Text = `End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
                 end
                 TextList:SetLines(Lines)
             end
+
+            UsernameLoaded.Event:Connect(UpdateText)
 
             task.spawn(UpdateText)
             Window:EnableClosing()

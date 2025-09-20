@@ -31,7 +31,7 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
     self.GroupService = GroupService
     self.GameId = game.GameId
     self.CreatorId = game.CreatorId
-    
+
     --Store the highest AdminLevel of a UserId based on Groups alone.
     self.GroupAdminLevelCache = {}
 
@@ -63,9 +63,8 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
     function GetAdminLevels.OnServerInvoke()
         return self.AdminLevels
     end
-    
+
     --Initialize flushing GroupAdminLevelCache
-    --There is probably a more effective way to do this
     task.spawn(function()
         while task.wait(1) do
             for Id, Cache in self.GroupAdminLevelCache do
@@ -102,7 +101,7 @@ Initializes a player.
 --]]
 function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player: Player): ()
     self.GroupAdminLevelCache[Player.UserId] = nil
-    
+
     --Set the admin level based on the default or given admin level.
     local UserId = tostring(Player.UserId)
     local AdminLevel = self:EvaluateAdminLevelAsync(Player.UserId)
@@ -138,7 +137,7 @@ function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, 
             end
         end
     end
-    
+
     return AdminLevel
 end
 
@@ -165,12 +164,12 @@ function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorizat
     end, function(ErrorMessage)
         warn(`Getting group info failed because {ErrorMessage}`)
     end)
-    
+
     self.GroupAdminLevelCache[UserId] = {
         AdminLevel = AdminLevel,
         ExpireTime = os.time() + (30 * 60)
     }
-    
+
     return AdminLevel
 end
 

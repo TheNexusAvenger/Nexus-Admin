@@ -50,10 +50,12 @@ return {
             end
         end
 
-        PersistentBans:UnbanIds({
+        local Success, Response = PersistentBans:UnbanIds({
             ["UserIds"] = Ids,
             ["ApplyToUniverse"] = ExperienceWide
-        }, CommandContext.Executor.UserId, CommandContext.Executor.Name)
+        }, CommandContext.Executor.UserId, CommandContext.Executor.Name);
+
+        (IncludedCommandUtil:GetRemote("PersistentBanResponse") :: RemoteEvent):FireClient(CommandContext.Executor, "Unban", Success, Response or "UserIds unbanned.", Ids, {})
 
         return nil
     end,
