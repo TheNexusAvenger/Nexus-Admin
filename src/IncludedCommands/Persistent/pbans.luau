@@ -160,7 +160,6 @@ return {
                     continue
                 end
                 local RawJSON = Message:sub(ColonPosition + 1)
-                print(RawJSON)
                 local ParsedJSON
                 pcall(function()
                     ParsedJSON = HttpService:JSONDecode(RawJSON)
@@ -169,8 +168,6 @@ return {
                 --Isolate the UserId
                 local Split2 = Split1[1]:split(" ")
                 local UserId = Split2[#Split2]
-
-                print(UserId)
 
                 if ParsedJSON then
                     table.insert(Response,{
