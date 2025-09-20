@@ -38,7 +38,7 @@ return {
                     Action Values:
                         0 = Ban
                         1 = Unban
-                    ]]
+                    --]]
                 for i = #LogEntries, 1, -1 do
                     local Log = LogEntries[i]
                     if typeof(Log) == "string" then
