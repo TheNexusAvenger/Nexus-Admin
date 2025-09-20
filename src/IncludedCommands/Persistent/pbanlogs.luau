@@ -30,15 +30,15 @@ return {
                 end
                 local LogEntries = Api.CommandData.PersistentBans:GetLogs()
                 local Logs = {}
-                --[[
-                Moderator Values:
-                    #>0 = User
-                    #<=0 = Specified By Script
-                    
-                Action Values:
-                    0 = Ban
-                    1 = Unban
-                --]]
+                    --[[
+                    Moderator Values:
+                        #>0 = User
+                        #<=0 = Specified By Script
+                        
+                    Action Values:
+                        0 = Ban
+                        1 = Unban
+                    ]]
                 for i = #LogEntries, 1, -1 do
                     local Log = LogEntries[i]
                     if typeof(Log) == "string" then

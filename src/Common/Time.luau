@@ -32,7 +32,7 @@ function Time.SecondsToDuration(self: Time, Seconds: number): string
     local Days = math.floor(Seconds / (60 * 60 * 24))
     local D_Remainder = Seconds % (60 * 60 * 24)
     local Hours = math.floor(D_Remainder / (60 * 60))
-    local H_Remainder = D_Remainder%(60 * 60)
+    local H_Remainder = D_Remainder % (60 * 60)
     local Minutes = math.floor(H_Remainder / 60)
     local Seconds = H_Remainder % 60
     

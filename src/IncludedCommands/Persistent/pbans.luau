@@ -53,11 +53,8 @@ end
 
 local function PagesToTable(Pages)
     local Items = {}
-    while true do
+    while not Pages.IsFinished do
         table.insert(Items, Pages:GetCurrentPage())
-        if Pages.IsFinished then
-            break
-        end
         Pages:AdvanceToNextPageAsync()
     end
     return Items
@@ -105,7 +102,12 @@ return {
 
                     for _, Id in Ids do
                         GetCachedUsername(Id)
-                        PersistentBanHistories[Id] = PagesToTable(Players:GetBanHistoryAsync(Id))
+                        local Success, Response = pcall(Players.GetBanHistoryAsync, Players, Id)
+                        if Success then
+                            PersistentBanHistories[Id] = PagesToTable(Response)
+                        else
+                            PersistentBanHistories[Id] = {err = Response}
+                        end
                     end
 
                     return PersistentBanHistories,CompletedUsernameCache
@@ -146,34 +148,40 @@ return {
             local function UpdateText()
                 TextList:SetLines({"Loading..."})
 
-                --Format the lines.
-                --Username fetching is done on the client in case the server didn't load it in time.
                 local Lines = {}
-                table.insert(Lines, {Text = `Start of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
-                table.insert(Lines, "----------")
-                for _, BanPage: {BanHistoryPage} in History do
-                    for _, Ban in BanPage do
-                        table.insert(Lines, `Effective Date: {Ban.StartTime}`)
-                        table.insert(Lines, "")
-                        table.insert(Lines, `Effective Location: {Ban.PlaceId == -1 and "Entire Experience" or `Single Place ({Ban.PlaceId})`}`)
-                        table.insert(Lines, "")
-                        if Ban.Ban then
-                            table.insert(Lines, "Action: Ban")
+                if History.err then
+                    table.insert(Lines, `Failed to get {UsernameCache[UserId] or UserId}'s Ban History`)
+                    table.insert(Lines, "")
+                    table.insert(Lines, `Error: {History.err}`)
+                else
+                    --Format the lines.
+                    --Username fetching is done on the client in case the server didn't load it in time.
+                    table.insert(Lines, {Text = `Start of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
+                    table.insert(Lines, "----------")
+                    for _, BanPage : {BanHistoryPage} in History do
+                        for _, Ban in BanPage do
+                            table.insert(Lines, `Effective Date: {Ban.StartTime}`)
                             table.insert(Lines, "")
-                            table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Ban.Duration)}`)
+                            table.insert(Lines, `Effective Location: {Ban.PlaceId == -1 and "Entire Experience" or `Single Place ({Ban.PlaceId})`}`)
                             table.insert(Lines, "")
-                            table.insert(Lines, "Display Reason - Reason Shown to User")
-                            table.insert(Lines, Ban.DisplayReason)
-                            table.insert(Lines, "")
-                            table.insert(Lines, "Private Reason - Reason Shown to Moderators")
-                            table.insert(Lines, Ban.PrivateReason)
-                        else
-                            table.insert(Lines, "Action: Unban")
+                            if Ban.Ban then
+                                table.insert(Lines, "Action: Ban")
+                                table.insert(Lines, "")
+                                table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Ban.Duration)}`)
+                                table.insert(Lines, "")
+                                table.insert(Lines, "Display Reason - Reason Shown to User")
+                                table.insert(Lines, Ban.DisplayReason)
+                                table.insert(Lines, "")
+                                table.insert(Lines, "Private Reason - Reason Shown to Moderators")
+                                table.insert(Lines, Ban.PrivateReason)
+                            else
+                                table.insert(Lines, "Action: Unban")
+                            end
+                            table.insert(Lines, "----------")
                         end
-                        table.insert(Lines, "----------")
                     end
+                    table.insert(Lines, {Text = `End of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
                 end
-                table.insert(Lines, {Text = `End of {UsernameCache[UserId] or UserId}'s Ban History`, Font = Enum.Font.SourceSansBold})
                 TextList:SetLines(Lines)
             end
 
