@@ -63,9 +63,6 @@ will be returned immediately.
 #### `Authorization:EvaluateAdminLevelAsync(UserId: number): number`
 Evaluates and returns the admin level of a user id based on all configuration.
 
-#### `Authorization:EvaluateGroupAdminLevelAsync(UserId: number): number`
-Evaluates and returns the admin level of a user id, based on `Configuration.GroupAdminLevels` alone.
-
 ### `Configuration`
 #### `Configuration.Version: string`
 String-based version of Nexus Admin.

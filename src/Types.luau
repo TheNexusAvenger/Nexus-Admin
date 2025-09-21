@@ -204,7 +204,6 @@ export type Authorization = {
 export type ServerAuthorization = {
     SetAdminLevel: (self: ServerAuthorization, Player: Player, AdminLevel: number) -> (),
     EvaluateAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number,
-    EvaluateGroupAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number
 } & Authorization
 
 export type Configuration = {
