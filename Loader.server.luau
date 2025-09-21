@@ -106,7 +106,7 @@ local Config = {
         DefaultServerLockAdminLevel = nil,
         --Minimum Admin Level for a player to be immune to :pban. Defaults to PersistentCommandsLevel but can be any number.
         --This only prevents a player from being banned via :pban. Not from Roblox's ban system itself.
-        PersistentBanImmuneLevel = nil
+        PersistentBanImmuneLevel = nil,
     },
 
     --Below is for overriding the defaults levels
