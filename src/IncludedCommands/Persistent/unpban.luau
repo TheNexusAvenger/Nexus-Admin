@@ -36,9 +36,9 @@ return {
         local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
             if Api.CommandData.PersistentBans.Enabled then
-                return "Persistent bans failed to initialize."
+                return "Persistent Bans failed to initialize."
             else
-                return "RobloxBanAPI is disabled within this experience."
+                return "Roblox Ban API is disabled within this experience."
             end
         end
 

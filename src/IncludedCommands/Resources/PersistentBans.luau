@@ -57,7 +57,6 @@ function PersistentBans.Initialize(self: PersistentBans): ()
     self.InitializationStarted = true
 
     if RunService:IsStudio() then
-        print("NexusAdmin PersistentBans disabled in studio.")
         self.Initialized = true
         self.Enabled = false
         return
@@ -68,7 +67,7 @@ function PersistentBans.Initialize(self: PersistentBans): ()
         Players:GetBanHistoryAsync(1)
     end)
     if not Worked and ErrorMessage == "GetBanHistoryAsync is disabled due to Players:BanningEnabled being set to false" then
-        warn(`Unable to use RobloxBanApi as Players.BanningEnabled is set to false. Persistent bans disabled.`)
+        warn(`Unable to use Roblox Ban Api as Players.BanningEnabled is set to false. Nexus Admin Persistent Bans disabled.`)
         self.Initialized = true
         self.Enabled = false
         return
@@ -108,7 +107,7 @@ function PersistentBans.TransferLegacy(self: PersistentBans): ()
     --Call :BanId individually for each legacy ban, assuming no two bans have the same reason.
     for _, Id in BansDataStore:ListKeys() do
         local Reason = BansDataStore:Get(Id)
-        local Worked, ErrorMessage = self:BanId(tonumber(Id), Reason, -2, "NexusAdmin-Legacy pban transfer")
+        local Worked, ErrorMessage = self:BanId(tonumber(Id) :: number, Reason, -2, "Nexus Admin Legacy Persistent Ban Transfer")
         if Worked then
             --Remove the legacy ban, so next transfer does not apply another ban.
             BansDataStore:Set(Id, nil)
@@ -163,14 +162,14 @@ function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: str
         PrivateReason = type(Message) == "string" and Message or "No ban reason specified.",
         ExcludeAltAccounts = false,
         ApplyToUniverse = true
-    }, ModeratorId or 0, ModeratorName or "NexusAdmin")
+    }, ModeratorId or 0, ModeratorName or "Nexus Admin")
 end
 
 --[[
 Bans user ids.
 --]]
 function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string, {number}, {number})
-    local CanBan, Immune = self:FilterIds(Config.UserIds, ModeratorId)
+    local CanBan, Immune = self:FilterIds(Config.UserIds, ModeratorId or 0)
     Config.UserIds = CanBan
     if #Config.UserIds == 0 then
         return false, "No affected UserIds", CanBan, Immune
@@ -180,7 +179,7 @@ function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, Mode
         Players:BanAsync(Config)
     end)
 
-    return Success, ErrorMessage or "UserIds banned.", CanBan, Immune
+    return Success, ErrorMessage or "User Ids banned.", CanBan, Immune
 end
 
 --[[
@@ -192,7 +191,7 @@ function PersistentBans.UnbanId(self: PersistentBans, UserId: number, ModeratorI
     return self:UnbanIds({
         UserIds = {UserId},
         ApplyToUniverse = true,
-    }, ModeratorId or 0, ModeratorName or "NexusAdmin")
+    }, ModeratorId or 0, ModeratorName or "Nexus Admin")
 end
 
 
@@ -213,12 +212,15 @@ function PersistentBans.Log(self: PersistentBans, Config: BanConfigType | UnbanC
     if self.LogsDataStore then
         task.spawn(function()
             if (Config :: BanConfigType).DisplayReason then
+                --Silences the type error below, despite the if statement requiring Config to be of type BanConfigType for this line to even run in the first place.
+                --Nice type checking roblox.
+                local Config = Config :: BanConfigType 
                 self.LogsDataStore:Update("PersistentBanActionsLog", function(OldLogs)
                     OldLogs = OldLogs or {}
                     table.insert(OldLogs, {
                         Time = os.time(),
                         Id = ModeratorId or 0,
-                        Name = ModeratorName or "NexusAdmin",
+                        Name = ModeratorName or "Nexus Admin",
                         Action = 0,
                         EffectedUserIds = Config.UserIds,
                         Duration = math.max(-1, Config.Duration),
@@ -233,7 +235,7 @@ function PersistentBans.Log(self: PersistentBans, Config: BanConfigType | UnbanC
                     table.insert(OldLogs, {
                         Time = os.time(),
                         Id = ModeratorId or 0,
-                        Name = ModeratorName or "NexusAdmin",
+                        Name = ModeratorName or "Nexus Admin",
                         Action = 1,
                         EffectedUserIds = Config.UserIds,
                         ExperienceWide = Config.ApplyToUniverse,

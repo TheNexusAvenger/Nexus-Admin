@@ -12,6 +12,15 @@ local CompletedUsernameCache = {}
 local UsernameFetchQueue = {}
 local UsernameLoaded = Instance.new("BindableEvent")
 
+type BanHistoryPage = {
+    DisplayReason: string,
+    PrivateReason: string,
+    StartTime: string,
+    Duration: number,
+    Ban: boolean,
+    PlaceId: number,
+}
+
 --[[
 Returns the username.
 --]]
@@ -62,15 +71,6 @@ local function PagesToTable(Pages: BanHistoryPages)
     return Items
 end
 
-type BanHistoryPage = {
-    DisplayReason: string,
-    PrivateReason: string,
-    StartTime: string,
-    Duration: number,
-    Ban: boolean,
-    PlaceId: number,
-}
-
 return {
     Keyword = "pbans",
     Category = "PersistentCommands",
@@ -108,16 +108,16 @@ return {
                         if Success then
                             PersistentBanHistories[Id] = PagesToTable(Response)
                         else
-                            PersistentBanHistories[Id] = {err = Response}
+                            PersistentBanHistories[Id] = {Error = Response}
                         end
                     end
 
                     return PersistentBanHistories,CompletedUsernameCache
                 else
                     if Api.CommandData.PersistentBans.Enabled then
-                        return "Persistent bans failed to initialize.", {}
+                        return "Persistent Bans failed to initialize.", {}
                     else
-                        return "RobloxBanAPI is disabled within this experience.", {}
+                        return "Roblox Ban API is disabled within this experience.", {}
                     end
                 end
             else
@@ -131,26 +131,33 @@ return {
         local function IsolateErrorResponses(Error: string): {{UserId: number, Lines: {string}}}
             --EXAMPLE
             --HTTP 429 failure for UserId 135955170: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 135955170 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 799258: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 799258 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 735798: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 735798 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 6443947: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 6443947 in this universe or place in a short period. Please try again." }
-            local Response = {}
+            local Response = {} :: {
+                {
+                    UserId: number,
+                    Lines: {
+                        string
+                    }
+                }
+            }
             local Individuals = {}
             local Built = ""
-            for _, i in Error:split(",") do
+            for _, i in string.split(Error, ",") do
                 if Built == "" then
                     Built = i
                 else
                     Built = `{Built},{i}`
                 end
-                if Built:sub(Built:len()) == "}" then
-                    table.insert(Individuals,Built)
+                if string.sub(Built, string.len(Built)) == "}" then
+                    table.insert(Individuals, Built)
                     Built = ""
                 end
             end
 
             for _, Message in Individuals do
-                local Split1 = Message:split(": {")
-                local ColonPosition,_ = Message:find(":")
+                local Split1 = string.split(Message, ": {")
+                local ColonPosition,_ = string.find(Message, ":")
                 if not ColonPosition then
-                    table.insert(Response,{
+                    table.insert(Response, {
                         UserId = -1,
                         Lines = {
                             "Unable to Parse Error Message:",
@@ -159,18 +166,19 @@ return {
                     })
                     continue
                 end
-                local RawJSON = Message:sub(ColonPosition + 1)
+                local RawJSON = string.sub(Message, ColonPosition + 1)
                 local ParsedJSON
                 pcall(function()
-                    ParsedJSON = HttpService:JSONDecode(RawJSON)
+                    ParsedJSON = HttpService:JSONDecode(RawJSON) :: {code: string, message: string}
                 end)
 
                 --Isolate the UserId
-                local Split2 = Split1[1]:split(" ")
+                local Split2 = string.split(Split1[1], " ")
                 local UserId = Split2[#Split2]
 
                 if ParsedJSON then
-                    table.insert(Response,{
+                    ParsedJSON = (ParsedJSON :: {code: string, message: string})
+                    table.insert(Response, {
                         UserId = tonumber(UserId),
                         Lines = {
                             `Code: {ParsedJSON.code}`,
@@ -182,8 +190,8 @@ return {
                         }
                     })
                 else
-                    table.insert(Response,{
-                        UserId = UserId,
+                    table.insert(Response, {
+                        UserId = tonumber(UserId),
                         Lines = {
                             `Unable to parse JSON`,
                             "",
@@ -266,10 +274,10 @@ return {
             end
         end
 
-        for UserId, History: {{BanHistoryPage}} in Bans do
+        for UserId, History: {{BanHistoryPage} | {Error: string}} in Bans do
             --Show the window.
             local Window = Api.Window:CreateWindow(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
-            local TextList = Window:AddTextList()
+            local TextList = Window:AddTextList(nil,true)
             TextList:EnableSearching()
 
             local function UpdateText()
@@ -277,14 +285,14 @@ return {
                 Window:SetTitle(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
 
                 local Lines = {}
-                if History.err then
+                if History.Error then
                     table.insert(Lines, `Failed to get @{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
                     table.insert(Lines, "")
-                    table.insert(Lines, `Error: {History.err}`)
+                    table.insert(Lines, `Error: {History.Error}`)
                 else
                     --Format the lines.
                     --Username fetching is done on the client in case the server didn't load it in time.
-                    table.insert(Lines, {Text = `Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
+                    table.insert(Lines, `<b>Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History</b>`)
                     table.insert(Lines, "----------")
                     for _, BanPage : {BanHistoryPage} in History do
                         for _, Ban in BanPage do
@@ -308,7 +316,7 @@ return {
                             table.insert(Lines, "----------")
                         end
                     end
-                    table.insert(Lines, {Text = `End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
+                    table.insert(Lines, `<b>End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History</b>`)
                 end
                 TextList:SetLines(Lines)
             end

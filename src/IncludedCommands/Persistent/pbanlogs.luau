@@ -23,9 +23,9 @@ return {
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbanlogs")) then
                 if not Api.CommandData.PersistentBans:WasInitialized() then
                     if Api.CommandData.PersistentBans.Enabled then
-                        return {"Persistent bans failed to initialize."}
+                        return {"Persistent Bans failed to initialize."}
                     else
-                        return {"RobloxBanAPI is disabled within this experience."}
+                        return {"Roblox Ban API is disabled within this experience."}
                     end
                 end
                 local LogEntries = Api.CommandData.PersistentBans:GetLogs()
@@ -47,17 +47,17 @@ return {
                         local ModeratorString = ""
                         if Log.Id then
                             if Log.Id <= 0 then
-                                ModeratorString = Log.Name or "NexusAdmin"
+                                ModeratorString = Log.Name or "Nexus Admin"
                             else
                                 ModeratorString = `@{Log.Name} ({Log.Id})`
                             end
                         else
-                            ModeratorString = "NexusAdmin"
+                            ModeratorString = "Nexus Admin"
                         end
                         if Log.Action == 0 then
-                            table.insert(Logs, `{ModeratorString} banned UserIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Log.Duration)}) {Log.ExperienceWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
+                            table.insert(Logs, `{ModeratorString} banned User Ids: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Log.Duration)}) {Log.ExperienceWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
                         else
-                            table.insert(Logs, `{ModeratorString} unbanned UserIds: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, {Log.ExperienceWide and "across the entire experience" or "in a single place"}.`)
+                            table.insert(Logs, `{ModeratorString} unbanned User Ids: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, {Log.ExperienceWide and "across the entire experience" or "in a single place"}.`)
                         end
                     end
                 end
@@ -67,7 +67,7 @@ return {
             end
         end
     end,
-    ClientRun = function(CommandContext: Types.CmdrCommandContext): string?
+    ClientRun = function(CommandContext: Types.CmdrCommandContext): ()
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
 

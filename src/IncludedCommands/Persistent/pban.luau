@@ -6,6 +6,11 @@ local GroupService = game:GetService("GroupService")
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
+--Roblox Ban API allows up to 400 characters
+local DISPLAY_REASON_CHARACTER_LIMIT = 400
+--Roblox Ban API allows up to 1000 characters, pban saves 50 of those characters to append the moderator to the end.
+local PRIVATE_REASON_CHARACTER_LIMIT = 950 
+
 return {
     Keyword = "pban",
     Category = "PersistentCommands",
@@ -19,7 +24,7 @@ return {
         {
             Type = "duration",
             Name = "Duration",
-            Description = "How long the ban is.\nBanLength < 0 will be permanent.\nDefaults to -1",
+            Description = "How long the ban is.\nDuration < 0 will be permanent.\nDefaults to -1Seconds",
             Default = -1,
             Optional = true,
         },
@@ -56,17 +61,17 @@ return {
             local DisplayReason = VarStore['DisplayReason']
             local PrivateReason = VarStore['PrivateReason']
 
-            if DisplayReason:len() == 0 then
+            if string.len(DisplayReason) == 0 then
                 DisplayReason = "No reason provided."
-            elseif DisplayReason:len() > 400 then
-                Api.Messages:DisplayHint(Player, `Display Reason Character Limit exceeded. {DisplayReason:len()}/400`, 5)
+            elseif string.len(DisplayReason) > DISPLAY_REASON_CHARACTER_LIMIT then
+                Api.Messages:DisplayHint(Player, `Display Reason Character Limit exceeded. {string.len(DisplayReason)}/{DISPLAY_REASON_CHARACTER_LIMIT}`, 5)
                 return GetReasonsRemote:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
             end
 
-            if PrivateReason:len() == 0 then
+            if string.len(PrivateReason) == 0 then
                 PrivateReason = DisplayReason
-            elseif PrivateReason:len() > 950 then
-                Api.Messages:DisplayHint(Player, `Private Reason Character Limit exceeded. {PrivateReason:len()}/950`, 5)
+            elseif string.len(PrivateReason) > PRIVATE_REASON_CHARACTER_LIMIT then
+                Api.Messages:DisplayHint(Player, `Private Reason Character Limit exceeded. {string.len(PrivateReason)}/{PRIVATE_REASON_CHARACTER_LIMIT}`, 5)
                 return GetReasonsRemote:FireClient(Player, Ids, Duration, ExperienceWide, IncludeAlts)
             end
             PrivateReason ..= `\nModerator: @{Player.Name}`
@@ -98,10 +103,10 @@ return {
         local GetReasonsRemote = IncludedCommandUtil:GetRemote("PersistentBan") :: RemoteEvent
 
         GetReasonsRemote.OnClientEvent:Connect(function(...)
-            Messages:DisplayHint("Persistent Bans: Please provide an optional Display Ban Message. This will be shown to the banned individual(s). 400 Character Limit.",10)
+            Messages:DisplayHint(`Persistent Bans: Please provide an optional Display Ban Message. This will be shown to the banned individual(s). {DISPLAY_REASON_CHARACTER_LIMIT}} Character Limit.`, 10)
             Executor:ExecuteCommandWithOrWithoutPrefix(DisplayReasonMessage, Players.LocalPlayer)
 
-            Messages:DisplayHint("Persistent Bans: Please provide an optional Private Ban Message. This will be visible only to user(s) authorized to access :pbans. 950 Character Limit.",10)
+            Messages:DisplayHint(`Persistent Bans: Please provide an optional Private Ban Message. This will be visible only to user(s) authorized to access :pbans. {PRIVATE_REASON_CHARACTER_LIMIT} Character Limit.`, 10)
             Executor:ExecuteCommandWithOrWithoutPrefix(PrivateReasonMessage, Players.LocalPlayer)
 
             GetReasonsRemote:FireServer(...)
@@ -117,9 +122,9 @@ return {
         local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
             if Api.CommandData.PersistentBans.Enabled then
-                return {"Persistent bans failed to initialize."}
+                return "Persistent bans failed to initialize."
             else
-                return {"RobloxBanAPI is disabled within this experience."}
+                return "RobloxBanAPI is disabled within this experience."
             end
         end
 
