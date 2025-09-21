@@ -165,7 +165,7 @@ export type NexusAdminCommandData = {
 
 --Nexus Admin Classes
 export type ApiTextList = {
-    new: (Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?) -> (),
+    new: (Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?) -> (),
     EnableSearching: (self: ApiTextList, Filter: ((SearchTerm: string, Lines: {{[string]: any}}) -> ({{[string]: any}}))?) -> (),
     Move: (self: ApiTextList, Size: UDim2?, Position: UDim2?, AnchorPoint: Vector2?) -> (),
     AddLines: (self: ApiTextList, Lines: {string | {[string]: any}}, Order: ("NewestFirst" | "OldestFirst")?) -> (),
@@ -181,7 +181,7 @@ export type ApiWindow = {
     EnableResizing: (self: ApiWindow, MinWidth: number?, MinHeight: number?, MaxWidth: number?, MaxHeight: number?) -> (),
     EnableClosing: (self: ApiWindow, OnClose: (() -> ())?) -> (),
     EnableRefreshing: (self: ApiWindow, OnRefresh: () -> ()) -> (),
-    AddTextList: (self: ApiWindow, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?) -> (ApiTextList),
+    AddTextList: (self: ApiWindow, TextType: ("TextLabel" | "TextBox")?) -> (ApiTextList),
     SetTitle: (self: ApiWindow, Name: string) -> (),
     SetDisplayOrder: (self: ApiWindow, DisplayOrder: number) -> (),
     SetRelativeSize: (self: ApiWindow, RelativeX: number, RelativeY: number) -> (),

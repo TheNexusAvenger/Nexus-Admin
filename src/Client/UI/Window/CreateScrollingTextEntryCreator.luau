@@ -8,7 +8,7 @@ export type TextListEntry = {
     Destroy: (self: TextListEntry) -> (),
 }
 
-return function(TextHeight: number, TextType: "TextLabel" | "TextBox", RichText: boolean?): (InitialIndex: number, InitialData: Properties) -> (TextListEntry)
+return function(TextHeight: number, TextType: "TextLabel" | "TextBox"): (InitialIndex: number, InitialData: Properties) -> (TextListEntry)
     local TextDefaults = {
         TextColor3 = Color3.fromRGB(255, 255, 255),
         TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
@@ -31,10 +31,9 @@ return function(TextHeight: number, TextType: "TextLabel" | "TextBox", RichText:
         end
         (TextLabel :: TextLabel).TextSize = TextHeight;
         (TextLabel :: TextLabel).TextXAlignment = Enum.TextXAlignment.Left;
-        (TextLabel :: TextLabel).RichText = RichText or false
 
         local self = (setmetatable({
-           GuiInstance = TextLabel,
+            GuiInstance = TextLabel,
         }, TextListEntry) :: any) :: TextListEntry
         self:Update(InitialIndex, InitialData)
         return self

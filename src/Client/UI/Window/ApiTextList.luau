@@ -30,7 +30,7 @@ export type ApiTextList = {
 --[[
 Creats an API text list.
 --]]
-function ApiTextList.new(Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?): ApiTextList
+function ApiTextList.new(Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?): ApiTextList
     --Create the frames.
     local AdornFrame = Instance.new("Frame")
     AdornFrame.BackgroundTransparency = 1
@@ -44,7 +44,7 @@ function ApiTextList.new(Parent: Instance, TextSize: number, TextType: ("TextLab
     ScrollingFrame.ScrollBarThickness = math.min(math.ceil(0.8 * TextSize), 10)
     ScrollingFrame.Parent = AdornFrame
 
-    local VirtualList = NexusVirtualList.CreateVirtualScrollList(ScrollingFrame, CreateScrollingTextEntryCreator(TextSize, TextType or "TextBox", RichText or false))
+    local VirtualList = NexusVirtualList.CreateVirtualScrollList(ScrollingFrame, CreateScrollingTextEntryCreator(TextSize, TextType or "TextBox"))
     VirtualList:SetEntryHeight(TextSize)
 
     --Create and return the object.

@@ -20,6 +20,7 @@ type BanHistoryPage = {
     Ban: boolean,
     PlaceId: number,
 }
+type BanHistoryError = {Error: string}
 
 --[[
 Returns the username.
@@ -258,7 +259,7 @@ return {
             Window:Show()
         end)
     end,
-    ClientRun = function(CommandContext: Types.CmdrCommandContext, Names: {string})
+    ClientRun = function(CommandContext: Types.CmdrCommandContext, Names: {string}): ()
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetClientApi()
 
@@ -274,7 +275,7 @@ return {
             end
         end
 
-        for UserId, History: {{BanHistoryPage} | {Error: string}} in Bans do
+        for UserId, History in Bans :: {{{BanHistoryPage}} | BanHistoryError } do
             --Show the window.
             local Window = Api.Window:CreateWindow(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
             local TextList = Window:AddTextList(nil,true)
@@ -285,16 +286,17 @@ return {
                 Window:SetTitle(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
 
                 local Lines = {}
-                if History.Error then
+                local ErrorMessage = (History :: BanHistoryError ).Error
+                if ErrorMessage then
                     table.insert(Lines, `Failed to get @{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
                     table.insert(Lines, "")
-                    table.insert(Lines, `Error: {History.Error}`)
+                    table.insert(Lines, `Error: {ErrorMessage}`)
                 else
                     --Format the lines.
                     --Username fetching is done on the client in case the server didn't load it in time.
                     table.insert(Lines, `<b>Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History</b>`)
                     table.insert(Lines, "----------")
-                    for _, BanPage : {BanHistoryPage} in History do
+                    for _, BanPage in History :: {{BanHistoryPage}} do
                         for _, Ban in BanPage do
                             table.insert(Lines, `Effective Date: {Ban.StartTime}`)
                             table.insert(Lines, "")
@@ -316,7 +318,7 @@ return {
                             table.insert(Lines, "----------")
                         end
                     end
-                    table.insert(Lines, `<b>End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History</b>`)
+                    table.insert(Lines, {Text = `End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
                 end
                 TextList:SetLines(Lines)
             end
