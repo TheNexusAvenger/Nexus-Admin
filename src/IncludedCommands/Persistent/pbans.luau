@@ -294,7 +294,7 @@ return {
                 else
                     --Format the lines.
                     --Username fetching is done on the client in case the server didn't load it in time.
-                    table.insert(Lines, `<b>Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History</b>`)
+                    table.insert(Lines, {Text = `Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
                     table.insert(Lines, "----------")
                     for _, BanPage in History :: {{BanHistoryPage}} do
                         for _, Ban in BanPage do
