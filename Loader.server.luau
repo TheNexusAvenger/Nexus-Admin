@@ -97,13 +97,16 @@ local Config = {
     UsefulFunCommandsLevel = 2,
     FunCommandsLevel = 3,
     PersistentCommandsLevel = 4,
-    
+
     --Configurations for internal commands.
     --If a value is nil, it will default to the command's default setting.
     --If a value is not nil, the setting will override the default setting.
     CommandConfigurations = {
         --Default Admin Level for Server Lock (slock). Defaults to 0, but can be any number.
         DefaultServerLockAdminLevel = nil,
+        --Minimum Admin Level for a player to be immune to :pban. Defaults to PersistentCommandsLevel but can be any number.
+        --This only prevents a player from being banned via :pban. Not from Roblox's ban system itself.
+        PersistentBanImmuneLevel = nil
     },
 
     --Below is for overriding the defaults levels
@@ -276,6 +279,7 @@ local Config = {
             pban = nil,
             unpban = nil,
             pbans = nil,
+            pbanlogs = nil,
         },
     },
 

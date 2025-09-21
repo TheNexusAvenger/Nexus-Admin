@@ -29,6 +29,7 @@ export type Configuration = {
     BannedUsers: {[number]: string | boolean},
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
+        PersistentBanImmune: number,
         [string]:any,
     },
     CommandLevelOverrides: {[string]: {[string]: number}},
@@ -72,11 +73,16 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
         FeatureFlagOverrides = ConfigurationTable.FeatureFlagOverrides or {},
         CommandConfigurations = ConfigurationTable.CommandConfigurations or DEFAULT_COMMAND_CONFIGURATIONS,
     }, Configuration) :: Configuration
-    
+
     --Confirm all DEFAULT_COMMAND_CONFIGURATIONS exist within CommandConfigurations.
     for Name, Value in DEFAULT_COMMAND_CONFIGURATIONS do
         if self.CommandConfigurations[Name] ~= nil then continue end
         self.CommandConfigurations[Name] = Value
+    end
+    
+    --DEFAULT_COMMAND_CONFIGURATIONS that default to other specified configurations.
+    if not self.CommandConfigurations.PersistentBanImmuneLevel then
+        self.CommandConfigurations.PersistentBanImmuneLevel = self.PersistentCommandsLevel
     end
 
     --Correct the administrative commands (V.2.0.0 and newer).

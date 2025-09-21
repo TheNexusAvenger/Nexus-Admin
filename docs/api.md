@@ -59,6 +59,13 @@ Wait for the admin level to be initialized for a player and
 returns the admin level. If already initialized, the admin level
 will be returned immediately.
 
+### `Authorization` (Server-Only)
+#### `Authorization:EvaluateAdminLevelAsync(UserId: number): number`
+Evaluates and returns the admin level of a user id based on all configuration.
+
+#### `Authorization:EvaluateGroupAdminLevelAsync(UserId: number): number`
+Evaluates and returns the admin level of a user id, based on `Configuration.GroupAdminLevels` alone.
+
 ### `Configuration`
 #### `Configuration.Version: string`
 String-based version of Nexus Admin.
@@ -128,6 +135,7 @@ Table for storing configurations that effect commands specifically.
 Options for the included commands:
 - `DefaultServerLockAdminLevel: number` - Default admin level to
   restrict the server to with `slock`/`serverlock`.
+- `PersistentBanImmune: number` - Minimum admin level to be immune to NexusAdmin Persistent Bans with `pban`
 
 #### `Configuration.CommandLevelOverrides: {[string]: {[string]: number}}`
 Table for storing overrides to command levels. `Configuration:GetCommandAdminLevel(Category, Command)`

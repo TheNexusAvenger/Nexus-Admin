@@ -30,10 +30,10 @@ return function(TextHeight: number, TextType: "TextLabel" | "TextBox"): (Initial
             (TextLabel :: TextBox).TextEditable = false
         end
         (TextLabel :: TextLabel).TextSize = TextHeight;
-        (TextLabel :: TextLabel).TextXAlignment = Enum.TextXAlignment.Left
+        (TextLabel :: TextLabel).TextXAlignment = Enum.TextXAlignment.Left;
 
         local self = (setmetatable({
-           GuiInstance = TextLabel,
+            GuiInstance = TextLabel,
         }, TextListEntry) :: any) :: TextListEntry
         self:Update(InitialIndex, InitialData)
         return self

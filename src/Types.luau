@@ -201,6 +201,12 @@ export type Authorization = {
     SetAdminLevel: (self: Authorization, Player: Player, AdminLevel: number) -> (),
 }
 
+export type ServerAuthorization = {
+    SetAdminLevel: (self: ServerAuthorization, Player: Player, AdminLevel: number) -> (),
+    EvaluateAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number,
+    EvaluateGroupAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number
+} & Authorization
+
 export type Configuration = {
     new: (ConfigurationTable: {[string]: any}) -> (Configuration),
 
@@ -223,7 +229,8 @@ export type Configuration = {
     BannedUsers: {[number]: string | boolean},
     CommandConfigurations: {
         DefaultServerLockAdminLevel: number,
-        [string]:any,
+        PersistentBanImmuneLevel: number,
+        [string]: any,
     },
     CommandLevelOverrides: {[string]: {[string]: number}},
     FeatureFlagOverrides: {[string]: any},
@@ -317,6 +324,7 @@ export type Replicator = {
 export type Time = {
     GetTimeString: (self: Time, Time: number?) -> (string),
     GetDateTimeString: (self: Time, Time: number?) -> (string),
+    SecondsToDuration: (self: Time, Seconds: number) -> (string)
 }
 
 export type Window = {
@@ -360,6 +368,7 @@ export type NexusAdminApiServer = {
     Messages: MessagesServer,
     Replicator: Replicator,
     Logs: Logs,
+    Authorization: ServerAuthorization,
     GetAdminLoaded: (self: NexusAdminApiServer) -> (boolean),
 } & NexusAdminApi
 
