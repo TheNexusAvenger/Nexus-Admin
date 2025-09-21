@@ -165,7 +165,7 @@ export type NexusAdminCommandData = {
 
 --Nexus Admin Classes
 export type ApiTextList = {
-    new: (Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?) -> (),
+    new: (Parent: Instance, TextSize: number, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?) -> (),
     EnableSearching: (self: ApiTextList, Filter: ((SearchTerm: string, Lines: {{[string]: any}}) -> ({{[string]: any}}))?) -> (),
     Move: (self: ApiTextList, Size: UDim2?, Position: UDim2?, AnchorPoint: Vector2?) -> (),
     AddLines: (self: ApiTextList, Lines: {string | {[string]: any}}, Order: ("NewestFirst" | "OldestFirst")?) -> (),
@@ -181,7 +181,7 @@ export type ApiWindow = {
     EnableResizing: (self: ApiWindow, MinWidth: number?, MinHeight: number?, MaxWidth: number?, MaxHeight: number?) -> (),
     EnableClosing: (self: ApiWindow, OnClose: (() -> ())?) -> (),
     EnableRefreshing: (self: ApiWindow, OnRefresh: () -> ()) -> (),
-    AddTextList: (self: ApiWindow, TextType: ("TextLabel" | "TextBox")?) -> (ApiTextList),
+    AddTextList: (self: ApiWindow, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?) -> (ApiTextList),
     SetTitle: (self: ApiWindow, Name: string) -> (),
     SetDisplayOrder: (self: ApiWindow, DisplayOrder: number) -> (),
     SetRelativeSize: (self: ApiWindow, RelativeX: number, RelativeY: number) -> (),
@@ -200,6 +200,12 @@ export type Authorization = {
     YieldForAdminLevel: (self: Authorization, Player: Player) -> (number),
     SetAdminLevel: (self: Authorization, Player: Player, AdminLevel: number) -> (),
 }
+
+export type ServerAuthorization = {
+    SetAdminLevel: (self: ServerAuthorization, Player: Player, AdminLevel: number) -> (),
+    EvaluateAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number,
+    EvaluateGroupAdminLevelAsync: (self: ServerAuthorization, UserId: number) -> number
+} & Authorization
 
 export type Configuration = {
     new: (ConfigurationTable: {[string]: any}) -> (Configuration),
@@ -362,6 +368,7 @@ export type NexusAdminApiServer = {
     Messages: MessagesServer,
     Replicator: Replicator,
     Logs: Logs,
+    Authorization: ServerAuthorization,
     GetAdminLoaded: (self: NexusAdminApiServer) -> (boolean),
 } & NexusAdminApi
 
