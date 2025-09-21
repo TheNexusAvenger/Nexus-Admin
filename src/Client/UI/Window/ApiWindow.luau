@@ -363,8 +363,8 @@ end
 --[[
 Adds a text list to the menu.
 --]]
-function ApiWindow.AddTextList(self: ApiWindow, TextType: ("TextLabel" | "TextBox")?): ApiTextList.ApiTextList
-    local TextList = ApiTextList.new(self.ContentsAdorn, self.TextHeight, TextType)
+function ApiWindow.AddTextList(self: ApiWindow, TextType: ("TextLabel" | "TextBox")?, RichText: boolean?): ApiTextList.ApiTextList
+    local TextList = ApiTextList.new(self.ContentsAdorn, self.TextHeight, TextType, RichText or false)
     table.insert(ApiTextList, TextList)
     return TextList
 end
