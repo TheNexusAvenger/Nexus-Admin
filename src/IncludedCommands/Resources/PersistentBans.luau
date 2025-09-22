@@ -13,6 +13,18 @@ PersistentBans.__index = PersistentBans
 
 local StaticInstance = nil
 
+type BanConfigType = {
+    UserIds: {number},
+    DisplayReason: string,
+    PrivateReason: string,
+    Duration: number,
+    ApplyToUniverse: boolean,
+    ExcludeAltAccounts: boolean,
+}
+type UnbanConfigType = {
+    UserIds: {number},
+    ApplyToUniverse: boolean,
+}
 export type PersistentBans = {
     Initialized: boolean,
     InitializationStarted: boolean,
@@ -21,6 +33,8 @@ export type PersistentBans = {
     PlayerUpdateEvents: {[Player]: RBXScriptConnection},
     LogsDataStore: any,
 } & typeof(setmetatable({}, PersistentBans))
+
+
 
 --[[
 Creates a persistent bans object.
@@ -56,6 +70,7 @@ function PersistentBans.Initialize(self: PersistentBans): ()
     if self.InitializationStarted then return end
     self.InitializationStarted = true
 
+    --Return if the instance is in Studio.
     if RunService:IsStudio() then
         self.Initialized = true
         self.Enabled = false
@@ -67,7 +82,7 @@ function PersistentBans.Initialize(self: PersistentBans): ()
         Players:GetBanHistoryAsync(1)
     end)
     if not Worked and ErrorMessage == "GetBanHistoryAsync is disabled due to Players:BanningEnabled being set to false" then
-        warn(`Unable to use Roblox Ban Api as Players.BanningEnabled is set to false. Nexus Admin Persistent Bans disabled.`)
+        warn("Unable to use Roblox Ban Api as Players.BanningEnabled is set to false. Nexus Admin Persistent Bans disabled.")
         self.Initialized = true
         self.Enabled = false
         return
@@ -83,8 +98,10 @@ function PersistentBans.Initialize(self: PersistentBans): ()
         warn(`Failed to get persistent ban logs because {ErrorMessage}`)
     end)
 
+    --Transfer the legacy bans.
     self:TransferLegacy()
 
+    --Set the bans as initialized.
     self.Initialized = true
 end
 
@@ -107,8 +124,16 @@ function PersistentBans.TransferLegacy(self: PersistentBans): ()
     --Call :BanId individually for each legacy ban, assuming no two bans have the same reason.
     for _, Id in BansDataStore:ListKeys() do
         local Reason = BansDataStore:Get(Id)
-        local Worked, ErrorMessage = self:BanId(tonumber(Id) :: number, Reason, -2, "Nexus Admin Legacy Persistent Ban Transfer")
-        if Worked then
+        local BanWorked, _ = self:BanIds({
+            UserIds = {tonumber(Id) :: number},
+            Duration = -1,
+            DisplayReason = type(Reason) == "string" and Reason or "No ban reason specified.",
+            PrivateReason = type(Reason) == "string" and Reason or "No ban reason specified.",
+            ExcludeAltAccounts = false,
+            ApplyToUniverse = true,
+        }, -2, "Nexus Admin Legacy Persistent Ban Transfer")
+
+        if BanWorked then
             --Remove the legacy ban, so next transfer does not apply another ban.
             BansDataStore:Set(Id, nil)
         end
@@ -150,22 +175,6 @@ function PersistentBans.ResolveUserIds(self: PersistentBans, Name: string): {num
 end
 
 --[[
-Bans a user id.
-
-Preserved for backwards compatibility and minimal script changes.
---]]
-function PersistentBans.BanId(self: PersistentBans, UserId: number, Message: string | boolean, ModeratorId: number?, ModeratorName: string?): (boolean, string, {number}, {number})
-    return self:BanIds({
-        UserIds = {UserId},
-        Duration = -1,
-        DisplayReason = type(Message) == "string" and Message or "No ban reason specified.",
-        PrivateReason = type(Message) == "string" and Message or "No ban reason specified.",
-        ExcludeAltAccounts = false,
-        ApplyToUniverse = true
-    }, ModeratorId or 0, ModeratorName or "Nexus Admin")
-end
-
---[[
 Bans user ids.
 --]]
 function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string, {number}, {number})
@@ -183,20 +192,7 @@ function PersistentBans.BanIds(self: PersistentBans, Config: BanConfigType, Mode
 end
 
 --[[
-Unbans a user id.
-
-Preserved for backwards compatibility and minimal script changes.
---]]
-function PersistentBans.UnbanId(self: PersistentBans, UserId: number, ModeratorId: number?, ModeratorName: string?)
-    return self:UnbanIds({
-        UserIds = {UserId},
-        ApplyToUniverse = true,
-    }, ModeratorId or 0, ModeratorName or "Nexus Admin")
-end
-
-
---[[
-Unbans user ids
+Unbans user ids.
 --]]
 function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, ModeratorId: number?, ModeratorName: string?): (boolean, string?)
     self:Log(Config, ModeratorId, ModeratorName)
@@ -206,7 +202,7 @@ function PersistentBans.UnbanIds(self: PersistentBans, Config: UnbanConfigType, 
 end
 
 --[[
-Logs an action
+Logs an action.
 --]]
 function PersistentBans.Log(self: PersistentBans, Config: BanConfigType | UnbanConfigType, ModeratorId: number?, ModeratorName : string?)
     if self.LogsDataStore then
@@ -225,7 +221,7 @@ function PersistentBans.Log(self: PersistentBans, Config: BanConfigType | UnbanC
                         EffectedUserIds = Config.UserIds,
                         Duration = math.max(-1, Config.Duration),
                         ExperienceWide = Config.ApplyToUniverse,
-                        IncludeAlts = not Config.ExcludeAltAccounts
+                        IncludeAlts = not Config.ExcludeAltAccounts,
                     })
                     return OldLogs
                 end)
@@ -248,7 +244,7 @@ function PersistentBans.Log(self: PersistentBans, Config: BanConfigType | UnbanC
 end
 
 --[[
-Returns all persistent ban logs
+Returns all persistent ban logs.
 --]]
 function PersistentBans.GetLogs(self: PersistentBans)
     if self.LogsDataStore then
@@ -278,4 +274,7 @@ function PersistentBans.FilterIds(self: PersistentBans, Ids: {number}, Moderator
     end
     return Filtered, Immune
 end
+
+
+
 return PersistentBans
