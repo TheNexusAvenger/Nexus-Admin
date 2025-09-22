@@ -55,7 +55,7 @@ return {
                             ModeratorString = "Nexus Admin"
                         end
                         if Log.Action == 0 then
-                            table.insert(Logs, `{ModeratorString} banned User Ids: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Log.Duration)}) {Log.ExperienceWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
+                            table.insert(Logs, `{ModeratorString} banned User Ids: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, with a duration of ({Log.Duration == -1 and "Permanent" or Api.Time:GetDurationString(Log.Duration)}) {Log.ExperienceWide and "across the entire experience" or "in a single place"}, {Log.IncludeAlts and "including possible alt accounts" or "excluding possible alt accounts"}.`)
                         else
                             table.insert(Logs, `{ModeratorString} unbanned User Ids: \{{table.concat(Log.EffectedUserIds,", ")}\} at {Api.Time:GetDateTimeString(Log.Time)}, {Log.ExperienceWide and "across the entire experience" or "in a single place"}.`)
                         end

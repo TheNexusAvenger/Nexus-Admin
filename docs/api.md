@@ -275,3 +275,10 @@ Gives a script to a specified player.
 ### `Time`
 #### `Time:GetTimeString(Time: number?): string`
 Returns the current or specified time to a formatted string.
+
+### `TimeLGetDateTimeString(Time: number?): string`
+Returns the current timestamp, or the timestamp for the given time.
+
+function 
+#### `Time:GetDurationString(Time: number): string`
+Returns the a human-readable display for the given seconds.

@@ -305,7 +305,7 @@ return {
                             if Ban.Ban then
                                 table.insert(Lines, "Action: Ban")
                                 table.insert(Lines, "")
-                                table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:SecondsToDuration(Ban.Duration)}`)
+                                table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:GetDurationString(Ban.Duration)}`)
                                 table.insert(Lines, "")
                                 table.insert(Lines, "Display Reason - Reason Shown to User")
                                 table.insert(Lines, Ban.DisplayReason)

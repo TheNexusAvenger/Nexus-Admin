@@ -1,6 +1,29 @@
 --Utility for time.
 --!strict
 
+local TIME_DURATIONS = {
+    {
+        Label = "second",
+        Seconds = 1,
+        MaxDisplay = 60,
+    },
+    {
+        Label = "minute",
+        Seconds = 60,
+        MaxDisplay = 60,
+    },
+    {
+        Label = "hour",
+        Seconds = 60 * 60,
+        MaxDisplay = 24,
+    },
+    {
+        Label = "day",
+        Seconds = 24 * 60 * 60,
+        MaxDisplay = 10 ^ 99, --No limit.
+    },
+}
+
 local Time = {}
 
 export type Time = typeof(Time)
@@ -8,8 +31,7 @@ export type Time = typeof(Time)
 
 
 --[[
-Returns the current timestamp, or the timestamp
-for the given time.
+Returns the current timestamp, or the timestamp for the given time.
 --]]
 function Time.GetTimeString(self: Time, Time: number?): string
     local Date = os.date("*t", Time) :: any
@@ -17,8 +39,7 @@ function Time.GetTimeString(self: Time, Time: number?): string
 end
 
 --[[
-Returns the current timestamp, or the timestamp
-for the given time.
+Returns the current timestamp, or the timestamp for the given time.
 --]]
 function Time.GetDateTimeString(self: Time, Time: number?): string
     local Date = os.date("*t", Time) :: any
@@ -26,18 +47,22 @@ function Time.GetDateTimeString(self: Time, Time: number?): string
 end
 
 --[[
-Returns the legible duration for the given seconds.
+Returns the a human-readable display for the given seconds.
 --]]
-function Time.SecondsToDuration(self: Time, Seconds: number): string
-    local Days = math.floor(Seconds / (60 * 60 * 24))
-    local D_Remainder = Seconds % (60 * 60 * 24)
-    local Hours = math.floor(D_Remainder / (60 * 60))
-    local H_Remainder = D_Remainder % (60 * 60)
-    local Minutes = math.floor(H_Remainder / 60)
-    local Seconds = H_Remainder % 60
-    
-    return `{Days} Days; {Hours} Hours; {Minutes} Minutes; {Seconds} Seconds`
+function Time.GetDurationString(self: Time, Seconds: number): string
+    local DurationString = ""
+    for _, Label in TIME_DURATIONS do
+        local Total = math.floor(Seconds / Label.Seconds)
+        if Total <= 0 then break end
+        if DurationString ~= "" then
+            DurationString = `, {DurationString}`
+        end
+        local DisplayTotal = Total % Label.MaxDisplay
+        DurationString = `{DisplayTotal} {Label.Label}{DisplayTotal == 1 and "" or "s"}{DurationString}`
+    end
+    return DurationString
 end
+
 
 
 return Time
