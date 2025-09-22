@@ -1,7 +1,5 @@
 --Implementation of a command.
 --!strict
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
@@ -12,8 +10,7 @@ return {
     Description = "Displays the Persistent Bans and Unban Actions done through NexusAdmin.",
     Arguments = {},
     ServerLoad = function(Api: Types.NexusAdminApiServer)
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
 
         local GetPersistentBanLogsFunction = Instance.new("RemoteFunction")
         GetPersistentBanLogsFunction.Name = "GetPersistentBanLogs"
@@ -21,24 +18,20 @@ return {
 
         function GetPersistentBanLogsFunction.OnServerInvoke(Player): {string}
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbanlogs")) then
-                if not Api.CommandData.PersistentBans:WasInitialized() then
-                    if Api.CommandData.PersistentBans.Enabled then
-                        return {"Persistent Bans failed to initialize."}
+                --Return if the persistent bans wasn't initialized.
+                if not PersistentBans:WasInitialized() then
+                    if PersistentBans.Enabled then
+                        return {"Persistent bans failed to initialize."}
                     else
                         return {"Roblox Ban API is disabled within this experience."}
                     end
                 end
-                local LogEntries = Api.CommandData.PersistentBans:GetLogs()
+
+                --Assembly the log entries.
+                --Moderator Values: #>0 = User, #<=0 = Specified By Script
+                --Action Values: 0 = Ban, 1 = Unban
+                local LogEntries = PersistentBans:GetLogs()
                 local Logs = {}
-                    --[[
-                    Moderator Values:
-                        #>0 = User
-                        #<=0 = Specified By Script
-                        
-                    Action Values:
-                        0 = Ban
-                        1 = Unban
-                    --]]
                 for i = #LogEntries, 1, -1 do
                     local Log = LogEntries[i]
                     if typeof(Log) == "string" then

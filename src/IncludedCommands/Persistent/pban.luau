@@ -1,15 +1,16 @@
 --Implementation of a command.
 --!strict
+
+--Roblox Ban API allows up to 400 characters.
+local DISPLAY_REASON_CHARACTER_LIMIT = 400
+--Roblox Ban API allows up to 1000 characters, pban saves 50 of those characters to append the moderator to the end.
+local PRIVATE_REASON_CHARACTER_LIMIT = 950 
+
 local Players = game:GetService("Players")
-local GroupService = game:GetService("GroupService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
 
---Roblox Ban API allows up to 400 characters
-local DISPLAY_REASON_CHARACTER_LIMIT = 400
---Roblox Ban API allows up to 1000 characters, pban saves 50 of those characters to append the moderator to the end.
-local PRIVATE_REASON_CHARACTER_LIMIT = 950 
 
 return {
     Keyword = "pban",
@@ -25,7 +26,7 @@ return {
             Type = "duration",
             Name = "Duration",
             Description = "How long the ban is.\nDuration < 0 will be permanent.\nDefaults to -1Seconds",
-            Default = -1,
+            Default = -1 :: any, --Required to make type not number.
             Optional = true,
         },
         {
@@ -44,22 +45,20 @@ return {
         },
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
 
         local GetReasonsRemote = (IncludedCommandUtil:CreateRemote("RemoteEvent","PersistentBan") :: RemoteEvent)
-
         local SendResponseRemote = (IncludedCommandUtil:CreateRemote("RemoteEvent", "PersistentBanResponse") :: RemoteEvent)
-
         GetReasonsRemote.OnServerEvent:Connect(function(Player, Ids: {number}, Duration: number, ExperienceWide: boolean, IncludeAlts: boolean)
+            --Return if the user is not authorized.
             if not Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pban")) then
                 return
             end
 
-            local VarStore = Api.Cmdr.Registry:GetStore("var_"..tostring(Player.UserId))
-
-            local DisplayReason = VarStore['DisplayReason']
-            local PrivateReason = VarStore['PrivateReason']
+            --Get and validate the dipslay and private reasons.
+            local VarStore = Api.Cmdr.Registry:GetStore(`var_{Player.UserId}`)
+            local DisplayReason = VarStore["DisplayReason"]
+            local PrivateReason = VarStore["PrivateReason"]
 
             if string.len(DisplayReason) == 0 then
                 DisplayReason = "No reason provided."
@@ -76,8 +75,7 @@ return {
             end
             PrivateReason ..= `\nModerator: @{Player.Name}`
 
-            local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
-
+            --Ban the ids.
             local Success, Response, BannedIds, ImmuneIds = PersistentBans:BanIds({
                 ["UserIds"] = Ids,
                 ["Duration"] = Duration,
@@ -86,19 +84,19 @@ return {
                 ["ApplyToUniverse"] = ExperienceWide,
                 ["ExcludeAltAccounts"] = not IncludeAlts,
             }, Player.UserId, Player.Name)
-
             SendResponseRemote:FireClient(Player, "Ban", Success, Response, BannedIds, ImmuneIds)
 
-            VarStore['DisplayReason'] = nil
-            VarStore['PrivateReason'] = nil
+            --Reset the variables.
+            VarStore["DisplayReason"] = nil
+            VarStore["PrivateReason"] = nil
         end)
     end,
     ClientLoad = function(Api: Types.NexusAdminApiClient)
         local Executor = Api.Executor :: Types.Executor
         local Messages = Api.Messages :: Types.MessagesClient
 
-        local DisplayReasonMessage = 'run edit ${var .DisplayReason} \\\\\n && var= .DisplayReason ||'
-        local PrivateReasonMessage = 'run edit ${var .PrivateReason} \\\\\n && var= .PrivateReason ||'
+        local DisplayReasonMessage = "run edit ${var .DisplayReason} \\\\\n && var= .DisplayReason ||"
+        local PrivateReasonMessage = "run edit ${var .PrivateReason} \\\\\n && var= .PrivateReason ||"
 
         local GetReasonsRemote = IncludedCommandUtil:GetRemote("PersistentBan") :: RemoteEvent
 
@@ -113,18 +111,16 @@ return {
         end)
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, Duration: number, ExperienceWide: boolean, IncludeAlts: boolean): string?
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
 
         --Return if the persistent bans weren't initialized.
-        local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
-            if Api.CommandData.PersistentBans.Enabled then
+            if PersistentBans.Enabled then
                 return "Persistent bans failed to initialize."
             else
-                return "RobloxBanAPI is disabled within this experience."
+                return "Roblox Ban API is disabled within this experience."
             end
         end
 

@@ -23,17 +23,14 @@ return {
         },
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
+        require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
     end,
     ServerRun = function(CommandContext: Types.CmdrCommandContext, PlayerNames: {string}, ExperienceWide: boolean): string?
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local Api = Util:GetServerApi()
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
 
         --Return if the persistent bans weren't initialized.
-        local PersistentBans = Api.CommandData.PersistentBans :: PersistentBans.PersistentBans
         if not PersistentBans:WasInitialized() then
             if Api.CommandData.PersistentBans.Enabled then
                 return "Persistent Bans failed to initialize."

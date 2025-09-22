@@ -60,6 +60,9 @@ local function GetCachedUsername(UserId: number): string
     return UsernameCache[UserId]
 end
 
+--[[
+Converts ban history pages to a list of entries.
+--]]
 local function PagesToTable(Pages: BanHistoryPages)
     local Items = {}
     while true do
@@ -71,6 +74,18 @@ local function PagesToTable(Pages: BanHistoryPages)
     end
     return Items
 end
+
+--[[
+Returns the error for the ban API.
+--]]
+local function GetErrorMesage(Error: string): string
+    pcall(function()
+        Error = HttpService:JSONEncode(Error)["message"] or Error
+    end)
+    return Error
+end
+
+
 
 return {
     Keyword = "pbans",
@@ -84,14 +99,11 @@ return {
         },
     },
     ServerLoad = function(Api: Types.NexusAdminApiServer)
-        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans"))
-        Api.CommandData.PersistentBans = PersistentBans.GetInstance(Api)
-
-        local PersistentBans = Api.CommandData.PersistentBans
+        local PersistentBans = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("PersistentBans")).GetInstance(Api)
 
         --Create the remote function.
         local GetPersistentBansRemoteFunction = IncludedCommandUtil:CreateRemote("RemoteFunction", "GetPersistentBans") :: RemoteFunction
-        function GetPersistentBansRemoteFunction.OnServerInvoke(Player, Names: {number})
+        function GetPersistentBansRemoteFunction.OnServerInvoke(Player, Names: {string})
             --Resolve the names.
             local Ids = {}
             for _,Name in Names do
@@ -99,8 +111,10 @@ return {
                     table.insert(Ids, Id)
                 end
             end
+
+            --Get the ban histories.
             if Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("PersistentCommands", "pbans")) then
-                if Api.CommandData.PersistentBans:WasInitialized() then
+                if PersistentBans:WasInitialized() then
                     local PersistentBanHistories = {}
 
                     for _, Id in Ids do
@@ -113,9 +127,9 @@ return {
                         end
                     end
 
-                    return PersistentBanHistories,CompletedUsernameCache
+                    return PersistentBanHistories, CompletedUsernameCache
                 else
-                    if Api.CommandData.PersistentBans.Enabled then
+                    if PersistentBans.Enabled then
                         return "Persistent Bans failed to initialize.", {}
                     else
                         return "Roblox Ban API is disabled within this experience.", {}
@@ -129,93 +143,18 @@ return {
     ClientLoad = function(Api: Types.NexusAdminApiClient)
         local ResponseRemote = IncludedCommandUtil:GetRemote("PersistentBanResponse") :: RemoteEvent
 
-        local function IsolateErrorResponses(Error: string): {{UserId: number, Lines: {string}}}
-            --EXAMPLE
-            --HTTP 429 failure for UserId 135955170: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 135955170 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 799258: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 799258 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 735798: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 735798 in this universe or place in a short period. Please try again." }, HTTP 429 failure for UserId 6443947: { "code": "RESOURCE_EXHAUSTED", "message": "You have made too many requests for user 6443947 in this universe or place in a short period. Please try again." }
-            local Response = {} :: {
-                {
-                    UserId: number,
-                    Lines: {
-                        string
-                    }
-                }
-            }
-            local Individuals = {}
-            local Built = ""
-            for _, i in string.split(Error, ",") do
-                if Built == "" then
-                    Built = i
-                else
-                    Built = `{Built},{i}`
-                end
-                if string.sub(Built, string.len(Built)) == "}" then
-                    table.insert(Individuals, Built)
-                    Built = ""
-                end
-            end
-
-            for _, Message in Individuals do
-                local Split1 = string.split(Message, ": {")
-                local ColonPosition,_ = string.find(Message, ":")
-                if not ColonPosition then
-                    table.insert(Response, {
-                        UserId = -1,
-                        Lines = {
-                            "Unable to Parse Error Message:",
-                            Message
-                        }
-                    })
-                    continue
-                end
-                local RawJSON = string.sub(Message, ColonPosition + 1)
-                local ParsedJSON
-                pcall(function()
-                    ParsedJSON = HttpService:JSONDecode(RawJSON) :: {code: string, message: string}
-                end)
-
-                --Isolate the UserId
-                local Split2 = string.split(Split1[1], " ")
-                local UserId = Split2[#Split2]
-
-                if ParsedJSON then
-                    ParsedJSON = (ParsedJSON :: {code: string, message: string})
-                    table.insert(Response, {
-                        UserId = tonumber(UserId),
-                        Lines = {
-                            `Code: {ParsedJSON.code}`,
-                            `Message:`,
-                            ParsedJSON.message,
-                            "",
-                            "Full Error Message:",
-                            Message
-                        }
-                    })
-                else
-                    table.insert(Response, {
-                        UserId = tonumber(UserId),
-                        Lines = {
-                            `Unable to parse JSON`,
-                            "",
-                            "Full Error Message:",
-                            Message
-                        }
-                    })
-                end
-            end
-            return Response
-        end
-
         ResponseRemote.OnClientEvent:Connect(function(Action: "Ban" | "Unban", Success: boolean, Response: string, BannedIds: {number}, ImmuneIds: {number})
             --Show the window.
             local Window = Api.Window:CreateWindow(`Persistent {Action}`)
             local TextList = Window:AddTextList()
 
+            --Get the error message.
             local DecodedErrorMessage
-
             if not Success then
-                DecodedErrorMessage = IsolateErrorResponses(Response)
+                DecodedErrorMessage = GetErrorMesage(Response)
             end
 
+            --Set up the window.
             local function UpdateText()
                 local Lines = {}
                 if #BannedIds > 0 then
@@ -237,16 +176,7 @@ return {
                     if #Lines > 0 then
                         table.insert(Lines, "")
                     end
-                    table.insert(Lines, "Errored Users:")
-                    for _, ErrorMessage: {UserId: number, Lines: {string}} in DecodedErrorMessage do
-                        table.insert(Lines, "")
-                        if ErrorMessage.UserId > 0 then
-                            table.insert(Lines, `User: @{GetCachedUsername(ErrorMessage.UserId)} ({ErrorMessage.UserId})`)
-                        end
-                        for _, Line in ErrorMessage.Lines do
-                            table.insert(Lines, Line)
-                        end
-                    end
+                    table.insert(Lines, `Error: {DecodedErrorMessage}`)
                 end
                 TextList:SetLines(Lines)
             end
@@ -278,14 +208,14 @@ return {
         for UserId, History in Bans :: {{{BanHistoryPage}} | BanHistoryError } do
             --Show the window.
             local Window = Api.Window:CreateWindow(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
-            local TextList = Window:AddTextList(nil,true)
+            local TextList = Window:AddTextList()
             TextList:EnableSearching()
 
             local function UpdateText()
                 TextList:SetLines({"Loading..."})
                 Window:SetTitle(`@{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
 
-                local Lines = {}
+                local Lines = {} :: {string | {Text: string, Font: Enum.Font}}
                 local ErrorMessage = (History :: BanHistoryError ).Error
                 if ErrorMessage then
                     table.insert(Lines, `Failed to get @{GetCachedUsername(UserId)} ({UserId})'s Ban History`)
@@ -294,23 +224,18 @@ return {
                 else
                     --Format the lines.
                     --Username fetching is done on the client in case the server didn't load it in time.
-                    table.insert(Lines, {Text = `Start of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
-                    table.insert(Lines, "----------")
                     for _, BanPage in History :: {{BanHistoryPage}} do
                         for _, Ban in BanPage do
-                            table.insert(Lines, `Effective Date: {Ban.StartTime}`)
-                            table.insert(Lines, "")
-                            table.insert(Lines, `Effective Location: {Ban.PlaceId == -1 and "Entire Experience" or `Single Place ({Ban.PlaceId})`}`)
-                            table.insert(Lines, "")
+                            table.insert(Lines, {Text = `Date: {Ban.StartTime}`, Font = Enum.Font.SourceSansBold})
+                            table.insert(Lines, `Location: {Ban.PlaceId == -1 and "Entire Experience" or `Single Place ({Ban.PlaceId})`}`)
                             if Ban.Ban then
                                 table.insert(Lines, "Action: Ban")
-                                table.insert(Lines, "")
                                 table.insert(Lines, `Duration: {Ban.Duration == -1 and "Permanent" or Api.Time:GetDurationString(Ban.Duration)}`)
                                 table.insert(Lines, "")
-                                table.insert(Lines, "Display Reason - Reason Shown to User")
+                                table.insert(Lines, "Display Reason (Reason shown to user)")
                                 table.insert(Lines, Ban.DisplayReason)
                                 table.insert(Lines, "")
-                                table.insert(Lines, "Private Reason - Reason Shown to Moderators")
+                                table.insert(Lines, "Private Reason (Reason shown to moderators)")
                                 table.insert(Lines, Ban.PrivateReason)
                             else
                                 table.insert(Lines, "Action: Unban")
@@ -318,7 +243,9 @@ return {
                             table.insert(Lines, "----------")
                         end
                     end
-                    table.insert(Lines, {Text = `End of @{GetCachedUsername(UserId)} ({UserId})'s Ban History`, Font = Enum.Font.SourceSansBold})
+                end
+                if #Lines == 0 then
+                    table.insert(Lines, {Text = `No ban logs.`, Font = Enum.Font.SourceSansItalic})
                 end
                 TextList:SetLines(Lines)
             end
