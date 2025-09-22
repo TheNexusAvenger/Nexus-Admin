@@ -253,6 +253,7 @@ local Config = {
             unblind = nil,
             char = nil,
             unchar = nil,
+            scale = nil,
             hat = nil,
             disco = nil,
             spin = nil,
