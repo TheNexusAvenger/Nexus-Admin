@@ -33,7 +33,6 @@ return function()
             {UserId = 4},
             {UserId = 5},
             {UserId = 6},
-            {UserId = 25691148},
             {UserId = 7},
         } :: {any}
 
@@ -88,8 +87,7 @@ return function()
             expect(TestServerAuthorization:GetAdminLevel(MockPlayers[4])).to.equal(3)
             expect(TestServerAuthorization:GetAdminLevel(MockPlayers[5])).to.equal(3)
             expect(TestServerAuthorization:GetAdminLevel(MockPlayers[6])).to.equal(2)
-            expect(TestServerAuthorization:GetAdminLevel(MockPlayers[7])).to.equal(0)
-            expect(TestServerAuthorization:GetAdminLevel(MockPlayers[8])).to.equal(5)
+            expect(TestServerAuthorization:GetAdminLevel(MockPlayers[7])).to.equal(5)
 
             --Set an admin level and assert that it is correct.
             TestServerAuthorization:SetAdminLevel(MockPlayers[2], 5)

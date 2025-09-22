@@ -1,6 +1,8 @@
 --Handles users being authorized.
 --!strict
 
+local GROUP_LEVEL_CACHE_EXPIRE_SECONDS = 30 * 60
+
 local Players = game:GetService("Players")
 local GroupService = game:GetService("GroupService")
 
@@ -64,17 +66,6 @@ function ServerAuthorization.new(Configuration: Configuration.Configuration, Nex
         return self.AdminLevels
     end
 
-    --Initialize flushing GroupAdminLevelCache
-    task.spawn(function()
-        while task.wait(1) do
-            for Id, Cache in self.GroupAdminLevelCache do
-                if os.time() >= Cache.ExpireTime then
-                    self.GroupAdminLevelCache[Id] = nil
-                end
-            end
-        end
-    end)
-
     --Return the object.
     return self
 end
@@ -100,6 +91,7 @@ end
 Initializes a player.
 --]]
 function ServerAuthorization.InitializePlayer(self: ServerAuthorization, Player: Player): ()
+    --Clear the cached entry to re-check group levels.
     self.GroupAdminLevelCache[Player.UserId] = nil
 
     --Set the admin level based on the default or given admin level.
@@ -120,8 +112,9 @@ end
 Evaluates the AdminLevel of a UserId.
 --]]
 function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, UserId: number): number
-    local UserId_String = tostring(UserId)
-    local AdminLevel = self.AdminLevels[UserId_String] or self.Configuration.DefaultAdminLevel
+    --Set the admin level based on the default and user id admin levels.
+    local UserIdString = tostring(UserId)
+    local AdminLevel = self.AdminLevels[UserIdString] or self.Configuration.DefaultAdminLevel
     if self.Configuration.Admins[UserId] then
         AdminLevel = math.max(AdminLevel, self.Configuration.Admins[UserId])
     end
@@ -137,7 +130,6 @@ function ServerAuthorization.EvaluateAdminLevelAsync(self: ServerAuthorization, 
             end
         end
     end
-
     return AdminLevel
 end
 
@@ -145,9 +137,12 @@ end
 Evaluates the AdminLevel of a UserId based on groups alone and store said value.
 --]]
 function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorization, UserId: number): number
-    if self.GroupAdminLevelCache[UserId] then
-        return self.GroupAdminLevelCache[UserId].AdminLevel
+    --Return the cached value if one exists and is recent enough.
+    local CacheEntry = self.GroupAdminLevelCache[UserId]
+    if CacheEntry and os.time() < CacheEntry.ExpireTime then
+        return CacheEntry.AdminLevel
     end
+
     --Make the number unreasonably low just so the first math.max doesn't get fed a nil value.
     local AdminLevel = -math.huge
     xpcall(function()
@@ -165,11 +160,11 @@ function ServerAuthorization.EvaluateGroupAdminLevelAsync(self: ServerAuthorizat
         warn(`Getting group info failed because {ErrorMessage}`)
     end)
 
+    --Store and return the admin level.
     self.GroupAdminLevelCache[UserId] = {
         AdminLevel = AdminLevel,
-        ExpireTime = os.time() + (30 * 60)
+        ExpireTime = os.time() + GROUP_LEVEL_CACHE_EXPIRE_SECONDS,
     }
-
     return AdminLevel
 end
 
