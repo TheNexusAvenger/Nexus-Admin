@@ -73,6 +73,9 @@ function API:Load(ConfigurationTable: {[string]: any}): ()
     local IncludedCommandUtil = script:WaitForChild("IncludedCommands"):WaitForChild("IncludedCommandUtil"):Clone()
     IncludedCommandUtil.Parent = LocalIncludedCommands
 
+    local FlyState = script:WaitForChild("IncludedCommands"):WaitForChild("Resources"):WaitForChild("FlyState"):Clone()
+    FlyState.Parent = LocalIncludedCommands:WaitForChild("Resources")
+
     --Initialize the resources.
     local Cmdr = require(Packages:WaitForChild("Cmdr"))
     local Configuration = require(script:WaitForChild("Common"):WaitForChild("Configuration")).new(ConfigurationTable)
