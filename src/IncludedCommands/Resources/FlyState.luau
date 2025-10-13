@@ -194,6 +194,7 @@ Adds flying to a player.
 function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?): ()
     --Update the speed multiplier of an existing one.
     if FlyState._CurrentInstances[Player] then
+        FlyState._CurrentInstances[Player].Active = true
         FlyState._CurrentInstances[Player].SpeedMultiplier = SpeedMultiplier or 1
         if RunService:IsServer() then
             StartFlyEvent:FireClient(Player, SpeedMultiplier)
