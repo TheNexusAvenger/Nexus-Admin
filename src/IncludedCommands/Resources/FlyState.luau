@@ -189,6 +189,36 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
 end
 
 --[[
+Adds flying to a player.
+--]]
+function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?): ()
+    --Update the speed multiplier of an existing one.
+    if FlyState._CurrentInstances[Player] then
+        FlyState._CurrentInstances[Player].SpeedMultiplier = SpeedMultiplier or 1
+        if RunService:IsServer() then
+            StartFlyEvent:FireClient(Player, SpeedMultiplier)
+        end
+        return
+    end
+
+    --Create a new fly state if the character is valid.
+    local Character = Player.Character
+    if not Character then return end
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+    if not HumanoidRootPart or not Humanoid or Humanoid.Health <= 0 then return end
+    FlyState.new(Player, Character, SpeedMultiplier)
+end
+
+--[[
+Removes flying from a player.
+--]]
+function FlyState.RemoveFromPlayer(Player: Player): ()
+    if not FlyState._CurrentInstances[Player] then return end
+    FlyState._CurrentInstances[Player]:Destroy()
+end
+
+--[[
 Stops the current fly.
 Should only be called by _Update.
 --]]
@@ -286,39 +316,12 @@ function FlyState._Update(self: FlyState): ()
 end
 
 --[[
-Adds flying to a player.
---]]
-function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?): ()
-    --Update the speed multiplier of an existing one.
-    if FlyState._CurrentInstances[Player] then
-        FlyState._CurrentInstances[Player].SpeedMultiplier = SpeedMultiplier or 1
-        return
-    end
-
-    --Create a new fly state if the character is valid.
-    local Character = Player.Character
-    if not Character then return end
-    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
-    local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
-    if not HumanoidRootPart or not Humanoid or Humanoid.Health <= 0 then return end
-    FlyState.new(Player, Character, SpeedMultiplier)
-end
-
---[[
-Removes flying from a player.
---]]
-function FlyState.RemoveFromPlayer(Player: Player, SpeedMultiplier: number?): ()
-    if not FlyState._CurrentInstances[Player] then return end
-    FlyState._CurrentInstances[Player]:Destroy()
-end
-
---[[
 Destroys the fly state.
 --]]
 function FlyState.Destroy(self: FlyState): ()
     --Stop the flight.
     self:_Stop()
-    
+
     --Destroy the instances.
     self._Gyro:Destroy()
     self._Velocity:Destroy()
