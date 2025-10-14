@@ -171,29 +171,29 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
     local CmdrCommandsToLoad = Cmdr:WaitForChild("Server commands"):WaitForChild("Utility"):GetChildren()
     table.insert(CmdrCommandsToLoad, Cmdr:WaitForChild("Server commands"):WaitForChild("help"))
     for _, CommandScript in CmdrCommandsToLoad do
-        if CommandScript:IsA("ModuleScript") and not CommandScript.Name:find("Server") then
-            local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(`{CommandScript.Name}Server`)
-            local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
-            CommandData.AutoExec = nil --AutoExec is handled on the client.
-            CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
-            if ServerCommandScript then
-                CommandData.Run = require(ServerCommandScript) :: (CommandContext: Types.CmdrCommandContext, ...any) -> (string?)
-            end
-            if CommandData.Run then
-                local BaseRun = CommandData.Run
-                CommandData.Run = function(_,...)
-                    return BaseRun(...)
-                end
-            end
-            if CommandData.ClientRun then
-                local BaseRun = CommandData.ClientRun
-                CommandData.ClientRun = function(_,...)
-                    return BaseRun(...)
-                end
-            end
-            self.Registry:LoadCommand(CommandData)
-            CommandScript.Parent = self.Cmdr.ReplicatedRoot.Commands
+        if not CommandScript:IsA("ModuleScript") or string.find(CommandScript.Name, "Server") then continue end
+        if self.Registry.Cmdr.Registry:GetCommand(CommandScript.Name) then continue end --Prevent loading over Nexus Admin's reimplementations.
+        local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(`{CommandScript.Name}Server`)
+        local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
+        CommandData.AutoExec = nil --AutoExec is handled on the client.
+        CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
+        if ServerCommandScript then
+            CommandData.Run = require(ServerCommandScript) :: (CommandContext: Types.CmdrCommandContext, ...any) -> (string?)
         end
+        if CommandData.Run then
+            local BaseRun = CommandData.Run
+            CommandData.Run = function(_,...)
+                return BaseRun(...)
+            end
+        end
+        if CommandData.ClientRun then
+            local BaseRun = CommandData.ClientRun
+            CommandData.ClientRun = function(_,...)
+                return BaseRun(...)
+            end
+        end
+        self.Registry:LoadCommand(CommandData)
+        CommandScript.Parent = self.Cmdr.ReplicatedRoot.Commands
     end
 end
 
