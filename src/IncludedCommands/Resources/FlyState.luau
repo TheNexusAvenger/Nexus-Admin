@@ -211,13 +211,38 @@ function FlyState.RemoveFromPlayer(Player: Player): ()
 end
 
 --[[
+Starts the current fly.
+Should only be called by _Update.
+--]]
+function FlyState._Start(self: FlyState): ()
+    --Enable the flight.
+    self._Gyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    self._Gyro.Parent = self._HumanoidRootPart
+    self._Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    self._Velocity.Parent = self._HumanoidRootPart
+    self._Humanoid.PlatformStand = true
+
+    --Set the collision groups.
+    if RunService:IsServer() and Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
+        self._InitialCollisionGroup = self._HumanoidRootPart.CollisionGroup
+        for _,Part in self._Character:GetDescendants() do
+            if Part:IsA("BasePart") and Part.CollisionGroup == self._InitialCollisionGroup then
+                Part.CollisionGroup = "NexusAdmin_FlyingPlayerCollisionGroup"
+            end
+        end
+    end
+end
+
+--[[
 Stops the current fly.
 Should only be called by _Update.
 --]]
 function FlyState._Stop(self: FlyState): ()
     --Disable the flight.
     self._Gyro.MaxTorque = Vector3.zero
+    self._Gyro.Parent = nil
     self._Velocity.MaxForce = Vector3.zero
+    self._Velocity.Parent = nil
     self._Humanoid.PlatformStand = false
     self._CurrentForwardSpeed = 0
     self._CurrentSideSpeed = 0
@@ -245,22 +270,8 @@ function FlyState._Update(self: FlyState): ()
     --Update the fly state starting or stopping.
     if self.Active ~= self._LastActive then
         if self.Active then
-            --Enable the flight.
-            self._Gyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-            self._Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            self._Humanoid.PlatformStand = true
-
-            --Set the collision groups.
-            if RunService:IsServer() and Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
-                self._InitialCollisionGroup = self._HumanoidRootPart.CollisionGroup
-                for _,Part in self._Character:GetDescendants() do
-                    if Part:IsA("BasePart") and Part.CollisionGroup == self._InitialCollisionGroup then
-                        Part.CollisionGroup = "NexusAdmin_FlyingPlayerCollisionGroup"
-                    end
-                end
-            end
+            self:_Start()
         else
-            --Disable the flight.
             self:_Stop()
         end
         self._LastActive = self.Active
