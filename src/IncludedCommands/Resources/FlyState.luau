@@ -276,7 +276,7 @@ function FlyState._Update(self: FlyState): ()
     --Update the forward speed.
     local SpeedMultiplier = self.SpeedMultiplier * (self.BoostActive and BOOST_MULTIPLIER or 1)
     local NewForwardSpeed = self._CurrentForwardSpeed
-    local ForwardAcceleration = ACCELERATION * MoveDirection.Z
+    local ForwardAcceleration = ACCELERATION * MoveDirection.Z  * SpeedMultiplier
     local MaxSpeed = SpeedMultiplier * MAX_SPEED
     if math.abs(MoveDirection.Z) < 0.1 then
         ForwardAcceleration = -DECELLERATION * math.sign(NewForwardSpeed)
@@ -285,7 +285,7 @@ function FlyState._Update(self: FlyState): ()
     
     --Update the side speed.
     local NewSideSpeed = self._CurrentSideSpeed
-    local SideAcceleration = ACCELERATION * MoveDirection.X
+    local SideAcceleration = ACCELERATION * MoveDirection.X  * SpeedMultiplier
     local MaxSideSpeed = SpeedMultiplier * MAX_SIDE_SPEED
     if math.abs(MoveDirection.X) < 0.1 then
         SideAcceleration = -DECELLERATION * math.sign(NewSideSpeed)
