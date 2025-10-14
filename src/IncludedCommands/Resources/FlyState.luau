@@ -64,20 +64,24 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
 
     --Create the physics components.
-    local Gyro = (HumanoidRootPart:FindFirstChild("NexusAdminFlyBodyGyro") or Instance.new("BodyGyro")) :: BodyGyro
-    Gyro.Name = "NexusAdminFlyBodyGyro"
-    Gyro.MaxTorque = Vector3.zero
-    Gyro.D = 250
-    Gyro.P = 10000
-    Gyro:SetAttribute("IsServer", Gyro:GetAttribute("IsServer") or RunService:IsServer())
-    Gyro.Parent = HumanoidRootPart
+    local Gyro: BodyGyro, Velocity: BodyVelocity
+    if RunService:IsClient() then
+        Gyro = HumanoidRootPart:WaitForChild("NexusAdminFlyBodyGyro") :: BodyGyro
+        Velocity = HumanoidRootPart:WaitForChild("NexusAdminFlyBodyVelocity") :: BodyVelocity
+    else
+        Gyro = Instance.new("BodyGyro")
+        Gyro.Name = "NexusAdminFlyBodyGyro"
+        Gyro.MaxTorque = Vector3.zero
+        Gyro.D = 250
+        Gyro.P = 10000
+        Gyro.Parent = HumanoidRootPart
 
-    local Velocity = (HumanoidRootPart:FindFirstChild("NexusAdminFlyBodyVelocity") or Instance.new("BodyVelocity")) :: BodyVelocity
-    Velocity.Name = "NexusAdminFlyBodyVelocity"
-    Velocity.MaxForce = Vector3.zero
-    Velocity.Velocity = Vector3.zero
-    Velocity:SetAttribute("IsServer", Velocity:GetAttribute("IsServer") or RunService:IsServer())
-    Velocity.Parent = HumanoidRootPart
+        Velocity = Instance.new("BodyVelocity")
+        Velocity.Name = "NexusAdminFlyBodyVelocity"
+        Velocity.MaxForce = Vector3.zero
+        Velocity.Velocity = Vector3.zero
+        Velocity.Parent = HumanoidRootPart
+    end
 
     --Create the object.
     local self = setmetatable({
@@ -155,21 +159,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         table.insert(self._EventConnections, RunService.RenderStepped:Connect(function()
             self._CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
             UpdateMovementEvent:FireServer(self._CurrentAim, self._MoveDirection)
-        end))
-    end
-
-    --Replace the components if server versions get created.
-    if RunService:IsClient() then
-        table.insert(self._EventConnections, HumanoidRootPart.ChildAdded:Connect(function(Child)
-            if Child:IsA("BodyGyro") and Child.Name == "NexusAdminFlyBodyGyro" and Child:GetAttribute("IsServer") then
-                self._LastActive = false --Forces the values to be updated.
-                Gyro:Destroy()
-                self._Gyro = Child
-            elseif Child:IsA("BodyVelocity") and Child.Name == "NexusAdminFlyBodyVelocity" and Child:GetAttribute("IsServer") then
-                self._LastActive = false --Forces the values to be updated.
-                Velocity:Destroy()
-                self._Velocity = Child
-            end
         end))
     end
 
