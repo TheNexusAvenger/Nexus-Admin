@@ -413,6 +413,13 @@ else
             task.wait(5)
         end
     end)
+
+    --Clear fly states on leave.
+    Players.PlayerRemoving:Connect(function(Player)
+        local FlyInstance = FlyState._CurrentInstances[Player]
+        if not FlyInstance then return end
+        FlyInstance:Destroy()
+    end)
 end
 
 
