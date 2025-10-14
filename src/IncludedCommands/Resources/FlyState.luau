@@ -131,7 +131,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         }
 
         table.insert(self._EventConnections, UserInputService.InputBegan:Connect(function(Input, Processed)
-            if Processed then return end
             if BoostButtonsDown[Input.KeyCode] == nil then return end
             BoostButtonsDown[Input.KeyCode] = true
             self.BoostActive = true
