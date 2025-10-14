@@ -2,6 +2,7 @@
 --Run on both the client and server for server authority.
 --!strict
 
+local COLLISION_GROUP_NAME = "NexusAdmin_FlyingPlayerCollisionGroup"
 local MAX_SPEED = 50
 local MAX_SIDE_SPEED = 30
 local ACCELERATION = 4 * 60
@@ -58,7 +59,7 @@ export type FlyState = {
 --[[
 Creates a fly state.
 --]]
-function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?): FlyState
+function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?, InitialCollisionGroup: string?): FlyState
     --Get the character components.
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
@@ -92,6 +93,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _CurrentAim = CFrame.identity,
         _CurrentForwardSpeed = 0,
         _CurrentSideSpeed = 0,
+        _InitialCollisionGroup = InitialCollisionGroup,
         _LastActive = false,
         _Player = Player,
         _Character = Character,
@@ -102,6 +104,14 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _MoveDirection = Humanoid.MoveDirection,
         _EventConnections = {},
     }, FlyState) :: FlyState
+
+    --Set the initial collision group.
+    if RunService:IsServer() and not self._InitialCollisionGroup then
+        local NewCollisionGroup = HumanoidRootPart.CollisionGroup
+        if NewCollisionGroup ~= COLLISION_GROUP_NAME then
+            self._InitialCollisionGroup = NewCollisionGroup
+        end
+    end
 
     --Connect inputs on the client.
     if RunService:IsClient() then
@@ -161,6 +171,13 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         end))
     end
 
+    --Update the collision group.
+    table.insert(self._EventConnections, HumanoidRootPart:GetPropertyChangedSignal("CollisionGroup"):Connect(function()
+        local NewCollisionGroup = HumanoidRootPart.CollisionGroup
+        if NewCollisionGroup == COLLISION_GROUP_NAME then return end
+        self._InitialCollisionGroup = NewCollisionGroup
+    end))
+
     --Stop the fly state on death.
     table.insert(self._EventConnections, Humanoid.Died:Connect(function()
         self:Destroy()
@@ -172,7 +189,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     --Store the instance.
     self._CurrentInstances[Player] = self
     if RunService:IsServer() then
-        StartFlyEvent:FireClient(Player, SpeedMultiplier)
+        StartFlyEvent:FireClient(Player, SpeedMultiplier, self._InitialCollisionGroup)
     end
 
     --Return the object.
@@ -182,13 +199,14 @@ end
 --[[
 Adds flying to a player.
 --]]
-function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?): ()
+function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?, InitialCollisionGroup: string?): ()
     --Update the speed multiplier of an existing one.
-    if FlyState._CurrentInstances[Player] then
-        FlyState._CurrentInstances[Player].Active = true
-        FlyState._CurrentInstances[Player].SpeedMultiplier = SpeedMultiplier or 1
+    local CurrentInstance = FlyState._CurrentInstances[Player]
+    if CurrentInstance then
+        CurrentInstance.Active = true
+        CurrentInstance.SpeedMultiplier = SpeedMultiplier or 1
         if RunService:IsServer() then
-            StartFlyEvent:FireClient(Player, SpeedMultiplier)
+            StartFlyEvent:FireClient(Player, SpeedMultiplier, CurrentInstance._InitialCollisionGroup)
         end
         return
     end
@@ -199,7 +217,7 @@ function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?): ()
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
     if not HumanoidRootPart or not Humanoid or Humanoid.Health <= 0 then return end
-    FlyState.new(Player, Character, SpeedMultiplier)
+    FlyState.new(Player, Character, SpeedMultiplier, InitialCollisionGroup)
 end
 
 --[[
@@ -223,11 +241,10 @@ function FlyState._Start(self: FlyState): ()
     self._Humanoid.PlatformStand = true
 
     --Set the collision groups.
-    if RunService:IsServer() and Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
-        self._InitialCollisionGroup = self._HumanoidRootPart.CollisionGroup
+    if Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap") then
         for _,Part in self._Character:GetDescendants() do
             if Part:IsA("BasePart") and Part.CollisionGroup == self._InitialCollisionGroup then
-                Part.CollisionGroup = "NexusAdmin_FlyingPlayerCollisionGroup"
+                Part.CollisionGroup = COLLISION_GROUP_NAME
             end
         end
     end
@@ -251,7 +268,7 @@ function FlyState._Stop(self: FlyState): ()
     local InitialCollisionGroup = self._InitialCollisionGroup
     if InitialCollisionGroup then
         for _, Part in self._Character:GetDescendants() do
-            if Part:IsA("BasePart") and Part.CollisionGroup == "NexusAdmin_FlyingPlayerCollisionGroup" then
+            if Part:IsA("BasePart") and Part.CollisionGroup == COLLISION_GROUP_NAME then
                 Part.CollisionGroup = InitialCollisionGroup
             end
         end
@@ -355,8 +372,8 @@ end
 
 if RunService:IsClient() then
     --Set up the replication.
-    StartFlyEvent.OnClientEvent:Connect(function(SpeedMultiplier: number?)
-        FlyState.AddToPlayer(Players.LocalPlayer, SpeedMultiplier)
+    StartFlyEvent.OnClientEvent:Connect(function(SpeedMultiplier: number?, InitialCollisionGroup: string?)
+        FlyState.AddToPlayer(Players.LocalPlayer, SpeedMultiplier, InitialCollisionGroup)
     end)
 
     StopFlyEvent.OnClientEvent:Connect(function()
@@ -388,7 +405,7 @@ else
             --Determine if the flying collision group exists.
             local HasFlyCollisionGroup = false
             for _,CollisionGroup in PhysicsService:GetRegisteredCollisionGroups() do
-                if CollisionGroup.name == "NexusAdmin_FlyingPlayerCollisionGroup" then
+                if CollisionGroup.name == COLLISION_GROUP_NAME then
                     HasFlyCollisionGroup = true
                     break
                 end
@@ -397,14 +414,14 @@ else
             --Set up the collision group for flying.
             local AllowFlyingThroughMap = Api.FeatureFlags:GetFeatureFlag("AllowFlyingThroughMap")
             if AllowFlyingThroughMap and not HasFlyCollisionGroup then
-                PhysicsService:RegisterCollisionGroup("NexusAdmin_FlyingPlayerCollisionGroup")
+                PhysicsService:RegisterCollisionGroup(COLLISION_GROUP_NAME)
                 HasFlyCollisionGroup = true
             end
 
             --Update the collision groups.
             if HasFlyCollisionGroup then
                 for _, CollisionGroup in PhysicsService:GetRegisteredCollisionGroups() do
-                    PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name, "NexusAdmin_FlyingPlayerCollisionGroup", not AllowFlyingThroughMap)
+                    PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name, COLLISION_GROUP_NAME, not AllowFlyingThroughMap)
                 end
             end
 
