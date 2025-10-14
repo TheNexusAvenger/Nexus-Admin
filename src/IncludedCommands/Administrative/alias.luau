@@ -25,9 +25,11 @@ return {
         local Api = Util:GetApi()
 
         --Register the command in Nexus Admin for chat executing.
+        local NameComponents = string.split(Name, "|")
         Api.Registry:LoadCommand({
-            Keyword = Name,
+            Keyword = NameComponents[1],
             Group = "Aliases",
+            Description = NameComponents[2],
             Prefix = Api.Configuration.CommandPrefix,
         } :: any);
 
