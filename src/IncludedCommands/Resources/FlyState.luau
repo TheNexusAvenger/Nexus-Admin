@@ -177,6 +177,9 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     table.insert(self._EventConnections, Humanoid.Died:Connect(function()
         self:Destroy()
     end))
+    table.insert(self._EventConnections, Player.CharacterAdded:Connect(function()
+        self:Destroy()
+    end))
 
     --Store the instance.
     self._CurrentInstances[Player] = self
