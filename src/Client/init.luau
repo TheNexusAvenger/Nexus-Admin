@@ -78,6 +78,7 @@ end
 Loads the included commands.
 --]]
 function API:LoadIncludedCommands()
+    --Load the Nexus Admin commands.
     local Categories = {"Administrative", "BasicCommands", "UsefulFunCommands", "PersistentCommands", "DefaultUtil"}
     for _,Category in Categories do
         --[[
@@ -97,6 +98,25 @@ function API:LoadIncludedCommands()
         --Connect adding new scripts.
         Folder.ChildAdded:Connect(LoadModule)
     end
+
+    --Load the Cmdr commands.
+    --This is done in the background to ensure alias is registered.
+    task.spawn(function()
+        --Wait for alias to be registered for the AutoExecs.
+        local ClientCmdrCommands = API.EventContainer:WaitForChild("ClientCmdrCommands", 10 ^ 99)
+        while not Cmdr.Registry:GetCommand("alias") do task.wait() end
+
+        --Load the modules.
+        --RegisterCommandsIn is not used due to not accepting added children.
+        for _, Module in ClientCmdrCommands:GetDescendants() do
+            if not Module:IsA("ModuleScript") then continue end
+            Cmdr.Registry:RegisterCommand(Module)
+        end
+        ClientCmdrCommands.DescendantAdded:Connect(function(Module)
+            if not Module:IsA("ModuleScript") then return end
+            Cmdr.Registry:RegisterCommand(Module)
+        end)
+    end)
 end
 
 --Initialize the optional UI.

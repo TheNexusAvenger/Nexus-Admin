@@ -166,6 +166,12 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
     end
 
     --Load the Cmdr utility commands.
+    --Cmdr commands are located in the separate folder for the client to move to ensure required commands are registered.
+    --This is due to a race condition where alias is not registered before AutoExecs are called.
+    local ClientCmdrCommands = Instance.new("Folder")
+    ClientCmdrCommands.Name = "ClientCmdrCommands"
+    ClientCmdrCommands.Parent = self.EventContainer
+
     local Cmdr = script:WaitForChild("Packages"):WaitForChild("Cmdr")
     local CmdrUtilityCommands = Cmdr:WaitForChild("Server commands"):WaitForChild("Utility")
     local CmdrCommandsToLoad = Cmdr:WaitForChild("Server commands"):WaitForChild("Utility"):GetChildren()
@@ -193,7 +199,7 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
             end
         end
         self.Registry:LoadCommand(CommandData)
-        CommandScript.Parent = self.Cmdr.ReplicatedRoot.Commands
+        CommandScript.Parent = ClientCmdrCommands
     end
 end
 
