@@ -106,6 +106,11 @@ function API:LoadIncludedCommands()
         local ClientCmdrCommands = API.EventContainer:WaitForChild("ClientCmdrCommands", 10 ^ 99)
         while not Cmdr.Registry:GetCommand("alias") do task.wait() end
 
+        --Patch help to remove cmds and commands aliases.
+        --These collide with Nexus Admin's cmds command. Before V.2.10.3, Nexus Admin's commands took priority.
+        local HelpCommand = require(ClientCmdrCommands:WaitForChild("help", 10 ^ 99)) :: any
+        HelpCommand.Aliases = {}
+
         --Load the modules.
         --RegisterCommandsIn is not used due to not accepting added children.
         for _, Module in ClientCmdrCommands:GetDescendants() do

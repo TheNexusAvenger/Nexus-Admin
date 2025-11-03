@@ -181,6 +181,9 @@ function API.LoadIncludedCommands(self: NexusAdminApi): ()
         if self.Registry.Cmdr.Registry:GetCommand(CommandScript.Name) then continue end --Prevent loading over Nexus Admin's reimplementations.
         local ServerCommandScript = CmdrUtilityCommands:FindFirstChild(`{CommandScript.Name}Server`)
         local CommandData = require(CommandScript) :: Types.NexusAdminCommandData
+        if CommandData.Name == "help" then
+            CommandData.Aliases = {} --help's aliases collide with Nexus Admin's cmds and commands. Before V.2.10.3, Nexus Admin's commands took priority.
+        end
         CommandData.AutoExec = nil --AutoExec is handled on the client.
         CommandData.AdminLevel = CMDR_OVERRIDE_ADMIN_LEVELS[CommandScript.Name]
         if ServerCommandScript then
