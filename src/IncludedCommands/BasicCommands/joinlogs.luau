@@ -19,8 +19,8 @@ return {
         Players.PlayerAdded:Connect(function(Player)
             JoinLogs:Add(`[{Api.Time:GetTimeString()}]: {Player.DisplayName} ({Player.Name}, {Player.UserId}) joined.`)
         end)
-        Players.PlayerRemoving:Connect(function(Player)
-            JoinLogs:Add(`[{Api.Time:GetTimeString()}]: {Player.DisplayName} ({Player.Name}, {Player.UserId}) left.`)
+        Players.PlayerRemoving:Connect(function(Player, ExitReason)
+            JoinLogs:Add(`[{Api.Time:GetTimeString()}]: {Player.DisplayName} ({Player.Name}, {Player.UserId}) left ({ExitReason.Name}).`)
         end)
         for _, Player in Players:GetPlayers() do
             JoinLogs:Add(`[{Api.Time:GetTimeString()}]: {Player.DisplayName} ({Player.Name}, {Player.UserId}) was already in the server when Nexus Admin loaded.`)
