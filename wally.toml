@@ -4,7 +4,7 @@ repository = "https://github.com/TheNexusAvenger/Nexus-Admin"
 description = "Admin system for Roblox meant for normal players. Built on top of evaera/Cmdr."
 license = "MIT"
 authors = ["TheNexusAvenger"]
-version = "2.10.3"
+version = "2.10.4"
 
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
