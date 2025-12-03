@@ -1,8 +1,6 @@
 --Filters strings to comply with Roblox's filtering rules.
 --!strict
 
-local CANT_SEE_CHAT_MESSAGE = "(Your chat settings prevent you from seeing messages)"
-
 local Filter = require(script.Parent.Parent:WaitForChild("Common"):WaitForChild("Filter"))
 
 local ServerFilter = {}
@@ -34,15 +32,10 @@ function ServerFilter.FilterString(self: ServerFilter, String: string, PlayerFro
 
     --Filter the string.
     local Worked, Return = pcall(function()
-        if PlayerTo then
-            if self.Chat:CanUsersChatAsync(PlayerFrom.UserId, PlayerTo.UserId) then
-                return self.TextService:FilterStringAsync(String, PlayerFrom.UserId, Enum.TextFilterContext.PrivateChat):GetNonChatStringForUserAsync(PlayerTo.UserId)
-            else
-                return CANT_SEE_CHAT_MESSAGE
-            end
-        else
-            return self.TextService:FilterStringAsync(String, PlayerFrom.UserId, Enum.TextFilterContext.PublicChat):GetNonChatStringForBroadcastAsync()
+        if PlayerTo and self.Chat:CanUsersChatAsync(PlayerFrom.UserId, PlayerTo.UserId) then
+            return self.TextService:FilterStringAsync(String, PlayerFrom.UserId, Enum.TextFilterContext.PrivateChat):GetNonChatStringForUserAsync(PlayerTo.UserId)
         end
+        return self.TextService:FilterStringAsync(String, PlayerFrom.UserId, Enum.TextFilterContext.PublicChat):GetNonChatStringForBroadcastAsync()
     end)
     
     --Return the message.
@@ -74,12 +67,16 @@ function ServerFilter.FilterStringForPlayers(self: ServerFilter, String: string,
     --Add the filtered strings for the players.
     local Worked, Return = pcall(function()
         local FilterObject = self.TextService:FilterStringAsync(String,PlayerFrom.UserId, Enum.TextFilterContext.PrivateChat)
+        local CachedBroadcastMessage
         for _, Player in PlayersTo do
             local Worked, Return = pcall(function()
                 if self.Chat:CanUsersChatAsync(PlayerFrom.UserId, Player.UserId) then
                     FilteredResults[Player] = FilterObject:GetNonChatStringForUserAsync(Player.UserId)
                 else
-                    FilteredResults[Player] = CANT_SEE_CHAT_MESSAGE
+                    if not CachedBroadcastMessage then
+                        CachedBroadcastMessage = FilterObject:GetNonChatStringForBroadcastAsync()
+                    end
+                    FilteredResults[Player] = CachedBroadcastMessage
                 end
             end)
             if not Worked then

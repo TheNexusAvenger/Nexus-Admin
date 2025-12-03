@@ -50,7 +50,7 @@ return function()
             expect(TestFilter:FilterString("FailMessage", MockPlayers[1])).to.equal("###########")
             expect(TestFilter:FilterString("Test message", MockPlayers[1])).to.equal("Test #######")
             expect(TestFilter:FilterString("Test message", MockPlayers[1], MockPlayers[2])).to.equal("Test message")
-            expect(TestFilter:FilterString("Test message", MockPlayers[2], MockPlayers[3])).to.equal("(Your chat settings prevent you from seeing messages)")
+            expect(TestFilter:FilterString("Test message", MockPlayers[2], MockPlayers[3])).to.equal("Test #######")
         end)
 
         it("should filter strings for players.", function()
@@ -68,7 +68,7 @@ return function()
 
             FilterResults = TestFilter:FilterStringForPlayers("Test message", MockPlayers[2], {MockPlayers[1], MockPlayers[3]})
             expect(FilterResults[MockPlayers[1]]).to.equal("#### message")
-            expect(FilterResults[MockPlayers[3]]).to.equal("(Your chat settings prevent you from seeing messages)")
+            expect(FilterResults[MockPlayers[3]]).to.equal("Test #######")
         end)
     end)
 end
