@@ -3,11 +3,14 @@
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 local Types = require(script.Parent.Parent.Parent:WaitForChild("Types"))
-
-local Serialization = require(game:GetService("ReplicatedStorage"):WaitForChild("NexusAdminClient"):WaitForChild("IncludedCommands"):WaitForChild("Resources"):WaitForChild("Serialization")) :: any
+local Serialization = nil
+if RunService:IsClient() then
+    Serialization = require(script.Parent.Parent:WaitForChild("Resources"):WaitForChild("Serialization")) :: any
+end
 
 return {
     Keyword = "snapshot",
@@ -68,7 +71,6 @@ return {
         GetClientViewRemoteFunction.Parent = Api.EventContainer
 
         function GetClientViewRemoteFunction.OnServerInvoke(Player, TargetPlayer)
-            Serialization:UpdateApiReference()
             if not TargetPlayer or not TargetPlayer.Parent then
                 return nil
             elseif Api.Authorization:IsPlayerAuthorized(Player, Api.Configuration:GetCommandAdminLevel("Administrative", "snapshot")) then

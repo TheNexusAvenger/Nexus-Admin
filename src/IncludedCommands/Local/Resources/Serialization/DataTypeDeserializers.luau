@@ -63,4 +63,7 @@ return {
     ["Vector3"] = function(Data)
         return Vector3.new(unpack(Data))
     end,
-}
+    ["Vector3int16"] = function(Data)
+        return Vector3int16.new(unpack(Data))
+    end,
+} :: {[string]: (any) -> (any)}

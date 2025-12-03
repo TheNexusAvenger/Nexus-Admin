@@ -1,12 +1,16 @@
 --Serializes and deserializes instances.
 --!strict
 
+local DIRECT_SERIALIZE_TYPES = {
+    boolean = true,
+    EnumItem = true,
+    number = true,
+    string = true,
+}
 local IGNORED_TYPES = {
-    BinaryString = true,
     Content = true,
     Font = true,
-    QDir = true,
-    QFont = true,
+    SecurityCapabilities = true,
 }
 local IGNORED_INSTANCES = {
     Script = true,
@@ -15,25 +19,54 @@ local IGNORED_INSTANCES = {
 }
 local DEPENDENT_PROPERTIES = {
     CanvasPosition = true,
-}
+} :: {[string]: boolean}
 
 local HttpService = game:GetService("HttpService")
+local ReflectionService = game:GetService("ReflectionService")
 
-local ApiReference = require(script:WaitForChild("ApiReference"))
 local DataTypeSerializers = require(script:WaitForChild("DataTypeSerializers"))
 local DataTypeDeserializers = require(script:WaitForChild("DataTypeDeserializers"))
 
 local Serialization = {}
+Serialization._CanCreateCache = {} :: {[string]: boolean}
+Serialization._PropertiesCache = {} :: {[string]: {PropertiesEntry}}
 
 export type Serialization = typeof(Serialization)
+type PropertiesEntry = {
+    Name: string,
+    Type: string,
+}
 
 
 
 --[[
-Updates the API reference.
+Returns if an instance can be created.
 --]]
-function Serialization.UpdateApiReference(self: Serialization): ()
-    ApiReference:UpdateApiReference()
+function Serialization.CanCreate(self: Serialization, ClassName: string): boolean
+    if self._CanCreateCache[ClassName] == nil then
+        local ClassPermits = ReflectionService:GetClass(ClassName).Permits
+        self._CanCreateCache[ClassName] = (ClassPermits ~= nil and ClassPermits.New ~= nil)
+    end
+    return self._CanCreateCache[ClassName]
+end
+
+--[[
+Returns the properties for a class.
+--]]
+function Serialization.GetProperties(self: Serialization, ClassName: string): {PropertiesEntry}
+    if not self._PropertiesCache[ClassName] then
+        local Properties = {}
+        for _, Property in ReflectionService:GetPropertiesOfClass(ClassName) do
+            if not Property.Type.ScriptType then continue end
+            if not Property.Permits or not Property.Permits.Read or not Property.Permits.Write then continue end
+            table.insert(Properties, {
+                Name = Property.Name,
+                Type = Property.Type.ScriptType,
+            })
+        end
+        self._PropertiesCache[ClassName] = Properties
+    end
+    return self._PropertiesCache[ClassName]
 end
 
 --[[
@@ -42,31 +75,16 @@ Checks that the needed DataType serializers and deserializers exist.
 function Serialization.CheckSerializers(self: Serialization): ()
     --Get the types.
     local Types = {}
-    for _, Class in ApiReference:GetApiDump().Classes do
-        for _, Member in Class.Members or {} do
-            --Ignore the member if it isn't a type.
-            if Member.MemberType ~= "Property" then
-                continue
-            end
-            local TagsMap = {}
-            for _, Tag in Member.Tags or {} do
-                TagsMap[Tag] = true
-            end
-            if TagsMap["ReadOnly"] or TagsMap["Hidden"] then
-                continue
-            end
-            if Member.Security.Write ~= "None" then
-                continue
-            end
-            if not Member.Serialization.CanSave then
-                continue
-            end
-
-            --Add the type if it is not ingored.
-            local TypeName = Member.ValueType.Name
-            if Member.ValueType.Category == "DataType" and not IGNORED_TYPES[TypeName] then
-                Types[TypeName] = true
-            end
+    for _, Class in ReflectionService:GetClasses() do
+        if not Class.Permits or not Class.Permits.New then continue end
+        for _, Property in ReflectionService:GetPropertiesOfClass(Class.Name) do
+            if not Property.Permits or not Property.Permits.Read or not Property.Permits.Write then continue end
+            local TypeName = Property.Type.ScriptType
+            if not TypeName then continue end
+            if TypeName == "Instance" then continue end
+            if DIRECT_SERIALIZE_TYPES[TypeName] then continue end
+            if IGNORED_TYPES[TypeName] then continue end
+            Types[TypeName] = true
         end
     end
 
@@ -89,7 +107,7 @@ end
 --[[
 Serializes a list of instances.
 --]]
-function Serialization.Serialize(self: Serialization, Instances: {Instance}, ExcludeCallback: ((Instance) -> (boolean))?)
+function Serialization.Serialize(self: Serialization, Instances: {Instance}, ExcludeCallback: ((Instance) -> (boolean))?): {{[string]: any}}
     --Create a list of instances to serialize.
     local CurrentIndex = 1
     local InstancesToSerialize = {}
@@ -100,7 +118,7 @@ function Serialization.Serialize(self: Serialization, Instances: {Instance}, Exc
     while #InstancesToAddQueue > 0 do
         --Get the next instance and ignore it if it is not creatable or ignored.
         local Ins = table.remove(InstancesToAddQueue, 1) :: Instance
-        if IGNORED_INSTANCES[Ins.ClassName] or not ApiReference:IsCreateable(Ins.ClassName) then
+        if IGNORED_INSTANCES[Ins.ClassName] or not self:CanCreate(Ins.ClassName) then
             continue
         end
         if ExcludeCallback and ExcludeCallback(Ins) then
@@ -125,23 +143,23 @@ function Serialization.Serialize(self: Serialization, Instances: {Instance}, Exc
         SerializedInstances[Id] = SerializedInstance
 
         --Serialize the properties.
-        for _, Property in ApiReference:GetProperties(Ins.ClassName) :: {any} do
+        for _, Property in self:GetProperties(Ins.ClassName) do
             local PropertyName = Property.Name
             local PropertyValue = (Ins :: any)[PropertyName]
-            local PropertyTypeName = Property.ValueType.Name
-            local PropertyTypeCategory = Property.ValueType.Category
-            if PropertyTypeCategory == "Enum" then
+            if PropertyValue == nil then continue end
+            local PropertyType = Property.Type
+            if PropertyType == "EnumItem" then
                 PropertyValue = PropertyValue.Name
-            elseif PropertyTypeCategory == "Class" then
+            elseif PropertyType == "Instance" then
                 if PropertyValue then
                     PropertyValue = InstancesToSerialize[PropertyValue]
                 end
-            elseif PropertyTypeCategory == "DataType" then
+            elseif not DIRECT_SERIALIZE_TYPES[PropertyType] then
                 if PropertyValue then
-                    if DataTypeSerializers[PropertyTypeName] then
-                        PropertyValue = DataTypeSerializers[PropertyTypeName](PropertyValue)
-                    elseif not IGNORED_TYPES[PropertyTypeName] then
-                        warn(`Unsupported property serialization type: {PropertyTypeName}`)
+                    if DataTypeSerializers[PropertyType] then
+                        PropertyValue = DataTypeSerializers[PropertyType](PropertyValue)
+                    elseif not IGNORED_TYPES[PropertyType] then
+                        warn(`Unsupported property serialization type: {PropertyType}`)
                         PropertyValue = nil
                     end
                 end
@@ -157,7 +175,7 @@ end
 --[[
 Deserializes a list of instances.
 --]]
-function Serialization.Deserialize(self: Serialization, SerializedInstances)
+function Serialization.Deserialize(self: Serialization, SerializedInstances: {{[string]: any}}): {Instance}
     --Create the instances.
     local Instances = {}
     for i, SerializedInstance in SerializedInstances do
@@ -169,22 +187,21 @@ function Serialization.Deserialize(self: Serialization, SerializedInstances)
         --Determine the properties to set.
         local Ins = Instances[i]
         local Properties = {}
-        for _, Property in ApiReference:GetProperties(Ins.ClassName) :: {any} do
+        for _, Property in self:GetProperties(Ins.ClassName) do
             local PropertyName = Property.Name
             local PropertyValue = SerializedInstance[PropertyName]
-            local PropertyTypeName = Property.ValueType.Name
-            local PropertyTypeCategory = Property.ValueType.Category
+            local PropertyType = Property.Type
             if PropertyValue then
-                if PropertyTypeCategory == "Class" then
+                if PropertyType == "Instance" then
                     if PropertyValue then
                         PropertyValue = Instances[PropertyValue]
                     end
-                elseif PropertyTypeCategory == "DataType" then
+                elseif not DIRECT_SERIALIZE_TYPES[PropertyType] then
                     if PropertyValue then
-                        if DataTypeDeserializers[PropertyTypeName] then
-                            PropertyValue = DataTypeDeserializers[PropertyTypeName](PropertyValue)
-                        elseif not IGNORED_TYPES[PropertyTypeName] then
-                            warn(`Unsupported property deserialization type: {PropertyTypeName}`)
+                        if DataTypeDeserializers[PropertyType] then
+                            PropertyValue = DataTypeDeserializers[PropertyType](PropertyValue)
+                        elseif not IGNORED_TYPES[PropertyType] then
+                            warn(`Unsupported property deserialization type: {PropertyType}`)
                             PropertyValue = nil
                         end
                     end

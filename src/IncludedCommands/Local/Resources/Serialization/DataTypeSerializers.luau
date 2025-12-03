@@ -84,4 +84,7 @@ return {
     ["Vector3"] = function(Data: Vector3)
         return {Data.X, Data.Y, Data.Z}
     end,
-}
+    ["Vector3int16"] = function(Data: Vector3int16)
+        return {Data.X, Data.Y, Data.Z}
+    end,
+} :: {[string]: (any) -> (any)}
