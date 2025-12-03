@@ -16,6 +16,12 @@ return {
             Name = "Players",
             Description = "Players to fling.",
         },
+        {
+            Type = "number",
+            Name = "SpeedMultiplier",
+            Description = "Speed multiplier to apply to the fling speed.",
+            Optional = true,
+        },
     },
     ClientLoad = function(Api: Types.NexusAdminApiClient)
         (IncludedCommandUtil:GetRemote("FlingPlayer") :: RemoteEvent).OnClientEvent:Connect(function(RandomVelocity: Vector3)
@@ -31,7 +37,7 @@ return {
     ServerLoad = function(Api: Types.NexusAdminApiServer)
         IncludedCommandUtil:CreateRemote("RemoteEvent", "FlingPlayer")
     end,
-    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player})
+    ServerRun = function(CommandContext: Types.CmdrCommandContext, Players: {Player}, Multiplier: number?)
         local Util = IncludedCommandUtil.ForContext(CommandContext)
         local FlingPlayerEvent = Util:GetRemote("FlingPlayer") :: RemoteEvent
 
@@ -42,7 +48,7 @@ return {
             local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
             local Humanoid = Character:FindFirstChildOfClass("Humanoid")
             if not HumanoidRootPart or not Humanoid then continue end
-            local RandomVelocity = Vector3.new(math.random(-200, 200), 500, math.random(-200, 200))
+            local RandomVelocity = (Multiplier or 1) *Vector3.new(math.random(-200, 200), 500, math.random(-200, 200))
             Humanoid.Sit = true
             HumanoidRootPart.AssemblyLinearVelocity = RandomVelocity
             FlingPlayerEvent:FireClient(Player, RandomVelocity)
