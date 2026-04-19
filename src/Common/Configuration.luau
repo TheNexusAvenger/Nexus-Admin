@@ -46,7 +46,7 @@ function Configuration.new(ConfigurationTable: {[string]: any}): Configuration
     local self = setmetatable({
         Version = "Version 2.11.0",
         VersionNumberId = 2.11,
-        CmdrVersion = "Version 1.12.0",
+        CmdrVersion = "Version 1.12.0 (030e1a6)",
         RawConfiguration = ConfigurationTable,
         CommandPrefix = ConfigurationTable.CommandPrefix or ":",
         ActivationKeys = ConfigurationTable.ActivationKeys or {Enum.KeyCode.BackSlash},
