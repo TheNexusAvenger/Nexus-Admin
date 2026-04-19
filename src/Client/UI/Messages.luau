@@ -236,11 +236,19 @@ end
 Adds native hints.
 --]]
 local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Player): ()
-    local CurrentNotifications = {} :: {{Frame: Frame, Height: number}}
+    local CurrentNotifications = {} :: {{
+        Frame: Frame,
+        Width: number,
+        Height: number,
+        UpdateSize: (any) -> (),
+        Close: (any) -> (),
+    }}
     local CloseFactory = TextButtonFactory.CreateDefault(Color3.fromRGB(200, 0, 0))
     CloseFactory:SetTextDefault("Text", "X")
     CloseFactory:SetTextDefault("Font", Enum.Font.SciFi)
     CloseFactory:SetTextDefault("TextStrokeTransparency", 1)
+    local CurrentTextSize = 0
+    local NexusAdminNotificationsScreenGui: ScreenGui?
 
     --[[
     Updates the position of the notifications.
@@ -255,8 +263,24 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
         end
     end
 
+    --[[
+    Updates the current text size.
+    --]]
+    local function UpdateNotificationTextSize(): ()
+        --Update the text size.
+        if not NexusAdminNotificationsScreenGui then return end
+        local LastTextSize = CurrentTextSize
+        CurrentTextSize = math.floor(math.max(MINIMUM_TEXT_SIZE, NOTIFICATION_HEIGHT_RELATIVE * NexusAdminNotificationsScreenGui.AbsoluteSize.Y))
+        if LastTextSize == CurrentTextSize then return end
+        
+        --Update the existing notifications.
+        for _, Notification in CurrentNotifications do
+            Notification:UpdateSize()
+        end
+        UpdateNotificationPositions()
+    end
+
     --Connect displaying notitifcations.
-    local NexusAdminNotificationsScreenGui
     (API.EventContainer:WaitForChild("MessageEvents"):WaitForChild("DisplayNotificationLoopback") :: BindableEvent).Event:Connect(function(TopText: string, Message: string, DisplayTime: number?)
         if API.FeatureFlags:GetFeatureFlag("UseNativeHintGui") then
             TopText = TopText or ""
@@ -270,19 +294,15 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
                 NewNexusAdminNotificationsScreenGui.ResetOnSpawn = false
                 NewNexusAdminNotificationsScreenGui.DisplayOrder = 50
                 NexusAdminNotificationsScreenGui = NewNexusAdminNotificationsScreenGui
+
+                NewNexusAdminNotificationsScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateNotificationTextSize)
+                UpdateNotificationTextSize()
             end
 
             --Create the notification frame.
-            local ViewportSizeY = NexusAdminNotificationsScreenGui.AbsoluteSize.Y
-            local TextSize = math.max(MINIMUM_TEXT_SIZE, NOTIFICATION_HEIGHT_RELATIVE * NexusAdminNotificationsScreenGui.AbsoluteSize.Y)
-            local NotificationWidth = (0.4 / NOTIFICATION_HEIGHT_RELATIVE) * TextSize
-            local MessageHeight = TextService:GetTextSize(Message, TextSize, Enum.Font.SourceSans, Vector2.new(NotificationWidth - 10, ViewportSizeY)).Y
-            local NotificationHeight = TextSize + MessageHeight
             local NotificationFrame = Instance.new("Frame")
             NotificationFrame.BackgroundTransparency = 1
             NotificationFrame.AnchorPoint = Vector2.new(1, 1)
-            NotificationFrame.Position = UDim2.new(1, NotificationWidth, 0.95, 0)
-            NotificationFrame.Size = UDim2.new(0, NotificationWidth, 0, NotificationHeight)
             NotificationFrame.Parent = NexusAdminNotificationsScreenGui
 
             local Background = ThemedFrame.new()
@@ -294,10 +314,8 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
 
             local TopTextLabel = Instance.new("TextLabel")
             TopTextLabel.BackgroundTransparency = 1
-            TopTextLabel.Size = UDim2.new(1, -(2 * TextSize), 0, TextSize)
             TopTextLabel.Position = UDim2.new(0, 5, 0, 0)
             TopTextLabel.Font = Enum.Font.SourceSansBold
-            TopTextLabel.TextSize = TextSize
             TopTextLabel.Text = TopText
             TopTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             TopTextLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
@@ -308,11 +326,8 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
 
             local MessageLabel = Instance.new("TextLabel")
             MessageLabel.BackgroundTransparency = 1
-            MessageLabel.Size = UDim2.new(1, -10, 0, MessageHeight)
-            MessageLabel.Position = UDim2.new(0, 5, 0, TextSize)
             MessageLabel.Font = Enum.Font.SourceSans
             MessageLabel.TextWrapped = true
-            MessageLabel.TextSize = TextSize
             MessageLabel.Text = Message
             MessageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             MessageLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
@@ -321,17 +336,42 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
             MessageLabel.Parent = NotificationFrame
 
             local CloseButton, _ = CloseFactory:Create()
-            CloseButton.Size = UDim2.new(0, 0.8 * TextSize, 0, 0.8 * TextSize)
-            CloseButton.Position = UDim2.new(1, -0.9 * TextSize, 0, 0.1 * TextSize)
             CloseButton.Parent = NotificationFrame
 
             --Create the notification object.
+            local CurrentCloseTimeLabel: TextLabel?
             local Notification = {
                 Frame = NotificationFrame,
-                Height = NotificationHeight,
+                Width = 0,
+                Height = 0,
             }
-            table.insert(CurrentNotifications, 1, Notification)
-            UpdateNotificationPositions()
+
+            --[[
+            Updates the size of the notification.
+            --]]
+            function Notification:UpdateSize(): ()
+                local CurrentNexusAdminNotificationsScreenGui = NexusAdminNotificationsScreenGui :: ScreenGui
+                local ViewportSizeY = CurrentNexusAdminNotificationsScreenGui.AbsoluteSize.Y
+                local NotificationWidth = (0.4 / NOTIFICATION_HEIGHT_RELATIVE) * CurrentTextSize
+                local MessageHeight = TextService:GetTextSize(Message, CurrentTextSize, Enum.Font.SourceSans, Vector2.new(NotificationWidth - 10, ViewportSizeY)).Y
+                local NotificationHeight = CurrentTextSize + MessageHeight
+
+                Notification.Width = NotificationWidth
+                Notification.Height = NotificationHeight
+                NotificationFrame.Size = UDim2.new(0, NotificationWidth, 0, NotificationHeight)
+                TopTextLabel.Size = UDim2.new(1, -(2 * CurrentTextSize), 0, CurrentTextSize)
+                TopTextLabel.TextSize = CurrentTextSize
+                MessageLabel.Position = UDim2.new(0, 5, 0, CurrentTextSize)
+                MessageLabel.Size = UDim2.new(1, -10, 0, MessageHeight)
+                MessageLabel.TextSize = CurrentTextSize
+                CloseButton.Size = UDim2.new(0, 0.8 * CurrentTextSize, 0, 0.8 * CurrentTextSize)
+                CloseButton.Position = UDim2.new(1, -0.9 * CurrentTextSize, 0, 0.1 * CurrentTextSize)
+                if CurrentCloseTimeLabel then
+                    CurrentCloseTimeLabel.Size = UDim2.new(0, 2 * CurrentTextSize, 0, 0.6 * CurrentTextSize)
+                    CurrentCloseTimeLabel.Position = UDim2.new(1, -(3.1 * CurrentTextSize), 0, CurrentTextSize * 0.2)
+                    CurrentCloseTimeLabel.TextSize = CurrentTextSize
+                end
+            end
 
             --[[
             Closes the notification.
@@ -348,7 +388,8 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
 
                 --Hide the notification.
                 Tween(NotificationFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
-                    Position = UDim2.new(1, NotificationWidth, 0, NotificationFrame.AbsolutePosition.Y + NotificationHeight),
+                    AnchorPoint = Vector2.new(0, 1),
+                    Position = UDim2.new(1, 0, 0, NotificationFrame.AbsolutePosition.Y + Notification.Height),
                 }, function()
                     NotificationFrame:Destroy()
                 end)
@@ -364,24 +405,30 @@ local function AddNativeNotifications(API: Types.NexusAdminApiClient, Player: Pl
             if DisplayTime ~= nil then
                 local CloseTimeLabel = Instance.new("TextLabel")
                 CloseTimeLabel.BackgroundTransparency = 1
-                CloseTimeLabel.Size = UDim2.new(0, 2 * TextSize, 0, 0.6 * TextSize)
-                CloseTimeLabel.Position = UDim2.new(1, -(3.1 * TextSize), 0, TextSize * 0.2)
                 CloseTimeLabel.Font = Enum.Font.SourceSans
-                CloseTimeLabel.TextSize = TextSize
                 CloseTimeLabel.Text = ""
                 CloseTimeLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
                 CloseTimeLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
                 CloseTimeLabel.TextStrokeTransparency = 0
                 CloseTimeLabel.TextXAlignment = Enum.TextXAlignment.Right
                 CloseTimeLabel.Parent = NotificationFrame
+                CurrentCloseTimeLabel = CloseTimeLabel
 
-                for i = DisplayTime, 1, -1 do
-                    CloseTimeLabel.Text = tostring(i)
-                    task.wait(1)
-                end
-                CloseTimeLabel.Text = "0"
-                Notification:Close()
+                task.spawn(function()
+                    for i = DisplayTime, 1, -1 do
+                        CloseTimeLabel.Text = tostring(i)
+                        task.wait(1)
+                    end
+                    CloseTimeLabel.Text = "0"
+                    Notification:Close()
+                end)
             end
+
+            --Store the notification and display it.
+            table.insert(CurrentNotifications, 1, Notification)
+            Notification:UpdateSize()
+            NotificationFrame.Position = UDim2.new(1, Notification.Width, 0.95, 0)
+            UpdateNotificationPositions()
         end
     end)
 end
