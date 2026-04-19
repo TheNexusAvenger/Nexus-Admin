@@ -191,7 +191,7 @@ function Serialization.Deserialize(self: Serialization, SerializedInstances: {{[
             local PropertyName = Property.Name
             local PropertyValue = SerializedInstance[PropertyName]
             local PropertyType = Property.Type
-            if PropertyValue then
+            if PropertyValue ~= nil then
                 if PropertyType == "Instance" then
                     if PropertyValue then
                         PropertyValue = Instances[PropertyValue]
