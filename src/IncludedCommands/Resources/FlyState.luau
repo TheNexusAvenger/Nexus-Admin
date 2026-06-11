@@ -123,7 +123,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     end
 
     --Update the fly state.
-    table.insert(self._EventConnections, RunService:BindToSimulation(function()
+    local function UpdateFromInputs(): ()
         if Inputs then
             local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
             local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
@@ -132,7 +132,12 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         else
             self:_Update()
         end
-    end, Enum.StepFrequency.Hz60))
+    end
+    xpcall(function()
+        table.insert(self._EventConnections, RunService:BindToSimulation(UpdateFromInputs, Enum.StepFrequency.Hz60))
+    end, function()
+        table.insert(self._EventConnections, RunService.Stepped:Connect(UpdateFromInputs))
+    end)
 
     --Update the aim.
     if Inputs and RunService:IsClient() then
