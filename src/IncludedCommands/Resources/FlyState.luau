@@ -8,17 +8,12 @@ local MAX_SIDE_SPEED = 30
 local ACCELERATION = 4 * 60
 local DECELLERATION = 1 * 60
 local BOOST_MULTIPLIER = 2.5
-local TOGGLE_BUTTONS = {
-    [Enum.KeyCode.E] = true,
-    [Enum.KeyCode.ButtonX] = true,
-}
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local ContextActionService = game:GetService("ContextActionService")
 local PhysicsService = game:GetService("PhysicsService")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 
 local IncludedCommandUtil = require(script.Parent.Parent:WaitForChild("IncludedCommandUtil"))
 
@@ -51,6 +46,7 @@ export type FlyState = {
     _Orientation: AlignOrientation,
     _Velocity: LinearVelocity,
     _MoveDirection: Vector3,
+    _UsingServerInputs: boolean,
     _EventConnections: {RBXScriptConnection},
 } & typeof(setmetatable({}, FlyState))
 
@@ -103,6 +99,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _Orientation = Orientation,
         _Velocity = Velocity,
         _MoveDirection = Humanoid.MoveDirection,
+        _UsingServerInputs = (Player:FindFirstChild("InputContexts") ~= nil),
         _EventConnections = {},
     }, FlyState) :: FlyState
 
@@ -114,61 +111,60 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         end
     end
 
-    --Connect inputs on the client.
-    if RunService:IsClient() then
-        table.insert(self._EventConnections, Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-            self._MoveDirection = Humanoid.MoveDirection
-        end))
-
-        ContextActionService:BindAction("ToggleFlight", function(ActionName, UserInputState, InputObject)
-            if UserInputState ~= Enum.UserInputState.End then return end
+    --Connect inputs.
+    --For server authority, this is set up on both the client and server.
+    local Inputs = self:_GetInputs()
+    if Inputs then
+        table.insert(self._EventConnections, Inputs.ToggleAction.Pressed:Connect(function()
             self.Active = not self.Active
-            ToggleFlyEvent:FireServer(self.Active)
-        end, true)
-        ContextActionService:SetTitle("ToggleFlight", "Toggle Flight")
-        ContextActionService:SetPosition("ToggleFlight", UDim2.new(0, 50, 0, 100))
-
-        table.insert(self._EventConnections, UserInputService.InputBegan:Connect(function(Input, Processed)
-            if Processed then return end
-            if not TOGGLE_BUTTONS[Input.KeyCode] then return end
-            self.Active = not self.Active
+            if RunService:IsServer() or self._UsingServerInputs then return end
             ToggleFlyEvent:FireServer(self.Active)
         end))
 
-        local BoostButtonsDown = {
-            [Enum.KeyCode.LeftShift] = false,
-            [Enum.KeyCode.RightShift] = false,
-            [Enum.KeyCode.ButtonL3] = false,
-        }
-
-        table.insert(self._EventConnections, UserInputService.InputBegan:Connect(function(Input, Processed)
-            if BoostButtonsDown[Input.KeyCode] == nil then return end
-            BoostButtonsDown[Input.KeyCode] = true
+        table.insert(self._EventConnections, Inputs.BoostAction.Pressed:Connect(function()
             self.BoostActive = true
+            if RunService:IsServer() or self._UsingServerInputs then return end
             ToggleBoostEvent:FireServer(self.BoostActive)
         end))
 
-        table.insert(self._EventConnections, UserInputService.InputEnded:Connect(function(Input)
-            if BoostButtonsDown[Input.KeyCode] == nil then return end
-            BoostButtonsDown[Input.KeyCode] = false
-            for _, InputDown in BoostButtonsDown do
-                if InputDown then return end
-            end
+        table.insert(self._EventConnections, Inputs.BoostAction.Released:Connect(function()
             self.BoostActive = false
+            if RunService:IsServer() or self._UsingServerInputs then return end
             ToggleBoostEvent:FireServer(self.BoostActive)
         end))
+
+        if RunService:IsClient() then
+            ContextActionService:BindAction("ToggleFlight", function() end, true)
+            ContextActionService:SetTitle("ToggleFlight", "Toggle Flight")
+            ContextActionService:SetPosition("ToggleFlight", UDim2.new(0, 50, 0, 100))
+            Inputs.ToggleGuiButtonBinding.UIButton = ContextActionService:GetButton("ToggleFlight")
+
+            table.insert(self._EventConnections, Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
+                Inputs.MoveDirectionAction:Fire(Humanoid.MoveDirection)
+            end))
+        end
     end
 
     --Update the fly state.
     table.insert(self._EventConnections, RunService.Stepped:Connect(function()
-        self:_Update()
+        if Inputs then
+            local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
+            local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
+            if ForwardVector == Vector3.zero or UpVector == Vector3.zero then return end
+            self:_Update(CFrame.fromMatrix(Vector3.zero, ForwardVector:Cross(UpVector), UpVector, -ForwardVector), Inputs.MoveDirectionAction:GetState() :: Vector3)
+        else
+            self:_Update()
+        end
     end))
 
     --Update the aim.
-    if RunService:IsClient() then
+    if Inputs and RunService:IsClient() then
         table.insert(self._EventConnections, RunService.RenderStepped:Connect(function()
-            self._CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
-            UpdateMovementEvent:FireServer(self._CurrentAim, self._MoveDirection)
+            local CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
+            Inputs.ForwardVectorAction:Fire(CurrentAim.LookVector)
+            Inputs.UpVectorAction:Fire(CurrentAim.UpVector)
+            if self._UsingServerInputs then return end
+            UpdateMovementEvent:FireServer(CurrentAim, Inputs.MoveDirectionAction:GetState() :: Vector3)
         end))
     end
 
@@ -230,6 +226,110 @@ function FlyState.RemoveFromPlayer(Player: Player): ()
 end
 
 --[[
+Creates or waits for input objects.
+Can return nil if the current context isn't valid (server without server authority).
+--]]
+function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, ToggleGuiButtonBinding: InputBinding, BoostAction: InputAction, MoveDirectionAction: InputAction, ForwardVectorAction: InputAction, UpVectorAction: InputAction}?
+    --Return nil if running on the server without replicated inputs.
+    if RunService:IsServer() and not self._UsingServerInputs then
+        return nil
+    end
+
+    --Determine the parent and whether to create or wait.
+    local Parent = self._Player:FindFirstChild("InputContexts") or Api.EventContainer
+    local Create = true
+    if RunService:IsClient() and self._UsingServerInputs then
+        Create = false
+    end
+
+    --Create the inputs if they should be created.
+    if Create then
+        local Context = Instance.new("InputContext")
+        Context.Name = "NexusAdminFlyContext"
+        Context.Parent = Parent
+	
+        --Create the toggle input.
+        local ToggleAction = Instance.new("InputAction")
+        ToggleAction.Type = Enum.InputActionType.Bool
+        ToggleAction.Name = "Toggle"
+        ToggleAction.Parent = Context
+
+        local ToggleEBinding = Instance.new("InputBinding")
+        ToggleEBinding.Name = "EBinding"
+        ToggleEBinding.KeyCode = Enum.KeyCode.E
+        ToggleEBinding.Parent = ToggleAction
+
+        local ToggleButtonXBinding = Instance.new("InputBinding")
+        ToggleButtonXBinding.Name = "ButtonXBinding"
+        ToggleButtonXBinding.KeyCode = Enum.KeyCode.ButtonX
+        ToggleButtonXBinding.Parent = ToggleAction
+
+        local ToggleGuiButtonBinding = Instance.new("InputBinding")
+        ToggleGuiButtonBinding.Name = "GuiButtonBinding"
+        ToggleGuiButtonBinding.Parent = ToggleAction
+
+        --Create the boost action.
+        local BoostAction = Instance.new("InputAction")
+        BoostAction.Type = Enum.InputActionType.Bool
+        BoostAction.Name = "Boost"
+        BoostAction.Parent = Context
+
+        local BoostLeftShiftBinding = Instance.new("InputBinding")
+        BoostLeftShiftBinding.Name = "LeftShiftBinding"
+        BoostLeftShiftBinding.KeyCode = Enum.KeyCode.LeftShift
+        BoostLeftShiftBinding.Parent = BoostAction
+
+        local BoostRightShiftBinding = Instance.new("InputBinding")
+        BoostRightShiftBinding.Name = "RightShiftBinding"
+        BoostRightShiftBinding.KeyCode = Enum.KeyCode.RightShift
+        BoostRightShiftBinding.Parent = BoostAction
+
+        local BoostButtonL3Binding = Instance.new("InputBinding")
+        BoostButtonL3Binding.Name = "ButtonL3Binding"
+        BoostButtonL3Binding.KeyCode = Enum.KeyCode.ButtonL3
+        BoostButtonL3Binding.Parent = BoostAction
+
+        --Create movement actions.
+        local MoveDirectionAction = Instance.new("InputAction")
+        MoveDirectionAction.Name = "MoveDirection"
+        MoveDirectionAction.Type = Enum.InputActionType.Direction3D
+        MoveDirectionAction.Parent = Context
+
+        local ForwardVectorAction = Instance.new("InputAction")
+        ForwardVectorAction.Name = "ForwardVector"
+        ForwardVectorAction.Type = Enum.InputActionType.Direction3D
+        ForwardVectorAction.Parent = Context
+
+        local UpVectorAction = Instance.new("InputAction")
+        UpVectorAction.Name = "UpVector"
+        UpVectorAction.Type = Enum.InputActionType.Direction3D
+        UpVectorAction.Parent = Context
+
+        --Return the inputs.
+        return {
+            ToggleAction = ToggleAction,
+            ToggleGuiButtonBinding = ToggleGuiButtonBinding,
+            BoostAction = BoostAction,
+            MoveDirectionAction = MoveDirectionAction,
+            ForwardVectorAction = ForwardVectorAction,
+            UpVectorAction = UpVectorAction,
+        }
+    end
+
+    --Wait for the inputs.
+    local Context = Parent:WaitForChild("NexusAdminFlyContext")
+    local ToggleAction = Context:WaitForChild("Toggle") :: InputAction
+    return {
+        ToggleAction = ToggleAction,
+        ToggleGuiButtonBinding = ToggleAction:WaitForChild("GuiButtonBinding") :: InputBinding,
+        BoostAction = Context:WaitForChild("Boost") :: InputAction,
+        MoveDirectionAction = Context:WaitForChild("MoveDirection") :: InputAction,
+        ForwardVectorAction = Context:WaitForChild("ForwardVector") :: InputAction,
+        UpVectorAction = Context:WaitForChild("UpVector") :: InputAction,
+    }
+end
+
+--[[
 Starts the current fly.
 Should only be called by _Update.
 --]]
@@ -279,7 +379,7 @@ end
 --[[
 Updates the fly state.
 --]]
-function FlyState._Update(self: FlyState): ()
+function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection: Vector3?): ()
     --Update the time.
     local CurrentTime = tick()
     local Delta = CurrentTime - self._LastUpdateTime
@@ -297,10 +397,10 @@ function FlyState._Update(self: FlyState): ()
     if not self.Active then return end
 
     --Convert the move direction to local space.
-    local CurrentAim = self._CurrentAim
+    local CurrentAim = InputAim or self._CurrentAim
     local AimFlatLookVector = Vector3.new(CurrentAim.LookVector.X, 0, CurrentAim.LookVector.Z).Unit
     local CurrentAimRotation = CFrame.new(Vector3.zero, AimFlatLookVector).Rotation
-    local MoveDirection = (CurrentAimRotation:Inverse() * CFrame.new(self._MoveDirection)).Position
+    local MoveDirection = (CurrentAimRotation:Inverse() * CFrame.new(InputMoveDirection or self._MoveDirection)).Position
 
     --Update the forward speed.
     local SpeedMultiplier = self.SpeedMultiplier * (self.BoostActive and BOOST_MULTIPLIER or 1)
