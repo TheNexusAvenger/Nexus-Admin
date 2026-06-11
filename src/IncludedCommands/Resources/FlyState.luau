@@ -26,6 +26,7 @@ local ToggleBoostEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRe
 local UpdateMovementEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("UnreliableRemoteEvent", "UpdateMovement") or IncludedCommandUtil:GetRemote("UpdateMovement")) :: UnreliableRemoteEvent
 
 local FlyState = {}
+FlyState._ContextPrefix = (RunService:IsServer() and "Server" or "Client")
 FlyState._CurrentInstances = {} :: {[Player]: FlyState}
 FlyState.__index = FlyState
 
@@ -36,8 +37,6 @@ export type FlyState = {
     _LastUpdateTime: number,
     _LastActive: boolean,
     _CurrentAim: CFrame,
-    _CurrentForwardSpeed: number,
-    _CurrentSideSpeed: number,
     _InitialCollisionGroup: string?,
     _Player: Player,
     _Character: Model,
@@ -69,8 +68,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         SpeedMultiplier = SpeedMultiplier or 1,
         _LastUpdateTime = tick(),
         _CurrentAim = CFrame.identity,
-        _CurrentForwardSpeed = 0,
-        _CurrentSideSpeed = 0,
         _InitialCollisionGroup = InitialCollisionGroup,
         _LastActive = false,
         _Player = Player,
@@ -217,7 +214,7 @@ function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, Toggle
 
     --Determine the parent and whether to create or wait.
     local Parent = self._Player:FindFirstChild("InputContexts") or Api.EventContainer
-    local Create = true
+    local Create = (Parent:FindFirstChild("NexusAdminFlyContext") == nil)
     if RunService:IsClient() and self._UsingServerInputs then
         Create = false
     end
@@ -317,11 +314,9 @@ function FlyState._Start(self: FlyState): ()
     --Enable the flight.
     if self._Orientation then
         self._Orientation.Enabled = true
-        self._Orientation.Parent = self._HumanoidRootPart
     end
     if self._Velocity then
         self._Velocity.Enabled = true
-        self._Velocity.Parent = self._HumanoidRootPart
     end
     self._Humanoid.PlatformStand = true
 
@@ -343,15 +338,13 @@ function FlyState._Stop(self: FlyState): ()
     --Disable the flight.
     if self._Orientation then
         self._Orientation.Enabled = false
-        self._Orientation.Parent = nil
     end
     if self._Velocity then
         self._Velocity.Enabled = false
-        self._Velocity.Parent = nil
+        self._Velocity:SetAttribute(`{FlyState._ContextPrefix}ForwardSpeed`, 0)
+        self._Velocity:SetAttribute(`{FlyState._ContextPrefix}SideSpeed`, 0)
     end
     self._Humanoid.PlatformStand = false
-    self._CurrentForwardSpeed = 0
-    self._CurrentSideSpeed = 0
     
     --Reset the collision groups.
     local InitialCollisionGroup = self._InitialCollisionGroup
@@ -398,10 +391,9 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
         else
             local Orientation = Instance.new("AlignOrientation")
             self._Orientation = Orientation
-
             local Velocity = Instance.new("LinearVelocity")
             self._Velocity = Velocity
-            
+
             task.defer(function()
                 Orientation.Name = "NexusAdminFlyOrientation"
                 Orientation.Attachment0 = self._RootRigAttachment
@@ -425,8 +417,10 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     local MoveDirection = (CurrentAimRotation:Inverse() * CFrame.new(InputMoveDirection or self._MoveDirection)).Position
 
     --Update the forward speed.
+    local ForwardSpeedAttribute = `{FlyState._ContextPrefix}ForwardSpeed`
     local SpeedMultiplier = self.SpeedMultiplier * (self.BoostActive and BOOST_MULTIPLIER or 1)
-    local NewForwardSpeed = self._CurrentForwardSpeed
+    local CurrentForwardSpeed = CurrentVelocity:GetAttribute(ForwardSpeedAttribute) :: number or 0
+    local NewForwardSpeed = CurrentForwardSpeed
     local ForwardAcceleration = ACCELERATION * MoveDirection.Z  * SpeedMultiplier
     local MaxSpeed = SpeedMultiplier * MAX_SPEED
     if math.abs(MoveDirection.Z) < 0.1 then
@@ -435,7 +429,9 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     NewForwardSpeed = math.clamp(NewForwardSpeed + (Delta * SpeedMultiplier * ForwardAcceleration), -MaxSpeed, MaxSpeed)
     
     --Update the side speed.
-    local NewSideSpeed = self._CurrentSideSpeed
+    local SideSpeedAttribute = `{FlyState._ContextPrefix}SideSpeed`
+    local CurrentSideSpeed = CurrentVelocity:GetAttribute(SideSpeedAttribute) :: number or 0
+    local NewSideSpeed = CurrentSideSpeed
     local SideAcceleration = ACCELERATION * MoveDirection.X  * SpeedMultiplier
     local MaxSideSpeed = SpeedMultiplier * MAX_SIDE_SPEED
     if math.abs(MoveDirection.X) < 0.1 then
@@ -444,14 +440,14 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     NewSideSpeed = math.clamp(NewSideSpeed + (Delta * SpeedMultiplier * SideAcceleration), -MaxSideSpeed, MaxSideSpeed)
     
     --If the signs change, set the speeds to 0 to avoid minor vibrations.
-    if (NewForwardSpeed > 0 and self._CurrentForwardSpeed < 0) or (NewForwardSpeed < 0 and self._CurrentForwardSpeed > 0) then
+    if (NewForwardSpeed > 0 and CurrentForwardSpeed < 0) or (NewForwardSpeed < 0 and CurrentForwardSpeed > 0) then
         NewForwardSpeed = 0
     end
-    if (NewSideSpeed > 0 and self._CurrentSideSpeed < 0) or (NewSideSpeed < 0 and self._CurrentSideSpeed > 0) then
+    if (NewSideSpeed > 0 and CurrentSideSpeed < 0) or (NewSideSpeed < 0 and CurrentSideSpeed > 0) then
         NewSideSpeed = 0
     end
-    self._CurrentForwardSpeed = NewForwardSpeed
-    self._CurrentSideSpeed = NewSideSpeed
+    CurrentVelocity:SetAttribute(ForwardSpeedAttribute, NewForwardSpeed)
+    CurrentVelocity:SetAttribute(SideSpeedAttribute, NewSideSpeed)
 
     --Update the fly state.
     CurrentOrientation.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
