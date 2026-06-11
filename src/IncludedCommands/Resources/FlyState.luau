@@ -41,12 +41,13 @@ export type FlyState = {
     _InitialCollisionGroup: string?,
     _Player: Player,
     _Character: Model,
-    _HumanoidRootPart: BasePart,
     _Humanoid: Humanoid,
-    _Orientation: AlignOrientation,
-    _Velocity: LinearVelocity,
+    _HumanoidRootPart: BasePart,
+    _RootRigAttachment: Attachment,
     _MoveDirection: Vector3,
     _UsingServerInputs: boolean,
+    _Orientation: AlignOrientation?,
+    _Velocity: LinearVelocity?,
     _EventConnections: {RBXScriptConnection},
 } & typeof(setmetatable({}, FlyState))
 
@@ -60,26 +61,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
 	local RootRigAttachment = HumanoidRootPart:WaitForChild("RootRigAttachment") :: Attachment
-
-    --Create the physics components.
-    local Orientation: AlignOrientation, Velocity: LinearVelocity
-    if RunService:IsClient() then
-        Orientation = HumanoidRootPart:WaitForChild("NexusAdminFlyOrientation") :: AlignOrientation
-        Velocity = HumanoidRootPart:WaitForChild("NexusAdminFlyVelocity") :: LinearVelocity
-    else
-        Orientation = Instance.new("AlignOrientation")
-        Orientation.Name = "NexusAdminFlyOrientation"
-        Orientation.Attachment0 = RootRigAttachment
-        Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
-        Orientation.RigidityEnabled = true
-        Orientation.Parent = HumanoidRootPart
-
-        Velocity = Instance.new("LinearVelocity")
-        Velocity.Name = "NexusAdminFlyVelocity"
-        Velocity.MaxForce = math.huge
-        Velocity.Attachment0 = RootRigAttachment
-        Velocity.Parent = HumanoidRootPart
-    end
 
     --Create the object.
     local self = setmetatable({
@@ -96,8 +77,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _Character = Character,
         _Humanoid = Humanoid,
         _HumanoidRootPart = HumanoidRootPart,
-        _Orientation = Orientation,
-        _Velocity = Velocity,
+        _RootRigAttachment = RootRigAttachment,
         _MoveDirection = Humanoid.MoveDirection,
         _UsingServerInputs = (Player:FindFirstChild("InputContexts") ~= nil),
         _EventConnections = {},
@@ -146,7 +126,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     end
 
     --Update the fly state.
-    table.insert(self._EventConnections, RunService.Stepped:Connect(function()
+    table.insert(self._EventConnections, RunService:BindToSimulation(function()
         if Inputs then
             local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
             local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
@@ -155,7 +135,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         else
             self:_Update()
         end
-    end))
+    end, Enum.StepFrequency.Hz60))
 
     --Update the aim.
     if Inputs and RunService:IsClient() then
@@ -335,10 +315,14 @@ Should only be called by _Update.
 --]]
 function FlyState._Start(self: FlyState): ()
     --Enable the flight.
-    self._Orientation.Enabled = true
-    self._Orientation.Parent = self._HumanoidRootPart
-    self._Velocity.Enabled = true
-    self._Velocity.Parent = self._HumanoidRootPart
+    if self._Orientation then
+        self._Orientation.Enabled = true
+        self._Orientation.Parent = self._HumanoidRootPart
+    end
+    if self._Velocity then
+        self._Velocity.Enabled = true
+        self._Velocity.Parent = self._HumanoidRootPart
+    end
     self._Humanoid.PlatformStand = true
 
     --Set the collision groups.
@@ -357,10 +341,14 @@ Should only be called by _Update.
 --]]
 function FlyState._Stop(self: FlyState): ()
     --Disable the flight.
-    self._Orientation.Enabled = false
-    self._Orientation.Parent = nil
-    self._Velocity.Enabled = false
-    self._Velocity.Parent = nil
+    if self._Orientation then
+        self._Orientation.Enabled = false
+        self._Orientation.Parent = nil
+    end
+    if self._Velocity then
+        self._Velocity.Enabled = false
+        self._Velocity.Parent = nil
+    end
     self._Humanoid.PlatformStand = false
     self._CurrentForwardSpeed = 0
     self._CurrentSideSpeed = 0
@@ -387,14 +375,48 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
 
     --Update the fly state starting or stopping.
     if self.Active ~= self._LastActive then
-        if self.Active then
-            self:_Start()
-        else
-            self:_Stop()
-        end
+        task.defer(function()
+            if self.Active then
+                self:_Start()
+            else
+                self:_Stop()
+            end
+        end)
         self._LastActive = self.Active
     end
     if not self.Active then return end
+
+    --Create the instances if they don't exist.
+    --This is required for BindToSimulation so they are bound.
+    if not self._Orientation then
+        if RunService:IsClient() and not self._UsingServerInputs then
+            task.defer(function()
+                self._Orientation = self._HumanoidRootPart:WaitForChild("NexusAdminFlyOrientation") :: AlignOrientation
+                self._Velocity = self._HumanoidRootPart:WaitForChild("NexusAdminFlyVelocity") :: LinearVelocity
+            end)
+            return
+        else
+            local Orientation = Instance.new("AlignOrientation")
+            self._Orientation = Orientation
+
+            local Velocity = Instance.new("LinearVelocity")
+            self._Velocity = Velocity
+            
+            task.defer(function()
+                Orientation.Name = "NexusAdminFlyOrientation"
+                Orientation.Attachment0 = self._RootRigAttachment
+                Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
+                Orientation.RigidityEnabled = true
+                Orientation.Parent = self._HumanoidRootPart
+
+                Velocity.Name = "NexusAdminFlyVelocity"
+                Velocity.MaxForce = math.huge
+                Velocity.Attachment0 = self._RootRigAttachment
+                Velocity.Parent = self._HumanoidRootPart
+            end)
+        end
+    end
+    local CurrentOrientation, CurrentVelocity = self._Orientation :: AlignOrientation, self._Velocity :: LinearVelocity
 
     --Convert the move direction to local space.
     local CurrentAim = InputAim or self._CurrentAim
@@ -432,8 +454,8 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     self._CurrentSideSpeed = NewSideSpeed
 
     --Update the fly state.
-    self._Orientation.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
-    self._Velocity.VectorVelocity = (CurrentAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
+    CurrentOrientation.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
+    CurrentVelocity.VectorVelocity = (CurrentAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
 end
 
 --[[
@@ -444,8 +466,12 @@ function FlyState.Destroy(self: FlyState): ()
     self:_Stop()
 
     --Destroy the instances.
-    self._Orientation:Destroy()
-    self._Velocity:Destroy()
+    if self._Orientation then
+        self._Orientation:Destroy()
+    end
+    if self._Velocity then
+        self._Velocity:Destroy()
+    end
 
     --Disconnect the events.
     for _, EventConnection in self._EventConnections :: {RBXScriptConnection} do
