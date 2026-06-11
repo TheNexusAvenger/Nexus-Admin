@@ -34,7 +34,6 @@ export type FlyState = {
     Active: boolean,
     BoostActive: boolean,
     SpeedMultiplier: number,
-    _LastUpdateTime: number,
     _LastActive: boolean,
     _CurrentAim: CFrame,
     _InitialCollisionGroup: string?,
@@ -66,7 +65,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         Active = true,
         BoostActive = false,
         SpeedMultiplier = SpeedMultiplier or 1,
-        _LastUpdateTime = tick(),
         _CurrentAim = CFrame.identity,
         _InitialCollisionGroup = InitialCollisionGroup,
         _LastActive = false,
@@ -123,20 +121,22 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     end
 
     --Update the fly state.
-    local function UpdateFromInputs(): ()
+    local function UpdateFromInputs(DeltaTime: number): ()
         if Inputs then
             local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
             local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
             if ForwardVector == Vector3.zero or UpVector == Vector3.zero then return end
-            self:_Update(CFrame.fromMatrix(Vector3.zero, ForwardVector:Cross(UpVector), UpVector, -ForwardVector), Inputs.MoveDirectionAction:GetState() :: Vector3)
+            self:_Update(DeltaTime, CFrame.fromMatrix(Vector3.zero, ForwardVector:Cross(UpVector), UpVector, -ForwardVector), Inputs.MoveDirectionAction:GetState() :: Vector3)
         else
-            self:_Update()
+            self:_Update(DeltaTime)
         end
     end
     xpcall(function()
         table.insert(self._EventConnections, RunService:BindToSimulation(UpdateFromInputs, Enum.StepFrequency.Hz60))
     end, function()
-        table.insert(self._EventConnections, RunService.Stepped:Connect(UpdateFromInputs))
+        table.insert(self._EventConnections, RunService.Stepped:Connect(function(_, DeltaTime)
+            UpdateFromInputs(DeltaTime)
+        end))
     end)
 
     --Update the aim.
@@ -365,12 +365,7 @@ end
 --[[
 Updates the fly state.
 --]]
-function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection: Vector3?): ()
-    --Update the time.
-    local CurrentTime = tick()
-    local Delta = CurrentTime - self._LastUpdateTime
-    self._LastUpdateTime = CurrentTime
-
+function FlyState._Update(self: FlyState, DeltaTime: number, InputAim: CFrame?, InputMoveDirection: Vector3?): ()
     --Update the fly state starting or stopping.
     if self.Active ~= self._LastActive then
         task.defer(function()
@@ -431,7 +426,7 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     if math.abs(MoveDirection.Z) < 0.1 then
         ForwardAcceleration = -DECELLERATION * math.sign(NewForwardSpeed)
     end
-    NewForwardSpeed = math.clamp(NewForwardSpeed + (Delta * SpeedMultiplier * ForwardAcceleration), -MaxSpeed, MaxSpeed)
+    NewForwardSpeed = math.clamp(NewForwardSpeed + (DeltaTime * SpeedMultiplier * ForwardAcceleration), -MaxSpeed, MaxSpeed)
     
     --Update the side speed.
     local SideSpeedAttribute = `{FlyState._ContextPrefix}SideSpeed`
@@ -442,7 +437,7 @@ function FlyState._Update(self: FlyState, InputAim: CFrame?, InputMoveDirection:
     if math.abs(MoveDirection.X) < 0.1 then
         SideAcceleration = -DECELLERATION * math.sign(NewSideSpeed)
     end
-    NewSideSpeed = math.clamp(NewSideSpeed + (Delta * SpeedMultiplier * SideAcceleration), -MaxSideSpeed, MaxSideSpeed)
+    NewSideSpeed = math.clamp(NewSideSpeed + (DeltaTime * SpeedMultiplier * SideAcceleration), -MaxSideSpeed, MaxSideSpeed)
     
     --If the signs change, set the speeds to 0 to avoid minor vibrations.
     if (NewForwardSpeed > 0 and CurrentForwardSpeed < 0) or (NewForwardSpeed < 0 and CurrentForwardSpeed > 0) then
