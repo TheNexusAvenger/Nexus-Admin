@@ -48,8 +48,8 @@ export type FlyState = {
     _Character: Model,
     _HumanoidRootPart: BasePart,
     _Humanoid: Humanoid,
-    _Gyro: BodyGyro,
-    _Velocity: BodyVelocity,
+    _Orientation: AlignOrientation,
+    _Velocity: LinearVelocity,
     _MoveDirection: Vector3,
     _EventConnections: {RBXScriptConnection},
 } & typeof(setmetatable({}, FlyState))
@@ -63,24 +63,25 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     --Get the character components.
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
+	local RootRigAttachment = HumanoidRootPart:WaitForChild("RootRigAttachment") :: Attachment
 
     --Create the physics components.
-    local Gyro: BodyGyro, Velocity: BodyVelocity
+    local Orientation: AlignOrientation, Velocity: LinearVelocity
     if RunService:IsClient() then
-        Gyro = HumanoidRootPart:WaitForChild("NexusAdminFlyBodyGyro") :: BodyGyro
-        Velocity = HumanoidRootPart:WaitForChild("NexusAdminFlyBodyVelocity") :: BodyVelocity
+        Orientation = HumanoidRootPart:WaitForChild("NexusAdminFlyOrientation") :: AlignOrientation
+        Velocity = HumanoidRootPart:WaitForChild("NexusAdminFlyVelocity") :: LinearVelocity
     else
-        Gyro = Instance.new("BodyGyro")
-        Gyro.Name = "NexusAdminFlyBodyGyro"
-        Gyro.MaxTorque = Vector3.zero
-        Gyro.D = 250
-        Gyro.P = 10000
-        Gyro.Parent = HumanoidRootPart
+        Orientation = Instance.new("AlignOrientation")
+        Orientation.Name = "NexusAdminFlyOrientation"
+        Orientation.Attachment0 = RootRigAttachment
+        Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
+        Orientation.RigidityEnabled = true
+        Orientation.Parent = HumanoidRootPart
 
-        Velocity = Instance.new("BodyVelocity")
-        Velocity.Name = "NexusAdminFlyBodyVelocity"
-        Velocity.MaxForce = Vector3.zero
-        Velocity.Velocity = Vector3.zero
+        Velocity = Instance.new("LinearVelocity")
+        Velocity.Name = "NexusAdminFlyVelocity"
+        Velocity.MaxForce = math.huge
+        Velocity.Attachment0 = RootRigAttachment
         Velocity.Parent = HumanoidRootPart
     end
 
@@ -99,7 +100,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _Character = Character,
         _Humanoid = Humanoid,
         _HumanoidRootPart = HumanoidRootPart,
-        _Gyro = Gyro,
+        _Orientation = Orientation,
         _Velocity = Velocity,
         _MoveDirection = Humanoid.MoveDirection,
         _EventConnections = {},
@@ -234,9 +235,9 @@ Should only be called by _Update.
 --]]
 function FlyState._Start(self: FlyState): ()
     --Enable the flight.
-    self._Gyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    self._Gyro.Parent = self._HumanoidRootPart
-    self._Velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    self._Orientation.Enabled = true
+    self._Orientation.Parent = self._HumanoidRootPart
+    self._Velocity.Enabled = true
     self._Velocity.Parent = self._HumanoidRootPart
     self._Humanoid.PlatformStand = true
 
@@ -256,9 +257,9 @@ Should only be called by _Update.
 --]]
 function FlyState._Stop(self: FlyState): ()
     --Disable the flight.
-    self._Gyro.MaxTorque = Vector3.zero
-    self._Gyro.Parent = nil
-    self._Velocity.MaxForce = Vector3.zero
+    self._Orientation.Enabled = false
+    self._Orientation.Parent = nil
+    self._Velocity.Enabled = false
     self._Velocity.Parent = nil
     self._Humanoid.PlatformStand = false
     self._CurrentForwardSpeed = 0
@@ -331,8 +332,8 @@ function FlyState._Update(self: FlyState): ()
     self._CurrentSideSpeed = NewSideSpeed
 
     --Update the fly state.
-    self._Gyro.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
-    self._Velocity.Velocity = (CurrentAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
+    self._Orientation.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
+    self._Velocity.VectorVelocity = (CurrentAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
 end
 
 --[[
@@ -343,7 +344,7 @@ function FlyState.Destroy(self: FlyState): ()
     self:_Stop()
 
     --Destroy the instances.
-    self._Gyro:Destroy()
+    self._Orientation:Destroy()
     self._Velocity:Destroy()
 
     --Disconnect the events.
