@@ -37,11 +37,11 @@ export type FlyState = {
     _Character: Model,
     _Humanoid: Humanoid,
     _HumanoidRootPart: BasePart,
-    _RootRigAttachment: Attachment,
     _UsingServerInputs: boolean,
     _InputContext: InputContext?,
     _Orientation: AlignOrientation?,
     _Velocity: LinearVelocity?,
+    _Attachment: Attachment?,
     _EventConnections: {RBXScriptConnection},
 } & typeof(setmetatable({}, FlyState))
 
@@ -54,7 +54,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     --Get the character components.
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
     local Humanoid = Character:FindFirstChildOfClass("Humanoid") :: Humanoid
-	local RootRigAttachment = HumanoidRootPart:WaitForChild("RootRigAttachment") :: Attachment
 
     --Create the object.
     local self = setmetatable({
@@ -67,7 +66,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
         _Character = Character,
         _Humanoid = Humanoid,
         _HumanoidRootPart = HumanoidRootPart,
-        _RootRigAttachment = RootRigAttachment,
         _UsingServerInputs = (Player:FindFirstChild("InputContexts") ~= nil),
         _EventConnections = {},
     }, FlyState) :: FlyState
@@ -378,21 +376,26 @@ function FlyState._Update(self: FlyState, DeltaTime: number, InputAim: CFrame, I
     --Create the instances if they don't exist.
     --This is required for BindToSimulation so they are bound.
     if not self._Orientation then
+        local Attachment = Instance.new("Attachment")
+        self._Attachment = Attachment
         local Orientation = Instance.new("AlignOrientation")
         self._Orientation = Orientation
         local Velocity = Instance.new("LinearVelocity")
         self._Velocity = Velocity
 
         task.defer(function()
+            Attachment.Name = "NexusAdminFlyAttachment"
+            Attachment.Parent = self._HumanoidRootPart
+
             Orientation.Name = "NexusAdminFlyOrientation"
-            Orientation.Attachment0 = self._RootRigAttachment
+            Orientation.Attachment0 = self._Attachment
             Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
             Orientation.RigidityEnabled = true
             Orientation.Parent = self._HumanoidRootPart
 
             Velocity.Name = "NexusAdminFlyVelocity"
             Velocity.MaxForce = math.huge
-            Velocity.Attachment0 = self._RootRigAttachment
+            Velocity.Attachment0 = self._Attachment
             Velocity.Parent = self._HumanoidRootPart
         end)
     end
@@ -454,6 +457,9 @@ function FlyState.Destroy(self: FlyState): ()
     end
     if self._Velocity then
         self._Velocity:Destroy()
+    end
+    if self._Attachment then
+        self._Attachment:Destroy()
     end
 
     --Disconnect the events.
