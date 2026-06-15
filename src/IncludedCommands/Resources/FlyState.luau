@@ -21,9 +21,6 @@ local Api = IncludedCommandUtil:GetApi()
 
 local StartFlyEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("RemoteEvent", "StartFly") or IncludedCommandUtil:GetRemote("StartFly")) :: RemoteEvent
 local StopFlyEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("RemoteEvent", "StopFly") or IncludedCommandUtil:GetRemote("StopFly")) :: RemoteEvent
-local ToggleFlyEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("RemoteEvent", "ToggleFly") or IncludedCommandUtil:GetRemote("ToggleFly")) :: RemoteEvent
-local ToggleBoostEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("RemoteEvent", "ToggleBoost") or IncludedCommandUtil:GetRemote("ToggleBoost")) :: RemoteEvent
-local UpdateMovementEvent = (RunService:IsServer() and IncludedCommandUtil:CreateRemote("UnreliableRemoteEvent", "UpdateMovement") or IncludedCommandUtil:GetRemote("UpdateMovement")) :: UnreliableRemoteEvent
 
 local FlyState = {}
 FlyState._ContextPrefix = (RunService:IsServer() and "Server" or "Client")
@@ -31,18 +28,16 @@ FlyState._CurrentInstances = {} :: {[Player]: FlyState}
 FlyState.__index = FlyState
 
 export type FlyState = {
-    Active: boolean,
-    BoostActive: boolean,
     SpeedMultiplier: number,
+    _Active: boolean,
+    _BoostActive: boolean,
     _LastActive: boolean,
-    _CurrentAim: CFrame,
     _InitialCollisionGroup: string?,
     _Player: Player,
     _Character: Model,
     _Humanoid: Humanoid,
     _HumanoidRootPart: BasePart,
     _RootRigAttachment: Attachment,
-    _MoveDirection: Vector3,
     _UsingServerInputs: boolean,
     _Orientation: AlignOrientation?,
     _Velocity: LinearVelocity?,
@@ -62,18 +57,16 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
 
     --Create the object.
     local self = setmetatable({
-        Active = true,
-        BoostActive = false,
         SpeedMultiplier = SpeedMultiplier or 1,
-        _CurrentAim = CFrame.identity,
-        _InitialCollisionGroup = InitialCollisionGroup,
+        _Active = true,
+        _BoostActive = false,
         _LastActive = false,
+        _InitialCollisionGroup = InitialCollisionGroup,
         _Player = Player,
         _Character = Character,
         _Humanoid = Humanoid,
         _HumanoidRootPart = HumanoidRootPart,
         _RootRigAttachment = RootRigAttachment,
-        _MoveDirection = Humanoid.MoveDirection,
         _UsingServerInputs = (Player:FindFirstChild("InputContexts") ~= nil),
         _EventConnections = {},
     }, FlyState) :: FlyState
@@ -91,21 +84,15 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     local Inputs = self:_GetInputs()
     if Inputs then
         table.insert(self._EventConnections, Inputs.ToggleAction.Pressed:Connect(function()
-            self.Active = not self.Active
-            if RunService:IsServer() or self._UsingServerInputs then return end
-            ToggleFlyEvent:FireServer(self.Active)
+            self._Active = not self._Active
         end))
 
         table.insert(self._EventConnections, Inputs.BoostAction.Pressed:Connect(function()
-            self.BoostActive = true
-            if RunService:IsServer() or self._UsingServerInputs then return end
-            ToggleBoostEvent:FireServer(self.BoostActive)
+            self._BoostActive = true
         end))
 
         table.insert(self._EventConnections, Inputs.BoostAction.Released:Connect(function()
-            self.BoostActive = false
-            if RunService:IsServer() or self._UsingServerInputs then return end
-            ToggleBoostEvent:FireServer(self.BoostActive)
+            self._BoostActive = false
         end))
 
         if RunService:IsClient() then
@@ -121,23 +108,22 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     end
 
     --Update the fly state.
-    local function UpdateFromInputs(DeltaTime: number): ()
-        if Inputs then
+    if Inputs then
+        local function UpdateFromInputs(DeltaTime: number): ()
             local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
             local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
             if ForwardVector == Vector3.zero or UpVector == Vector3.zero then return end
             self:_Update(DeltaTime, CFrame.fromMatrix(Vector3.zero, ForwardVector:Cross(UpVector), UpVector, -ForwardVector), Inputs.MoveDirectionAction:GetState() :: Vector3)
-        else
-            self:_Update(DeltaTime)
         end
+
+        xpcall(function()
+            table.insert(self._EventConnections, RunService:BindToSimulation(UpdateFromInputs, Enum.StepFrequency.Hz60))
+        end, function()
+            table.insert(self._EventConnections, RunService.Stepped:Connect(function(_, DeltaTime)
+                UpdateFromInputs(DeltaTime)
+            end))
+        end)
     end
-    xpcall(function()
-        table.insert(self._EventConnections, RunService:BindToSimulation(UpdateFromInputs, Enum.StepFrequency.Hz60))
-    end, function()
-        table.insert(self._EventConnections, RunService.Stepped:Connect(function(_, DeltaTime)
-            UpdateFromInputs(DeltaTime)
-        end))
-    end)
 
     --Update the aim.
     if Inputs and RunService:IsClient() then
@@ -145,8 +131,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
             local CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
             Inputs.ForwardVectorAction:Fire(CurrentAim.LookVector)
             Inputs.UpVectorAction:Fire(CurrentAim.UpVector)
-            if self._UsingServerInputs then return end
-            UpdateMovementEvent:FireServer(CurrentAim, Inputs.MoveDirectionAction:GetState() :: Vector3)
         end))
     end
 
@@ -182,7 +166,7 @@ function FlyState.AddToPlayer(Player: Player, SpeedMultiplier: number?, InitialC
     --Update the speed multiplier of an existing one.
     local CurrentInstance = FlyState._CurrentInstances[Player]
     if CurrentInstance then
-        CurrentInstance.Active = true
+        CurrentInstance._Active = true
         CurrentInstance.SpeedMultiplier = SpeedMultiplier or 1
         if RunService:IsServer() then
             StartFlyEvent:FireClient(Player, SpeedMultiplier, CurrentInstance._InitialCollisionGroup)
@@ -365,60 +349,51 @@ end
 --[[
 Updates the fly state.
 --]]
-function FlyState._Update(self: FlyState, DeltaTime: number, InputAim: CFrame?, InputMoveDirection: Vector3?): ()
+function FlyState._Update(self: FlyState, DeltaTime: number, InputAim: CFrame, InputMoveDirection: Vector3): ()
     --Update the fly state starting or stopping.
-    if self.Active ~= self._LastActive then
+    if self._Active ~= self._LastActive then
         task.defer(function()
-            if self.Active then
+            if self._Active then
                 self:_Start()
             else
                 self:_Stop()
             end
         end)
-        self._LastActive = self.Active
+        self._LastActive = self._Active
     end
-    if not self.Active then return end
+    if not self._Active then return end
 
     --Create the instances if they don't exist.
     --This is required for BindToSimulation so they are bound.
     if not self._Orientation then
-        if RunService:IsClient() and not self._UsingServerInputs then
-            task.defer(function()
-                self._Orientation = self._HumanoidRootPart:WaitForChild("NexusAdminFlyOrientation") :: AlignOrientation
-                self._Velocity = self._HumanoidRootPart:WaitForChild("NexusAdminFlyVelocity") :: LinearVelocity
-            end)
-            return
-        else
-            local Orientation = Instance.new("AlignOrientation")
-            self._Orientation = Orientation
-            local Velocity = Instance.new("LinearVelocity")
-            self._Velocity = Velocity
+        local Orientation = Instance.new("AlignOrientation")
+        self._Orientation = Orientation
+        local Velocity = Instance.new("LinearVelocity")
+        self._Velocity = Velocity
 
-            task.defer(function()
-                Orientation.Name = "NexusAdminFlyOrientation"
-                Orientation.Attachment0 = self._RootRigAttachment
-                Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
-                Orientation.RigidityEnabled = true
-                Orientation.Parent = self._HumanoidRootPart
+        task.defer(function()
+            Orientation.Name = "NexusAdminFlyOrientation"
+            Orientation.Attachment0 = self._RootRigAttachment
+            Orientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
+            Orientation.RigidityEnabled = true
+            Orientation.Parent = self._HumanoidRootPart
 
-                Velocity.Name = "NexusAdminFlyVelocity"
-                Velocity.MaxForce = math.huge
-                Velocity.Attachment0 = self._RootRigAttachment
-                Velocity.Parent = self._HumanoidRootPart
-            end)
-        end
+            Velocity.Name = "NexusAdminFlyVelocity"
+            Velocity.MaxForce = math.huge
+            Velocity.Attachment0 = self._RootRigAttachment
+            Velocity.Parent = self._HumanoidRootPart
+        end)
     end
     local CurrentOrientation, CurrentVelocity = self._Orientation :: AlignOrientation, self._Velocity :: LinearVelocity
 
     --Convert the move direction to local space.
-    local CurrentAim = InputAim or self._CurrentAim
-    local AimFlatLookVector = Vector3.new(CurrentAim.LookVector.X, 0, CurrentAim.LookVector.Z).Unit
+    local AimFlatLookVector = Vector3.new(InputAim.LookVector.X, 0, InputAim.LookVector.Z).Unit
     local CurrentAimRotation = CFrame.new(Vector3.zero, AimFlatLookVector).Rotation
-    local MoveDirection = (CurrentAimRotation:Inverse() * CFrame.new(InputMoveDirection or self._MoveDirection)).Position
+    local MoveDirection = (CurrentAimRotation:Inverse() * CFrame.new(InputMoveDirection)).Position
 
     --Update the forward speed.
     local ForwardSpeedAttribute = `{FlyState._ContextPrefix}ForwardSpeed`
-    local SpeedMultiplier = self.SpeedMultiplier * (self.BoostActive and BOOST_MULTIPLIER or 1)
+    local SpeedMultiplier = self.SpeedMultiplier * (self._BoostActive and BOOST_MULTIPLIER or 1)
     local CurrentForwardSpeed = CurrentVelocity:GetAttribute(ForwardSpeedAttribute) :: number or 0
     local NewForwardSpeed = CurrentForwardSpeed
     local ForwardAcceleration = ACCELERATION * MoveDirection.Z  * SpeedMultiplier
@@ -450,8 +425,8 @@ function FlyState._Update(self: FlyState, DeltaTime: number, InputAim: CFrame?, 
     CurrentVelocity:SetAttribute(SideSpeedAttribute, NewSideSpeed)
 
     --Update the fly state.
-    CurrentOrientation.CFrame = CurrentAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
-    CurrentVelocity.VectorVelocity = (CurrentAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
+    CurrentOrientation.CFrame = InputAim * CFrame.Angles(math.rad(math.clamp(NewForwardSpeed / 2, -90, 90)), 0, 0)
+    CurrentVelocity.VectorVelocity = (InputAim * CFrame.new(NewSideSpeed, 0, NewForwardSpeed)).Position
 end
 
 --[[
@@ -503,24 +478,6 @@ if RunService:IsClient() then
         FlyState.RemoveFromPlayer(Players.LocalPlayer)
     end)
 else
-    --Set up the replication.
-    ToggleFlyEvent.OnServerEvent:Connect(function(Player, Active: boolean)
-        local FlyInstance = FlyState._CurrentInstances[Player]
-        if not FlyInstance then return end
-        FlyInstance.Active = Active
-    end)
-    ToggleBoostEvent.OnServerEvent:Connect(function(Player, Active: boolean)
-        local FlyInstance = FlyState._CurrentInstances[Player]
-        if not FlyInstance then return end
-        FlyInstance.BoostActive = Active
-    end)
-    UpdateMovementEvent.OnServerEvent:Connect(function(Player, Aim: CFrame, MoveDirection: Vector3)
-        local FlyInstance = FlyState._CurrentInstances[Player]
-        if not FlyInstance then return end
-        FlyInstance._CurrentAim = Aim
-        FlyInstance._MoveDirection = MoveDirection
-    end)
-
     --Set up the collision group.
     Api.FeatureFlags:AddFeatureFlag("AllowFlyingThroughMap", true)
     task.spawn(function()
