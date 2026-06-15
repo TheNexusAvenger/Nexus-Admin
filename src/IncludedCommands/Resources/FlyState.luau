@@ -39,6 +39,7 @@ export type FlyState = {
     _HumanoidRootPart: BasePart,
     _RootRigAttachment: Attachment,
     _UsingServerInputs: boolean,
+    _InputContext: InputContext?,
     _Orientation: AlignOrientation?,
     _Velocity: LinearVelocity?,
     _EventConnections: {RBXScriptConnection},
@@ -83,6 +84,8 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     --For server authority, this is set up on both the client and server.
     local Inputs = self:_GetInputs()
     if Inputs then
+        self._InputContext = Inputs.Context
+
         table.insert(self._EventConnections, Inputs.ToggleAction.Pressed:Connect(function()
             self._Active = not self._Active
         end))
@@ -195,7 +198,7 @@ end
 Creates or waits for input objects.
 Can return nil if the current context isn't valid (server without server authority).
 --]]
-function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, ToggleGuiButtonBinding: InputBinding, BoostAction: InputAction, MoveDirectionAction: InputAction, ForwardVectorAction: InputAction, UpVectorAction: InputAction}?
+function FlyState._GetInputs(self: FlyState): {Context: InputContext, ToggleAction: InputAction, ToggleGuiButtonBinding: InputBinding, BoostAction: InputAction, MoveDirectionAction: InputAction, ForwardVectorAction: InputAction, UpVectorAction: InputAction}?
     --Return nil if running on the server without replicated inputs.
     if RunService:IsServer() and not self._UsingServerInputs then
         return nil
@@ -212,6 +215,7 @@ function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, Toggle
     if Create then
         local Context = Instance.new("InputContext")
         Context.Name = "NexusAdminFlyContext"
+        Context.Sink = true
         Context.Parent = Parent
 	
         --Create the toggle input.
@@ -273,6 +277,7 @@ function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, Toggle
 
         --Return the inputs.
         return {
+            Context = Context,
             ToggleAction = ToggleAction,
             ToggleGuiButtonBinding = ToggleGuiButtonBinding,
             BoostAction = BoostAction,
@@ -283,9 +288,10 @@ function FlyState._GetInputs(self: FlyState): {ToggleAction: InputAction, Toggle
     end
 
     --Wait for the inputs.
-    local Context = Parent:WaitForChild("NexusAdminFlyContext")
+    local Context = Parent:WaitForChild("NexusAdminFlyContext") :: InputContext
     local ToggleAction = Context:WaitForChild("Toggle") :: InputAction
     return {
+        Context = Context,
         ToggleAction = ToggleAction,
         ToggleGuiButtonBinding = ToggleAction:WaitForChild("GuiButtonBinding") :: InputBinding,
         BoostAction = Context:WaitForChild("Boost") :: InputAction,
@@ -301,6 +307,9 @@ Should only be called by _Update.
 --]]
 function FlyState._Start(self: FlyState): ()
     --Enable the flight.
+    if self._InputContext then
+        self._InputContext.Sink = true
+    end
     if self._Orientation then
         self._Orientation.Enabled = true
     end
@@ -325,6 +334,9 @@ Should only be called by _Update.
 --]]
 function FlyState._Stop(self: FlyState): ()
     --Disable the flight.
+    if self._InputContext then
+        self._InputContext.Sink = false
+    end
     if self._Orientation then
         self._Orientation.Enabled = false
     end
