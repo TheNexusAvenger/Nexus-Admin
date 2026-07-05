@@ -27,6 +27,18 @@ FlyState._ContextPrefix = (RunService:IsServer() and "Server" or "Client")
 FlyState._CurrentInstances = {} :: {[Player]: FlyState}
 FlyState.__index = FlyState
 
+type FlyStateInputs = {
+    Context: InputContext,
+    ToggleAction: InputAction,
+    ToggleGuiButtonBinding: InputBinding,
+    BoostAction: InputAction,
+    MoveDirectionAction: InputAction,
+    MoveDirectionBinding: InputBinding,
+    ForwardVectorAction: InputAction,
+    ForwardVectorBinding: InputBinding,
+    UpVectorAction: InputAction,
+    UpVectorBinding: InputBinding,
+}
 export type FlyState = {
     SpeedMultiplier: number,
     _Active: boolean,
@@ -103,7 +115,7 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
             Inputs.ToggleGuiButtonBinding.UIButton = ContextActionService:GetButton("ToggleFlight")
 
             table.insert(self._EventConnections, Humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(function()
-                Inputs.MoveDirectionAction:Fire(Humanoid.MoveDirection)
+                Inputs.MoveDirectionBinding:Fire(Humanoid.MoveDirection)
             end))
         end
     end
@@ -130,8 +142,8 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     if Inputs and RunService:IsClient() then
         table.insert(self._EventConnections, RunService.RenderStepped:Connect(function()
             local CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
-            Inputs.ForwardVectorAction:Fire(CurrentAim.LookVector)
-            Inputs.UpVectorAction:Fire(CurrentAim.UpVector)
+            Inputs.ForwardVectorBinding:Fire(CurrentAim.LookVector)
+            Inputs.UpVectorBinding:Fire(CurrentAim.UpVector)
         end))
     end
 
@@ -196,7 +208,7 @@ end
 Creates or waits for input objects.
 Can return nil if the current context isn't valid (server without server authority).
 --]]
-function FlyState._GetInputs(self: FlyState): {Context: InputContext, ToggleAction: InputAction, ToggleGuiButtonBinding: InputBinding, BoostAction: InputAction, MoveDirectionAction: InputAction, ForwardVectorAction: InputAction, UpVectorAction: InputAction}?
+function FlyState._GetInputs(self: FlyState): FlyStateInputs?
     --Return nil if running on the server without replicated inputs.
     if RunService:IsServer() and not self._UsingServerInputs then
         return nil
@@ -263,15 +275,30 @@ function FlyState._GetInputs(self: FlyState): {Context: InputContext, ToggleActi
         MoveDirectionAction.Type = Enum.InputActionType.Direction3D
         MoveDirectionAction.Parent = Context
 
+        local MoveDirectionBinding = Instance.new("InputBinding")
+        MoveDirectionBinding.Name = "MoveDirectionBinding"
+        MoveDirectionBinding.Type = Enum.InputBindingType.Scriptable
+        MoveDirectionBinding.Parent = MoveDirectionAction
+
         local ForwardVectorAction = Instance.new("InputAction")
         ForwardVectorAction.Name = "ForwardVector"
         ForwardVectorAction.Type = Enum.InputActionType.Direction3D
         ForwardVectorAction.Parent = Context
 
+        local ForwardVectorBinding = Instance.new("InputBinding")
+        ForwardVectorBinding.Name = "ForwardVectorBinding"
+        ForwardVectorBinding.Type = Enum.InputBindingType.Scriptable
+        ForwardVectorBinding.Parent = ForwardVectorAction
+
         local UpVectorAction = Instance.new("InputAction")
         UpVectorAction.Name = "UpVector"
         UpVectorAction.Type = Enum.InputActionType.Direction3D
         UpVectorAction.Parent = Context
+
+        local UpVectorBinding = Instance.new("InputBinding")
+        UpVectorBinding.Name = "UpVectorBinding"
+        UpVectorBinding.Type = Enum.InputBindingType.Scriptable
+        UpVectorBinding.Parent = UpVectorAction
 
         --Return the inputs.
         return {
@@ -280,22 +307,31 @@ function FlyState._GetInputs(self: FlyState): {Context: InputContext, ToggleActi
             ToggleGuiButtonBinding = ToggleGuiButtonBinding,
             BoostAction = BoostAction,
             MoveDirectionAction = MoveDirectionAction,
+            MoveDirectionBinding = MoveDirectionBinding,
             ForwardVectorAction = ForwardVectorAction,
+            ForwardVectorBinding = ForwardVectorBinding,
             UpVectorAction = UpVectorAction,
+            UpVectorBinding = UpVectorBinding,
         }
     end
 
     --Wait for the inputs.
     local Context = Parent:WaitForChild("NexusAdminFlyContext") :: InputContext
     local ToggleAction = Context:WaitForChild("Toggle") :: InputAction
+    local MoveDirectionAction = Context:WaitForChild("MoveDirection") :: InputAction
+    local ForwardVectorAction = Context:WaitForChild("ForwardVector") :: InputAction
+    local UpVectorAction = Context:WaitForChild("UpVector") :: InputAction
     return {
         Context = Context,
         ToggleAction = ToggleAction,
         ToggleGuiButtonBinding = ToggleAction:WaitForChild("GuiButtonBinding") :: InputBinding,
         BoostAction = Context:WaitForChild("Boost") :: InputAction,
-        MoveDirectionAction = Context:WaitForChild("MoveDirection") :: InputAction,
-        ForwardVectorAction = Context:WaitForChild("ForwardVector") :: InputAction,
-        UpVectorAction = Context:WaitForChild("UpVector") :: InputAction,
+        MoveDirectionAction = MoveDirectionAction,
+        MoveDirectionBinding = MoveDirectionAction:WaitForChild("MoveDirectionBinding") :: InputBinding,
+        ForwardVectorAction = ForwardVectorAction,
+        ForwardVectorBinding = ForwardVectorAction:WaitForChild("ForwardVectorBinding") :: InputBinding,
+        UpVectorAction = UpVectorAction,
+        UpVectorBinding = UpVectorAction:WaitForChild("UpVectorBinding") :: InputBinding,
     }
 end
 
