@@ -13,7 +13,13 @@
         "ServerScriptService": {
             "$className": "ServerScriptService",
             "NexusAdminTests": {
-                "$path": "./test"
+                "$path": "./test",
+                "AvantIgnoredPaths": {
+                    "$className": "StringValue",
+                    "$properties": {
+                        "Value": "[\"StarterPlayer.StarterPlayerScripts.PlayerModule\"]"
+                    }
+                }
             },
             "NexusAdminLoader": {
                 "$path": "Loader.server.luau"
