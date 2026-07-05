@@ -555,6 +555,7 @@ else
             --Update the collision groups.
             if HasFlyCollisionGroup then
                 for _, CollisionGroup in PhysicsService:GetRegisteredCollisionGroups() do
+                    if PhysicsService:CollisionGroupsAreCollidable(CollisionGroup.name, COLLISION_GROUP_NAME) == not AllowFlyingThroughMap then continue end
                     PhysicsService:CollisionGroupSetCollidable(CollisionGroup.name, COLLISION_GROUP_NAME, not AllowFlyingThroughMap)
                 end
             end
