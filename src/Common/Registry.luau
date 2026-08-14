@@ -12,7 +12,6 @@ local Registry = {}
 Registry.__index = Registry
 
 export type Registry = {
-    Prefixes: {[string]: boolean},
     PrefixCommands: {[string]: string},
     CommandsByGroup: {[string]: {Types.NexusAdminCommandData}},
     Authorization: Authorization.Authorization,
@@ -21,6 +20,7 @@ export type Registry = {
     Cmdr: Types.Cmdr,
     RunService: RunService,
     HttpService: HttpService,
+    NewCommandRegistered: BindableEvent,
     EnumTypesFolder: Folder,
 } & typeof(setmetatable({}, Registry))
 
@@ -31,7 +31,6 @@ Creates the server registry.
 --]]
 function Registry.new(Authorization: Authorization.Authorization, Configuration: Configuration.Configuration, Messages: Types.MessagesServer | Types.MessagesClient, Cmdr: Types.Cmdr, NexusAdminRemotes: Folder): Registry
     local self = setmetatable({
-        Prefixes = {},
         PrefixCommands = {},
         CommandsByGroup = {},
         Authorization = Authorization,
@@ -39,7 +38,8 @@ function Registry.new(Authorization: Authorization.Authorization, Configuration:
         Messages = Messages,
         Cmdr = Cmdr,
         RunService = game:GetService("RunService"),
-        HttpService = game:GetService("HttpService"),   
+        HttpService = game:GetService("HttpService"),
+        NewCommandRegistered = Instance.new("BindableEvent"),
     }, Registry) :: Registry
 
     --Set up storing enum types.
@@ -186,7 +186,6 @@ function Registry.LoadCommand(self: Registry, CommandData: Types.NexusAdminComma
 
         --Add the prefixes.
         for _, Prefix in Prefixes :: {string} do
-            self.Prefixes[string.lower(Prefix)] = true
             self.PrefixCommands[string.lower(`{Prefix}{Data.Name}`)] = string.lower(Data.Name)
             for _, Alias in Data.Aliases do
                 self.PrefixCommands[string.lower(`{Prefix}{Alias}`)] = string.lower(Alias)
@@ -200,6 +199,7 @@ function Registry.LoadCommand(self: Registry, CommandData: Types.NexusAdminComma
         self.CommandsByGroup[Group] = {}
     end
     table.insert(self.CommandsByGroup[Group], CommandData)
+    self.NewCommandRegistered:Fire()
 end
 
 --[[

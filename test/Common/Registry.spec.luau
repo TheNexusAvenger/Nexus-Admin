@@ -236,7 +236,6 @@ return function()
                 Keyword = "test",
             })
             expectDeepEquals(TestRegistry.PrefixCommands, {[":test"] = "test"})
-            expectDeepEquals(TestRegistry.Prefixes, {[":"] = true})
         end)
 
         it("should add commands with multiple keyword.", function()
@@ -245,7 +244,6 @@ return function()
                 Keyword = {"test1", "test2", "test3"},
             })
             expectDeepEquals(TestRegistry.PrefixCommands, {[":test"] = "test", [":test1"] = "test1", [":test2"] = "test2", [":test3"] = "test3"})
-            expectDeepEquals(TestRegistry.Prefixes, {[":"] = true})
         end)
 
         it("should add commands with no prefix.", function()
@@ -253,7 +251,6 @@ return function()
                 Keyword = "test4",
             })
             expectDeepEquals(TestRegistry.PrefixCommands,{[":test"] = "test",[":test1"] = "test1",[":test2"] = "test2",[":test3"] = "test3"})
-            expectDeepEquals(TestRegistry.Prefixes, {[":"] = true})
         end)
 
         it("should add commands with multiple prefixes.", function()
@@ -262,7 +259,6 @@ return function()
                 Keyword = "test5",
             })
             expectDeepEquals(TestRegistry.PrefixCommands,{[":test"] = "test", [":test1"] = "test1", [":test2"] = "test2", [":test3"] = "test3", [":test5"] = "test5", [";test5"] = "test5"})
-            expectDeepEquals(TestRegistry.Prefixes, {[":"] = true, [";"] = true})
         end)
     end)
 end
