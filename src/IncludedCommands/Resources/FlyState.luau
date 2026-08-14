@@ -34,10 +34,6 @@ type FlyStateInputs = {
     BoostAction: InputAction,
     MoveDirectionAction: InputAction,
     MoveDirectionBinding: InputBinding,
-    ForwardVectorAction: InputAction,
-    ForwardVectorBinding: InputBinding,
-    UpVectorAction: InputAction,
-    UpVectorBinding: InputBinding,
 }
 export type FlyState = {
     SpeedMultiplier: number,
@@ -123,10 +119,12 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
     --Update the fly state.
     if Inputs then
         local function UpdateFromInputs(DeltaTime: number): ()
-            local ForwardVector = Inputs.ForwardVectorAction:GetState() :: Vector3
-            local UpVector = Inputs.UpVectorAction:GetState() :: Vector3
-            if ForwardVector == Vector3.zero or UpVector == Vector3.zero then return end
-            self:_Update(DeltaTime, CFrame.fromMatrix(Vector3.zero, ForwardVector:Cross(UpVector), UpVector, -ForwardVector), Inputs.MoveDirectionAction:GetState() :: Vector3)
+            local CameraAim = Workspace.CurrentCamera.CFrame
+            pcall(function()
+                --GetCameraState requires server authority. It will error otherwise.
+                CameraAim = Player:GetCameraState().CFrame
+            end)
+            self:_Update(DeltaTime, CameraAim.Rotation, Inputs.MoveDirectionAction:GetState() :: Vector3)
         end
 
         xpcall(function()
@@ -136,15 +134,6 @@ function FlyState.new(Player: Player, Character: Model, SpeedMultiplier: number?
                 UpdateFromInputs(DeltaTime)
             end))
         end)
-    end
-
-    --Update the aim.
-    if Inputs and RunService:IsClient() then
-        table.insert(self._EventConnections, RunService.RenderStepped:Connect(function()
-            local CurrentAim = Workspace.CurrentCamera:GetRenderCFrame().Rotation
-            Inputs.ForwardVectorBinding:Fire(CurrentAim.LookVector)
-            Inputs.UpVectorBinding:Fire(CurrentAim.UpVector)
-        end))
     end
 
     --Update the collision group.
@@ -280,26 +269,6 @@ function FlyState._GetInputs(self: FlyState): FlyStateInputs?
         MoveDirectionBinding.Type = Enum.InputBindingType.Scriptable
         MoveDirectionBinding.Parent = MoveDirectionAction
 
-        local ForwardVectorAction = Instance.new("InputAction")
-        ForwardVectorAction.Name = "ForwardVector"
-        ForwardVectorAction.Type = Enum.InputActionType.Direction3D
-        ForwardVectorAction.Parent = Context
-
-        local ForwardVectorBinding = Instance.new("InputBinding")
-        ForwardVectorBinding.Name = "ForwardVectorBinding"
-        ForwardVectorBinding.Type = Enum.InputBindingType.Scriptable
-        ForwardVectorBinding.Parent = ForwardVectorAction
-
-        local UpVectorAction = Instance.new("InputAction")
-        UpVectorAction.Name = "UpVector"
-        UpVectorAction.Type = Enum.InputActionType.Direction3D
-        UpVectorAction.Parent = Context
-
-        local UpVectorBinding = Instance.new("InputBinding")
-        UpVectorBinding.Name = "UpVectorBinding"
-        UpVectorBinding.Type = Enum.InputBindingType.Scriptable
-        UpVectorBinding.Parent = UpVectorAction
-
         --Return the inputs.
         return {
             Context = Context,
@@ -308,10 +277,6 @@ function FlyState._GetInputs(self: FlyState): FlyStateInputs?
             BoostAction = BoostAction,
             MoveDirectionAction = MoveDirectionAction,
             MoveDirectionBinding = MoveDirectionBinding,
-            ForwardVectorAction = ForwardVectorAction,
-            ForwardVectorBinding = ForwardVectorBinding,
-            UpVectorAction = UpVectorAction,
-            UpVectorBinding = UpVectorBinding,
         }
     end
 
@@ -319,8 +284,6 @@ function FlyState._GetInputs(self: FlyState): FlyStateInputs?
     local Context = Parent:WaitForChild("NexusAdminFlyContext") :: InputContext
     local ToggleAction = Context:WaitForChild("Toggle") :: InputAction
     local MoveDirectionAction = Context:WaitForChild("MoveDirection") :: InputAction
-    local ForwardVectorAction = Context:WaitForChild("ForwardVector") :: InputAction
-    local UpVectorAction = Context:WaitForChild("UpVector") :: InputAction
     return {
         Context = Context,
         ToggleAction = ToggleAction,
@@ -328,10 +291,6 @@ function FlyState._GetInputs(self: FlyState): FlyStateInputs?
         BoostAction = Context:WaitForChild("Boost") :: InputAction,
         MoveDirectionAction = MoveDirectionAction,
         MoveDirectionBinding = MoveDirectionAction:WaitForChild("MoveDirectionBinding") :: InputBinding,
-        ForwardVectorAction = ForwardVectorAction,
-        ForwardVectorBinding = ForwardVectorAction:WaitForChild("ForwardVectorBinding") :: InputBinding,
-        UpVectorAction = UpVectorAction,
-        UpVectorBinding = UpVectorAction:WaitForChild("UpVectorBinding") :: InputBinding,
     }
 end
 
